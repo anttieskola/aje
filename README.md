@@ -1,4 +1,4 @@
-# notes/planning
+# notes
 Project started with learning to create an application to modify my notes that are
 stored in Github as markdown and same time create homepage for myself.
 
@@ -19,7 +19,7 @@ boosted by into redis.
 	- commands -> events
 - runs on debian 12 [my nodes setup](https://github.com/anttieskola/setup)
 - redis used as data store and messaging
-	- no sql in beginning to keeping it open
+	- no sql at all in beginning
 	- using atleast redis modules like [RediSearch](https://github.com/RediSearch/RediSearch) and [RedisJSON](https://github.com/RedisJSON/RedisJSON)
 - want to keep an grpc server in the project if I need to expand the interface outside redis
 - supports multiple front end servers (nginx)
@@ -45,12 +45,47 @@ boosted by into redis.
 	- Will make use of the small font size and load css so font is cached on client side.
 	- This version I wanna keep the fun mess I made
 		 
-#  links
+##  Links
 - [this repository](https://github.com/anttieskola/aje)
 - [ui-lifecycle](https://learn.microsoft.com/en-us/aspnet/core/blazor/components/lifecycle?view=aspnetcore-7.0)
 
-## Misc
-### making C# solution in linux
+# Deployment
+- Currently published on server into path `/usr/local/bin/aje/`
+- Service installation instructions are found in [service definition](./aje.service)
+	- Running as my normal user for now
+
+### Nginx configuration
+- Asp.net process is running in the default port 5000
+	- Change to some specific?
+- Here is the nginx proxy configuration
+	- It is running in root path, if path changed need to fix in code too as resource paths will not work
+- These settings are important as blazor runs using websockets
+	- Works only partially without
+- [WebSocket documentation](https://www.nginx.com/blog/websocket-nginx/)
+
+Configuration (sniplet just is the ssl configuration)
+```
+server {
+        listen 443 ssl default_server;
+        listen [::]:443 ssl default_server;
+        include snippets/anttieskola.conf;
+        root /var/www/html;
+        index index.html;
+        server_name _;
+        location / {
+                proxy_pass http://127.0.0.1:5000;
+                proxy_http_version 1.1;
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection "Upgrade";
+                proxy_set_header Host $host;
+        }
+		...
+}
+```
+
+
+# Misc
+## making C# solution in linux
 
 ```bash
 # creates new component with the name of directory
@@ -77,13 +112,13 @@ using templates:
 ```
 
 
-### llama.cpp
+## llama.cpp
 - how to combine llama.cpp (running on one node with the GTX)
 	- works already on one machine
 	- there must be already made server
 	- https://github.com/ggerganov/llama.cpp/blob/master/examples/server/README.md
 
-### database ???
+## database ???
 - [installation](https://wiki.debian.org/PostgreSql)
 
 ```bash
