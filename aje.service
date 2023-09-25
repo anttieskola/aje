@@ -19,8 +19,11 @@ Description=AJE WebApp
 After=network.target
 
 [Service]
-#Type=simple
-#Restart=always
+Type=simple
+Restart=always
+# Note working directory is a must
+# otherwiser process can't find resources -> odd errors
+WorkingDirectory=/usr/local/bin/aje
 ExecStart=/usr/local/bin/aje/AJE.Web.Ui
 User=antti
 SyslogIdentifier=aje
