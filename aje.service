@@ -1,0 +1,29 @@
+# /etc/systemd/system/aje.service
+
+# install
+# sudo systemctl daemon-reload
+# sudo systemctl enable aje.service
+# sudo systemctl start aje.service
+
+# removal
+# sudo systemctl stop aje.service
+# sudo systemctl disable aje.service
+# remove the service file
+# reload daemon
+
+# full log you can see with
+# journalctl -u aje.service
+
+[Unit]
+Description=AJE WebApp
+After=network.target
+
+[Service]
+#Type=simple
+#Restart=always
+ExecStart=/usr/local/bin/aje/AJE.Web.Ui
+User=antti
+SyslogIdentifier=aje
+
+[Install]
+WantedBy=multi-user.target
