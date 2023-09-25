@@ -12,6 +12,7 @@ global using StackExchange.Redis;
 global using MediatR;
 global using Microsoft.Extensions.Caching.Memory;
 global using System.IO.Compression;
+global using System.Reflection;
 global using System.Text;
 global using System.Xml.Linq;
 global using Microsoft.AspNetCore.SignalR;
