@@ -1,0 +1,103 @@
+﻿@implements IAsyncDisposable
+@inject IJSRuntime JS
+<nav class="fixed flex h-[42px] mt-1 ml-1">
+    @{
+        /* Home and nav links */
+    }
+    <NavLink href="/" class="mr-2">
+        <button type="button" class="menuButton">
+            <Icon Name="house" AriaLabel="Home" Padding="@IconPadding" Width="@_iconSize" Height="@_iconSize" />
+        </button>
+    </NavLink>
+    @foreach (var link in _navLinks)
+    {
+        <NavLink href="@link" class="mr-2">
+            <button type="button" class="menuButton p-1 text-xl">
+                @link
+            </button>
+        </NavLink>
+    }
+    @{
+        /* Theme */
+    }
+    <div class="mr-2">
+        <button type="button" @onclick="ToggleTheme" class="menuButton">
+            @if (_darkMode)
+            {
+                <Icon Name="sun-fill" AriaLabel="Bright mode" Padding="@IconPadding" Width="@_iconSize" Height="@_iconSize" />
+            }
+            else
+            {
+                <Icon Name="moon-fill" AriaLabel="Dark mode" Padding="@IconPadding" Width="@_iconSize" Height="@_iconSize" />
+            }
+        </button>
+    </div>
+    @{
+            /* Menu location */
+    }
+    <div class="mr-2">
+        <button type="button" class="menuButton">
+            <Icon Name="box-arrow-in-left" AriaLabel="Placeholder" Padding="@IconPadding" Width="@_iconSize" Height="@_iconSize" />
+        </button>
+    </div>
+    @{
+        /* Future */
+    }
+    <div class="mr-2">
+        <button type="button" class="menuButton">
+            <Icon Name="arrows-collapse" AriaLabel="Placeholder" Padding="@IconPadding" Width="@_iconSize" Height="@_iconSize" />
+        </button>
+    </div>
+    <div class="mr-2">
+        <button type="button" class="menuButton">
+            <Icon Name="arrows-expand" AriaLabel="Placeholder" Padding="@IconPadding" Width="@_iconSize" Height="@_iconSize" />
+        </button>
+    </div>
+</nav>
+<div class="h-[42px] min-h-full">
+</div>
+@code {
+    private bool _darkMode = false;
+    private IJSObjectReference? _js;
+
+    private static string[] _navLinks = new string[] { "storybook", "icons", "articles" };
+    private int IconPadding => 2;
+    private int _iconSize => 36;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _js = await JS.InvokeAsync<IJSObjectReference>("import", "./Shared/MenuTop.razor.js");
+            _darkMode = await _js.InvokeAsync<bool>("isDarkModeDefault");
+            if (_darkMode)
+            {
+                await _js.InvokeVoidAsync("toggleDarkMode");
+                StateHasChanged();
+            }
+        }
+    }
+
+    private async Task ToggleTheme()
+    {
+        _darkMode = !_darkMode;
+        if (_js != null)
+        {
+            await _js.InvokeVoidAsync("toggleDarkMode");
+            StateHasChanged();
+        }
+    }
+
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        if (_js is not null)
+        {
+            await _js.DisposeAsync();
+        }
+
+        if (_js is not null)
+        {
+            await _js.DisposeAsync();
+        }
+    }
+}

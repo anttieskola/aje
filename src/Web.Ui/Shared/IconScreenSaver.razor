@@ -1,0 +1,134 @@
+﻿@implements IAsyncDisposable
+@inject IJSRuntime JS
+@inject IIconService IS
+
+<div class="flex">
+    <div class="@_paintStyle">
+        <div class="@_animationStyle" style="@_marginTopRawStyle">
+            <Icon Name="@_iconName" Width="@_size" Height="@_size" />
+        </div>
+    </div>
+</div>
+
+@if (Diagnostics)
+{
+    <div class="absolute bottom-0 right-0">
+        <table class="table-auto p-2 text-xs">
+            <tr>
+                <td>@_iconName</td>
+                <td>@_size / @_maxSize</td>
+            </tr>
+            <tr>
+                <td colspan="2">@_paintStyle</td>
+            </tr>
+            <tr>
+                <td colspan="2">@_animationStyle</td>
+            </tr>
+            <tr>
+                <td colspan="2">@_marginTopRawStyle</td>
+            </tr>
+            <tr>
+                <td colspan="2">@_timeString</td>
+            </tr>
+        </table>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public bool Diagnostics { get; set; } = true;
+
+    private IJSObjectReference? _js;
+    public string _timeString = string.Empty;
+    private Timer _timer = default!;
+    private TimeSpan _delay = TimeSpan.FromMilliseconds(200);
+    private int _size = 10;
+    private int _maxSize = 400;
+    private enum AnimationDirectrion
+    {
+        Forward = 1,
+        Backward = 2
+    };
+    private string _iconName = "cloud";
+    private AnimationDirectrion _dir = AnimationDirectrion.Forward;
+    private string _paintStyle = "mx-auto text-sky-600";
+    private string _animationStyle = "duration-1000 ease-linear rotate-[15deg]";
+    private string _marginTopRawStyle => $"margin-top: {_size / 4}px;";
+    private string _marginTopStyle => $"mt-[{_size / 10}px]";
+
+
+    private async void TriggerAnimation(object? sender, ElapsedEventArgs e)
+    {
+        var dt = DateTime.Now;
+        _timeString = $"{dt.DayOfWeek.ToString()} {dt.ToString()}";
+
+        if (_dir == AnimationDirectrion.Forward)
+            _size += 1;
+        else
+            _size -= 1;
+
+        if (_size > _maxSize / 2 && _size < _maxSize)
+        {
+            _animationStyle = "ml-0 mr-0 mb-0 duration-1000 ease-linear rotate-[115deg]";
+        }
+        else if (_size > _maxSize)
+        {
+            _dir = AnimationDirectrion.Backward;
+        }
+        else if (_size < 6)
+        {
+            _dir = AnimationDirectrion.Forward;
+            _animationStyle = "ml-0 mr-0 mb-0 duration-1000 ease-linear rotate-[15deg]";
+            await SelectIcon();
+        }
+
+        await InvokeAsync(() => StateHasChanged());
+    }
+
+    private async Task SelectIcon()
+    {
+        var list = await IS.List();
+        var random = new Random();
+        _iconName = list.ElementAt(random.Next(list.Count));
+
+        if (_js != null)
+        {
+            _maxSize = await _js.InvokeAsync<int>("getWindowInnerHeight");
+
+            if (_maxSize > 1200)
+                _maxSize -= 400;
+            else if (_maxSize > 1000)
+                _maxSize -= 200;
+            else if (_maxSize > 700)
+                _maxSize -= 100;
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        _timer = new Timer(_delay) { AutoReset = true };
+        _timer.Elapsed += TriggerAnimation;
+        StateHasChanged();
+    }
+
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _js = await JS.InvokeAsync<IJSObjectReference>("import", "./Shared/IconScreenSaver.razor.js");
+            await SelectIcon();
+            _timer.Start();
+        }
+    }
+
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        _timer?.Dispose();
+
+        if (_js is not null)
+            await _js.DisposeAsync();
+
+        if (_js is not null)
+            await _js.DisposeAsync();
+    }
+}

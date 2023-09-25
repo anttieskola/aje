@@ -1,0 +1,29 @@
+﻿@inject IJSRuntime JS
+<table class="fixed bottom-0 left-0 table-auto p-2">
+    <tr>
+        <td>
+            @if (_isBackgroundOn)
+            {
+                <button class="menuButton" aria-label="toggle background image off" @onclick="ToggleBackground">
+                    <Icon Name="image" Width="28" />
+                </button>
+            }
+            else
+            {
+                <button class="menuButton" aria-label="toggle background image on" @onclick="ToggleBackground">
+                    <Icon Name="image-fill" Width="28" />
+                </button>
+            }
+        </td>
+    </tr>
+</table>
+
+@code {
+    private bool _isBackgroundOn = false;
+
+    private async Task ToggleBackground()
+    {
+        var r = await JS.InvokeAsync<bool>("document.body.classList.toggle", "background-img-amp");
+        StateHasChanged();
+    }
+}

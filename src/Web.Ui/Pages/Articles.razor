@@ -1,0 +1,180 @@
+﻿@page "/articles"
+@inject ISender Sender
+@inject NavigationManager Navigation
+@implements IAsyncDisposable
+
+<PageTitle>ae - admin - articles</PageTitle>
+
+<div class="form-group">
+    <label>
+        User:
+        <input @bind="userInput" />
+    </label>
+</div>
+<div class="form-group">
+    <label>
+        Message:
+        <input @bind="messageInput" size="50" />
+    </label>
+</div>
+<button @onclick="Send" disabled="@(!IsConnected)">Send</button>
+
+<hr>
+
+<ul id="messagesList">
+    @foreach (var message in messages)
+    {
+        <li>@message</li>
+    }
+</ul>
+
+<table class="table-auto">
+    <tbody>
+        @foreach (var item in _headers.Items)
+        {
+            <tr>
+                <td>
+                    @{
+                        var href = $"/article/{item.Id}";
+                    }
+                    <NavLink href="@href">
+                        @item.Title
+                    </NavLink>
+                </td>
+            </tr>
+        }
+        <tr>
+            <td colspan="99">
+                <div class="flex flex-wrap mt-4">
+                    @if (_isPreviousEnabled)
+                    {
+                        <button aria-label="previous" class="w-48 min-w-48 mr-8 submitButton" @onclick="Previous">
+                            <Icon Name="arrow-left-square" Height="28" Width="28" />
+                        </button>
+                    }
+                    else
+                    {
+                        <button aria-label="previous" class="w-48 min-w-48 mr-8 submitButton" disabled @onclick="Previous">
+                            <Icon Name="arrow-left-square" Height="28" Width="28" />
+                        </button>
+
+                    }
+                    @if (_isNextEnabled)
+                    {
+                        <button aria-label="next" class="w-48 min-w-48 submitButton" @onclick="Next">
+                            <Icon Name="arrow-right-square" Height="28" Width="28" />
+                        </button>
+                    }
+                    else
+                    {
+                        <button aria-label="next" class="w-48 min-w-48 submitButton" disabled @onclick="Next">
+                            <Icon Name="arrow-right-square" Height="28" Width="28" />
+                        </button>
+                    }
+                </div>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+@{
+        /* for template
+        <TableTemplate Items="_headers.Items" TItem="ArticleHeader" Context="header">
+    <TableHeader>
+    <th>Title</th>
+        </TableHeader>
+            <RowTemplate>
+                <tr>
+                <td>
+                @{ var href = $"/article/{header.Id}"; }
+                <NavLink href="@href">
+            @header.Title
+        </NavLink>
+            </td>
+            </tr>
+        </RowTemplate>
+    </TableTemplate>
+    */
+}
+@code {
+    #region signal r
+    private HubConnection? hubConnection;
+    private List<string> messages = new List<string>();
+    private string? userInput;
+    private string? messageInput;
+
+    protected async Task OnInitializedSignalRAsync()
+    {
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(Navigation.ToAbsoluteUri("/articlehub"))
+            .Build();
+
+        hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
+        {
+            var encodedMsg = $"{user}: {message}";
+            messages.Add(encodedMsg);
+            InvokeAsync(StateHasChanged);
+        });
+
+        await hubConnection.StartAsync();
+    }
+
+    private async Task Send()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.SendAsync("SendMessage", userInput, messageInput);
+        }
+        await Sender.Send(new SendChatMessageCommand { User = userInput ?? string.Empty, Message = messageInput ?? string.Empty });
+    }
+
+    public bool IsConnected =>
+        hubConnection?.State == HubConnectionState.Connected;
+
+    public async ValueTask DisposeAsync()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.DisposeAsync();
+        }
+    }
+    #endregion signal r
+
+    #region table -> todo component
+    private PaginatedList<ArticleHeader> _headers = new PaginatedList<ArticleHeader>(new List<ArticleHeader>(), 0, 0);
+    private int _pageSize = 10;
+    private bool _isPreviousEnabled
+    {
+        get
+        {
+            return _headers.Offset > _pageSize;
+        }
+    }
+    private bool _isNextEnabled
+    {
+        get
+        {
+            return _headers.TotalCount > _pageSize + _headers.Offset;
+        }
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        await OnInitializedSignalRAsync();
+        _headers = await Sender.Send(new GetArticleHeadersQuery { OnlyPublished = true, Offset = 0, PageSize = _pageSize });
+    }
+    private async Task Previous()
+    {
+        if (_isPreviousEnabled)
+        {
+            _headers = await Sender.Send(new GetArticleHeadersQuery { OnlyPublished = true, Offset = _headers.Offset - _pageSize, PageSize = _pageSize });
+        }
+    }
+    private async Task Next()
+    {
+        if (_isNextEnabled)
+        {
+            _headers = await Sender.Send(new GetArticleHeadersQuery { OnlyPublished = true, Offset = _headers.Offset + _pageSize, PageSize = _pageSize });
+        }
+    }
+    #endregion table -> todo component
+}

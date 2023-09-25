@@ -1,0 +1,17 @@
+﻿global using AJE.Web.Ui;
+global using AJE.Web.Ui.Hubs;
+global using AJE.Application;
+global using AJE.Application.Entities;
+global using AJE.Application.Queries;
+global using AJE.Domain.Entities;
+global using AJE.Infra;
+global using System;
+global using NRedisStack;
+global using NRedisStack.RedisStackCommands;
+global using StackExchange.Redis;
+global using MediatR;
+global using Microsoft.Extensions.Caching.Memory;
+global using System.IO.Compression;
+global using System.Text;
+global using System.Xml.Linq;
+global using Microsoft.AspNetCore.SignalR;

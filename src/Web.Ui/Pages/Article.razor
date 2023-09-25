@@ -1,0 +1,38 @@
+﻿@page "/article/{Id?}"
+
+@if (!IsValidId)
+{
+    <p>Invalid id:@Id</p>
+}
+else
+{
+    <p>Id:@Id</p>
+}
+
+@code {
+    [Parameter]
+    public string? Id { get; set; }
+
+    private bool IsValidId => GId != Guid.Empty;
+
+    private Guid GId
+    {
+        get
+        {
+            if (Guid.TryParse(Id, out Guid gId))
+            {
+                return gId;
+            }
+            return Guid.Empty;
+        }
+    }
+
+    protected override Task OnInitializedAsync()
+    {
+        if (IsValidId)
+        {
+
+        }
+        return Task.CompletedTask;
+    }
+}

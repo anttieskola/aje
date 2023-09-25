@@ -1,0 +1,138 @@
+﻿@inject IMemoryCache MC
+
+<svg class="@IconClass" aria-label="@AriaLabel" xmlns="http://www.w3.org/2000/svg" width="@Width" height="@Height" fill="currentColor" viewBox="0 0 16 16" style="display: block;  margin: auto;">
+    @foreach (var path in _paths)
+    {
+        <path fill-rule="@path.FillRule" d="@path.D" />
+    }
+</svg>
+
+@code {
+
+    [Parameter]
+    public int Width { get; set; } = 24;
+
+    [Parameter]
+    public int Height { get; set; } = 24;
+
+    [Parameter]
+    public int Padding { get; set; } = 0;
+
+    [Parameter]
+    public string Name { get; set; } = string.Empty;
+
+    [Parameter]
+    public string AriaLabel { get; set; } = string.Empty;
+
+    private string IconClass => $"p-[{Padding}px]";
+
+    private string IconName => $"ICON:{Name}";
+
+    private struct SvgPath
+    {
+        public string FillRule { get; init; }
+        public string D { get; init; }
+    }
+
+    private List<SvgPath> _paths { get; set; } = new List<SvgPath>();
+
+    protected async override Task OnInitializedAsync()
+    {
+        await SetIcon();
+    }
+
+    protected async override Task OnParametersSetAsync()
+    {
+        await SetIcon();
+    }
+
+    private async Task SetIcon()
+    {
+        _paths.Clear();
+
+        var svgString = MC.Get<string>(IconName);
+
+        if (svgString == null)
+        {
+            await ReloadIcons();
+            svgString = MC.Get<string>(IconName);
+        }
+
+        if (svgString == null)
+        {
+            return;
+        }
+
+        var xdoc = XDocument.Parse(svgString);
+
+        var svg = from eSvg in xdoc.Elements()
+                  where eSvg.Name.LocalName == "svg"
+                  select eSvg;
+        
+        var paths = from ePath in svg.Elements()
+                    where ePath.Name.LocalName == "path"
+                    select createPath(ePath);
+        
+        _paths.AddRange(paths);
+
+        SvgPath createPath(XElement element)
+        {
+            var fillRule = String.Empty;
+            var d = string.Empty;
+            foreach (var attr in element.Attributes())
+            {
+                if (attr.Name == "fill-rule")
+                {
+                    fillRule = attr.Value;
+                }
+                if (attr.Name == "d")
+                {
+                    d = attr.Value;
+                }
+            }
+            return new SvgPath { D = d, FillRule = fillRule };
+        }
+
+        StateHasChanged();
+    }
+
+    private static string LOADING = "ICONS_LOADING";
+    private static string ICON_PREFIX = "ICON:";
+    private static string ICON_LIST = "ICON_NAMES";
+
+    public async Task ReloadIcons()
+    {
+        if (MC.TryGetValue(LOADING, out bool loading))
+        {
+            if (loading)
+                return;
+        }
+
+        MC.Set(LOADING, true);
+        // read file from disk into byte array
+        var file = await File.ReadAllBytesAsync("icons.zip");
+        var names = new List<string>();
+        // use unzipp on the byte array
+        using (var memoryStream = new MemoryStream(file))
+        {
+            using (var archive = new ZipArchive(memoryStream))
+            {
+                foreach (var iconFile in archive.Entries)
+                {
+                    if (iconFile.Length == 0)
+                        continue;
+
+                    var name = iconFile.Name.Replace(".svg", string.Empty);
+                    names.Add(name);
+                    using var inputStream = iconFile.Open();
+                    using var reader = new StreamReader(inputStream, Encoding.UTF8);
+                    var svg = await reader.ReadToEndAsync();
+                    MC.Set($"{ICON_PREFIX}{name}", svg);
+                }
+            }
+        }
+        MC.Set(ICON_LIST, names);
+        MC.Set(LOADING, false);
+    }
+
+}

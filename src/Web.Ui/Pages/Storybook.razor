@@ -1,0 +1,191 @@
+﻿@page "/storybook"
+
+<PageTitle>Storybook</PageTitle>
+
+<h1 class="mb-2">Storybook</h1>
+<div class="flex flex-wrap">
+
+    <div class="mr-2 mb-3 border-2 border-dotted border-stone-600 rounded-lg shadow-md">
+        <h2 class="text-sky-600">Common</h2>
+        <div>
+            <p>Family = font-mono</p>
+            <p>Text color = text-stone-50 dark:text-green-500</p>
+            <p>Background = bg-green-900 dark:bg-black</p>
+            <p>Some example colors</p>
+            <ul>
+                <li class="text-sky-600">Subtle title = sky-600</li>
+                <li class="text-blue-600">"Primary" = blue-600</li>
+                <li class="text-rose-600">Error = rose-600</li>
+            </ul>
+
+        </div>
+    </div>
+
+    <div class="mr-3 mb-3 p-2 border-2 border-dotted border-stone-600 rounded-lg shadow-md">
+        <h2 class="text-sky-600">Headers</h2>
+        <div>
+            <h1>header 1</h1>
+            <h2>header 2</h2>
+            <h3>header 3</h3>
+            <h4>header 4</h4>
+            <h5>header 5</h5>
+            <h6>header 6</h6>
+        </div>
+    </div>
+
+    <div class="mr-3 mb-3 p-2 border-2 border-dotted border-stone-600 rounded-lg shadow-md">
+        <h2 class="text-sky-600">Text</h2>
+        <div>
+            <p>paragraph</p>
+            <p class="underline">underline</p>
+            <p class="bold">bold</p>
+            <p class="italic">italic</p>
+            <a href="not-existing" class="block">
+                new link
+            </a>
+            <a href="storybook" class="block">
+                visited link
+            </a>
+<pre>
+// preformatted example
+int setup() {
+    SerialBegin(11500);
+}
+int loop() {
+    delay(1000);
+}
+</pre>
+        </div>
+    </div>
+
+    <div class="mr-3 mb-3 p-2 border-2 border-dotted border-stone-600 rounded-lg shadow-md">
+        <h2 class="text-sky-600">List</h2>
+        <ul>
+            <li>item 1</li>
+            <li>
+                item 2
+                <ul>
+                    <li>item 2.1</li>
+                    <li>item 2.2</li>
+                </ul>
+            </li>
+            <li>
+                item 3
+                <ul>
+                    <li>
+                        item 3.1
+                        <ul>
+                            <li>item 3.1.1</li>
+                            <li>item 3.1.2</li>
+                        </ul>
+                    </li>
+                    <li>item 3.2</li>
+                </ul>
+            </li>
+            <li>item 4</li>
+        </ul>
+    </div>
+
+    <div class="mr-3 mb-3 p-2 border-2 border-dotted border-stone-600 rounded-lg shadow-md">
+        <h2 class="text-sky-600">Inputs</h2>
+
+        <table class="table-auto">
+            <tr>
+                <td><label for="text">text</label></td>
+                <td><input class="min-w-full w-full max-w-lg" id="text" type="text" placeholder="example" /></td>
+            </tr>
+            <tr>
+                <td><label for="search">search</label></td>
+                <td><input class="min-w-full w-full max-w-lg" id="search" type="search" placeholder="example" /></td>
+            </tr>
+            <tr>
+                <td><label for="tel">tel</label></td>
+                <td><input class="min-w-full w-full max-w-lg" id="tel" type="tel" placeholder="+3584012345678" /></td>
+            </tr>
+            <tr>
+                <td><label for="number">number</label></td>
+                <td><input class="min-w-full w-full max-w-lg" id="number" type="number" placeholder="123" /></td>
+            </tr>
+            <tr>
+                <td><label for="url">url</label></td>
+                <td><input class="min-w-full w-full max-w-lg" id="url" type="url" placeholder="https://localhost" /></td>
+            </tr>
+            <tr>
+                <td><label for="password">password</label></td>
+                <td><input class="min-w-full w-full max-w-lg" id="password" type="password" /></td>
+            </tr>
+            <tr>
+                <td><label for="checkbox">checkbox</label></td>
+                <td><input class="min-w-full w-full max-w-lg" id="checkbox" type="checkbox" /></td>
+            </tr>
+            <tr>
+                <td><label for="radio">radio</label></td>
+                <td><input class="min-w-full w-full max-w-lg" id="radio" type="radio" /></td>
+            </tr>
+            <tr>
+                <td><label for="range">range</label></td>
+                <td><input class="min-w-full w-full max-w-lg" id="range" type="range" min="0" max="100" step="10" /></td>
+            </tr>
+            <tr>
+                <td><label for="select">select</label></td>
+                <td>
+                    <select id="select">
+                        <optgroup label="a">
+                            <option>a1</option>
+                            <option>a2</option>
+                        </optgroup>
+                        <option>b</option>
+                        <option>c</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td><label for="time">time</label></td>
+                <td><input class="min-w-full w-full max-w-lg" id="time" type="time" /></td>
+            </tr>
+            <tr>
+                <td><label for="month">month</label></td>
+                <td><input class="min-w-full w-full max-w-lg" id="month" type="month" /></td>
+            </tr>
+            <tr>
+                <td><label for="week">week</label></td>
+                <td><input class="min-w-full w-full max-w-lg" id="week" type="week" /></td>
+            </tr>
+            <tr>
+                <td><label for="date">date</label></td>
+                <td><input class="min-w-full w-full max-w-lg" id="date" type="date" /></td>
+            </tr>
+            <tr>
+                <td><label for="datetime-local">datetime-local</label></td>
+                <td><input class="min-w-full w-full max-w-lg" id="datetime-local" type="datetime-local" /></td>
+            </tr>
+            <tr>
+                <td><label for="color">color</label></td>
+                <td><input class="min-w-full w-full max-w-lg" id="color" type="color" /></td>
+            </tr>
+            <tr>
+                <td><label for="file">file</label></td>
+                <td><input class="min-w-full w-full max-w-lg" id="file" type="file" /></td>
+            </tr>
+            <tr>
+                <td><label for="button">button</label></td>
+                <td><input class="min-w-full w-full max-w-lg" id="button" type="button" value="button" /></td>
+            </tr>
+            <tr>
+                <td><label for="button">button (dis.)</label></td>
+                <td><input class="min-w-full w-full max-w-lg" id="button" type="button" value="button" disabled /></td>
+            </tr>
+            <tr>
+                <td><label for="reset">reset</label></td>
+                <td><input class="min-w-full w-full max-w-lg" id="reset" type="reset" value="reset" /></td>
+            </tr>
+            <tr>
+                <td><label for="submit">submit</label></td>
+                <td><input class="min-w-full w-full max-w-lg" id="submit" type="submit" value="submit" /></td>
+            </tr>
+        </table>
+    </div>
+</div>
+@code {
+
+}

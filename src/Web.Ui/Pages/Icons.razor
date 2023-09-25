@@ -1,0 +1,215 @@
+﻿@page "/icons"
+@inject IIconService IS
+
+<PageTitle>Icons</PageTitle>
+
+<h1 class="mb-2">Icons</h1>
+
+<table class="table-auto">
+    <tr>
+        <td><label>Color:</label></td>
+        <td>
+            <input class="w-40" type="color" @bind="_color" />
+        </td>
+        <td><label>Min Size</label></td>
+        <td><input type="range" min="8" max="@_maxSize" step="1" @bind="_minSize" /></td>
+        <td><label>@_minSize</label></td>
+    </tr>
+    <tr>
+        <td><label>Pagesize:</label></td>
+        <td>
+            <select class="w-40" name="pagesize" @onchange="Pagesize">
+                <option>40</option>
+                <option>80</option>
+                <option>1000</option>
+                <option>all</option>
+            </select>
+        </td>
+        <td><label>Max Size</label></td>
+        <td><input type="range" min="@_minSize" max="496" step="1" @bind="_maxSize" /></td>
+        <td><label>@_maxSize</label></td>
+    </tr>
+    <tr>
+        <td colspan="3"><input class="w-96 p-1" type="search" aria-label="search" @bind="_search" @onkeydown="SearchEvent" /></td>
+        <td colspan="2">
+            <button class="mt-1 min-w-full w-full max-w-lg submitButton">
+                <Icon Name="search" AriaLabel="search" Width="20" Height="20" Padding="2" />
+            </button>
+        </td>
+    </tr>
+</table>
+
+
+<div class="flex flex-wrap mt-4">
+    @for (var i = 0; i < _currentSelection.Count(); i++)
+    {
+        if (_currentSize > _maxSize)
+            _currentSize = _minSize;
+
+        var name = _currentSelection.ElementAt(i);
+        <div class="ml-0 mr-2 mb-2 p-2 border-4 border-dotted rounded-lg border-stone-600">
+            <div class="mb-2">
+                <p class="text-xs">@name</p>
+            </div>
+            <div class="text-blue-600" style="@_colorStyle">
+                <Icon Name="@name" AriaLabel="@name" Height="@_currentSize" Width="@_currentSize" />
+            </div>
+        </div>
+
+        _currentSize++;
+    }
+</div>
+
+<div class="flex flex-wrap mt-4">
+    @if (_isPreviousEnabled)
+    {
+        <button class="w-48 min-w-48 mr-8 submitButton" @onclick="Previous">
+            <Icon Name="arrow-left-square" Height="28" Width="28" />
+        </button>
+    }
+    else
+    {
+        <button class="w-48 min-w-48 mr-8 submitButton" disabled @onclick="Previous">
+            <Icon Name="arrow-left-square" Height="28" Width="28" />
+        </button>
+
+    }
+    @if (_isNextEnabled)
+    {
+        <button class="w-48 min-w-48 submitButton" @onclick="Next">
+            <Icon Name="arrow-right-square" Height="28" Width="28" />
+        </button>
+    }
+    else
+    {
+        <button class="w-48 min-w-48 submitButton" disabled @onclick="Next">
+            <Icon Name="arrow-right-square" Height="28" Width="28" />
+        </button>
+    }
+</div>
+
+
+
+
+@code {
+    private int _minSize = 28;
+    private int _currentSize = 28;
+    private int _maxSize = 68;
+    private string? _color = "#2563eb";
+    private string _colorStyle
+    {
+        get
+        {
+            if (_color == null)
+            {
+                return "color: #2563eb;";
+            }
+            return $"color: {_color};";
+        }
+    }
+    private string? _search;
+    private string _keyword = String.Empty;
+    private int _index = 0;
+    private int _pageSize = 80;
+    private List<string> _iconList = new List<string>();
+    private IEnumerable<string> _iconSearchList = Array.Empty<string>();
+    private IEnumerable<string> _currentSelection = Array.Empty<string>();
+
+    private bool _isPreviousEnabled
+    {
+        get
+        {
+            return _index > 0;
+        }
+    }
+    private bool _isNextEnabled
+    {
+        get
+        {
+            return _iconSearchList.Count() > (_index + _pageSize);
+        }
+    }
+
+    private void Previous()
+    {
+        if (_index > 0)
+        {
+            _index -= _pageSize;
+            _currentSelection = _iconSearchList.Skip(_index).Take(_pageSize);
+            StateHasChanged();
+        }
+
+    }
+
+    private void Next()
+    {
+        if (_iconSearchList.Count() > _index + _pageSize)
+        {
+            _index += _pageSize;
+            _currentSelection = _iconSearchList.Skip(_index).Take(_pageSize);
+            StateHasChanged();
+        }
+    }
+
+    private void Pagesize(ChangeEventArgs a)
+    {
+        if (a.Value is null)
+            return;
+
+        switch (a.Value.ToString())
+        {
+            case "40":
+                SwitchPageSize(40);
+                break;
+            case "80":
+                SwitchPageSize(80);
+                break;
+            case "1000":
+                SwitchPageSize(1000);
+                break;
+            case "all":
+                SwitchPageSize(int.MaxValue);
+                break;
+            default:
+                break;
+        }
+
+        void SwitchPageSize(int pageSize)
+        {
+            _pageSize = pageSize;
+            _index = 0;
+            _currentSelection = _iconSearchList.Take(pageSize);
+            InvokeAsync(() => StateHasChanged());
+        }
+    }
+
+    private void SearchEvent(KeyboardEventArgs args)
+    {
+        if (args.CtrlKey || args.Key == "Control" || args.Key == "Shift" || args.Key == "Alt")
+            return;
+
+        var keyword = _search ?? _keyword;
+
+        if (args.Key == "Delete")
+            _search = _keyword = string.Empty;
+        else if (args.Key.Length == 1 && char.IsAscii(args.Key.First()))
+            keyword += args.Key;
+        else if (keyword != null && keyword.Length > 0 && args.Key == "Backspace")
+            keyword = keyword.Substring(0, keyword.Length - 1);
+
+        _keyword = keyword ?? string.Empty;
+        _iconSearchList = _iconList.Where(n => n.Contains(_keyword));
+        _index = 0;
+        _currentSelection = _iconSearchList.Take(_pageSize);
+        InvokeAsync(() => StateHasChanged());
+    }
+
+    protected async override Task OnInitializedAsync()
+    {
+        _iconList = await IS.List();
+        _iconSearchList = _iconList;
+        _currentSelection = _iconSearchList.Take(_pageSize);
+        StateHasChanged();
+    }
+}
+

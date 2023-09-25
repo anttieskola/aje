@@ -1,0 +1,12 @@
+﻿global using AJE.Infra;
+global using AJE.Infra.Index;
+global using AJE.Application;
+global using AJE.Application.Entities;
+global using AJE.Domain.Entities;
+global using System;
+global using System.Text.Json;
+global using Microsoft.Extensions.DependencyInjection;
+global using StackExchange.Redis;
+global using NRedisStack.Search;
+global using NRedisStack.Search.Literals.Enums;
+global using NRedisStack.RedisStackCommands;
