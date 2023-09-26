@@ -1,4 +1,4 @@
-# notes
+# Goal
 Project started with learning to create an application to modify my notes that are
 stored in Github as markdown and same time create homepage for myself.
 
@@ -9,6 +9,19 @@ and same create a new working homepage for myself.
 To achieve this I will use redis to store data and connect blazor servers. Then I can have
 many more servers running the application. Pub/Sub message patterns from using signal-r are
 boosted by into redis.
+
+# Learned things along the way
+- redis can be integrated directly [read the documentation](https://learn.microsoft.com/en-us/aspnet/core/signalr/redis-backplane?view=aspnetcore-7.0)
+	- package [Microsoft.AspNetCore.SignalR.StackExchangeRedis](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.signalr.stackexchangeredis?view=aspnetcore-7.0)
+	- package kinda does same thing I had in mind to relay messages
+	- still if I want to create let's say some rust app that produces data don't think I can send data directly to these channels
+	  as they are generated as needed and follow own naming conventions and message formats
+		- so I can send to my custom channel data from the rust app that something like the ChatRelayService then send into signal-r
+		- ofc the setup using redis with signal-r I can reach all servers directly
+- each signal-r hub has its own websocket connection (pre .net 4.7 there was only one connection for all hubs)
+- so there is limitation on number of users single server can handle
+- azure signal-r service moves the socket load from server to service (the selling point of the product)
+
 
 ## Short list of hopes and dreams (features)
 - dotnet... i wanted to use 8 but not ready so 7 it is
@@ -30,7 +43,6 @@ boosted by into redis.
 	- [CleanArchitecture](https://github.com/jasontaylordev/CleanArchitecture)
 - using the lovely [MediatR](https://github.com/jbogard/MediatR)
 - learning to use [tailwind css](https://github.com/tailwindlabs/tailwindcss)
-
 
 ## UI-Components
 - TableTemplate

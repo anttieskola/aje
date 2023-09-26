@@ -36,6 +36,7 @@ public class LocalChatHub : Hub<IChatClient>
     public override async Task OnConnectedAsync()
     {
         _logger.LogInformation("Connected: {}", Context.ConnectionId);
+
         await base.OnConnectedAsync();
     }
 
