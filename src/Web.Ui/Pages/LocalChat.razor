@@ -1,0 +1,101 @@
+﻿@page "/localchat"
+@inject ILogger<LocalChat> Logger
+@inject ISender Sender
+@inject NavigationManager Navigation
+
+<PageTitle>local chat</PageTitle>
+
+<ul>
+    @foreach (var message in _messages)
+    {
+        <li>@message.UserName - @message.Message</li>
+    }
+</ul>
+
+<EditForm EditContext="@_editContext" OnSubmit="@HandleSubmitAsync">
+    <DataAnnotationsValidator />
+    <table class="table-auto">
+        <tr>
+            <td><label>Connection</label></td>
+            <td>@IsConnected</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td><label>Username</label></td>
+            <td><InputText @bind-Value="_model!.UserName" /></td>
+            <td class="text-rose-600"><ValidationMessage For="() => _model!.UserName" /></td>
+        </tr>
+        <tr>
+            <td><label>Message</label></td>
+            <td><InputText @bind-Value="_model!.Message" /></td>
+            <td class="text-rose-600"><ValidationMessage For="() => _model!.Message" /></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><button type="submit" class="submitButton" disabled="@IsInvalid">Send</button></td>
+            <td></td>
+        </tr>
+    </table>
+</EditForm>
+
+@code {
+    private ChatMessage _model = new ChatMessage();
+    private EditContext? _editContext;
+
+    private HubConnection? _hubConnection;
+    private List<ChatMessage> _messages = new List<ChatMessage>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _editContext = new(_model);
+
+        _hubConnection = new HubConnectionBuilder()
+            .WithUrl(Navigation.ToAbsoluteUri("/hublocalchat"))
+            .Build();
+
+        _hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
+        {
+            _messages.Add(new ChatMessage { UserName = user, Message = message });
+            InvokeAsync(StateHasChanged);
+        });
+
+
+        await _hubConnection.StartAsync();
+    }
+
+    private bool IsInvalid
+    {
+        get
+        {
+            if (_editContext is not null)
+            {
+                return !_editContext.Validate();
+            }
+            return true;
+        }
+    }
+
+    private async Task HandleSubmitAsync()
+    {
+        if (_editContext?.Validate() == true)
+        {
+            if (IsConnected)
+            {
+                await _hubConnection!.InvokeAsync("SendMessage", _model!.UserName, _model!.Message);
+                _model!.Message = string.Empty;
+            }
+            StateHasChanged();
+        }
+    }
+
+    public bool IsConnected =>
+        _hubConnection?.State == HubConnectionState.Connected;
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_hubConnection is not null)
+        {
+            await _hubConnection.DisposeAsync();
+        }
+    }
+}

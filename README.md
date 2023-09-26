@@ -48,13 +48,16 @@ boosted by into redis.
 ##  Links
 - [this repository](https://github.com/anttieskola/aje)
 - [ui-lifecycle](https://learn.microsoft.com/en-us/aspnet/core/blazor/components/lifecycle?view=aspnetcore-7.0)
+- [blazor forms](https://learn.microsoft.com/en-us/aspnet/core/blazor/forms-and-input-components?view=aspnetcore-3.1)
+- [signal-r](https://learn.microsoft.com/en-us/aspnet/core/signalr/hubs?view=aspnetcore-7.0)
 
 # Deployment
 - Currently published on server into path `/usr/local/bin/aje/`
 - Service installation instructions are found in [service definition](./aje.service)
+	- [Debian systemd](https://wiki.debian.org/systemd/Services)
 	- Running as my normal user for now
 
-### Nginx configuration
+## Nginx configuration
 - Asp.net process is running in the default port 5000
 	- Change to some specific?
 - Here is the nginx proxy configuration
@@ -85,6 +88,7 @@ server {
 
 
 # Misc
+
 ## making C# solution in linux
 
 ```bash

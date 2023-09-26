@@ -18,27 +18,27 @@ public class Serialization
                     {
                         new ChatMessage
                         {
-                            User = faker.Internet.UserName(),
+                            UserName = faker.Internet.UserName(),
                             Message = faker.Hacker.Phrase(),
                         },
                         new ChatMessage
                         {
-                            User = faker.Internet.UserName(),
+                            UserName = faker.Internet.UserName(),
                             Message = faker.Hacker.Phrase(),
                         },
                         new ChatMessage
                         {
-                            User = faker.Internet.UserName(),
+                            UserName = faker.Internet.UserName(),
                             Message = faker.Hacker.Phrase(),
                         },
                         new ChatMessage
                         {
-                            User = faker.Internet.UserName(),
+                            UserName = faker.Internet.UserName(),
                             Message = faker.Hacker.Phrase(),
                         },
                         new ChatMessage
                         {
-                            User = faker.Internet.UserName(),
+                            UserName = faker.Internet.UserName(),
                             Message = faker.Hacker.Phrase(),
                         },
                     },

@@ -36,23 +36,14 @@ public class GetArticle : IRequestHandler<GetArticleQuery, Article>
 
     private static ArticleHeader Parse(Document document)
     {
-        try
+        var id = document["id"].ToString();
+        var title = document["title"].ToString();
+        var IdArray = JsonSerializer.Deserialize<Guid[]>(id) ?? throw new Exception();
+        var titleArray = JsonSerializer.Deserialize<string[]>(title) ?? throw new Exception();
+        if (IdArray.Length != 1 || titleArray.Length != 1)
         {
-            var id = document["id"].ToString();
-            var title = document["title"].ToString();
-            var IdArray = JsonSerializer.Deserialize<Guid[]>(id) ?? throw new Exception();
-            var titleArray = JsonSerializer.Deserialize<string[]>(title) ?? throw new Exception();
-            if (IdArray.Length != 1 || titleArray.Length != 1)
-            {
-                throw new Exception();
-            }
-            return new ArticleHeader { Id = IdArray[0], Title = titleArray[0] };
+            throw new Exception();
         }
-        catch (Exception e)
-        {
-            // TODO: Type should be defined in domain?
-            return new ArticleHeader { Id = Guid.Empty, Title = "Error" };
-        }
+        return new ArticleHeader { Id = IdArray[0], Title = titleArray[0] };
     }
-
 }

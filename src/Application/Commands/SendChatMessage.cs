@@ -2,8 +2,9 @@
 
 public record SendChatMessageCommand : IRequest<ChatMessageSendEvent>
 {
-    public string User { get; init; } = string.Empty;
-    public string Message { get; init; } = string.Empty;
+    public required string ChatChannel { get; init; }
+    public required string User { get; init; }
+    public required string Message { get; init; }
 }
 
 public class SendChatMessage : IRequestHandler<SendChatMessageCommand, ChatMessageSendEvent>
@@ -17,13 +18,7 @@ public class SendChatMessage : IRequestHandler<SendChatMessageCommand, ChatMessa
     public async Task<ChatMessageSendEvent> Handle(SendChatMessageCommand request, CancellationToken cancellationToken)
     {
         var sb = _connection.GetSubscriber();
-        var cm = new ChatMessage
-        {
-            User = request.User,
-            Message = request.Message
-        };
-        var msg = JsonSerializer.Serialize(cm);
-        await sb.PublishAsync("chat", msg);
+        await sb.PublishAsync(AJEConstants.CHANNEL_CHAT, JsonSerializer.Serialize(request));
         return new ChatMessageSendEvent();
     }
 }

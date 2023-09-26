@@ -1,8 +1,17 @@
 ﻿@page "/"
+@inject ISender Sender;
 
 <PageTitle>Index</PageTitle>
 
 <IconScreenSaver />
+ 
+<button @onclick="UpdateSite">
+    Update this site
+</button>
 
 @code {
+
+    private void UpdateSite()
+    {
+    }
 }

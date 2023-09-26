@@ -1,32 +1,7 @@
 ﻿@page "/articles"
 @inject ISender Sender
-@inject NavigationManager Navigation
-@implements IAsyncDisposable
 
-<PageTitle>ae - admin - articles</PageTitle>
-
-<div class="form-group">
-    <label>
-        User:
-        <input @bind="userInput" />
-    </label>
-</div>
-<div class="form-group">
-    <label>
-        Message:
-        <input @bind="messageInput" size="50" />
-    </label>
-</div>
-<button @onclick="Send" disabled="@(!IsConnected)">Send</button>
-
-<hr>
-
-<ul id="messagesList">
-    @foreach (var message in messages)
-    {
-        <li>@message</li>
-    }
-</ul>
+<PageTitle>articles</PageTitle>
 
 <table class="table-auto">
     <tbody>
@@ -97,49 +72,6 @@
     */
 }
 @code {
-    #region signal r
-    private HubConnection? hubConnection;
-    private List<string> messages = new List<string>();
-    private string? userInput;
-    private string? messageInput;
-
-    protected async Task OnInitializedSignalRAsync()
-    {
-        hubConnection = new HubConnectionBuilder()
-            .WithUrl(Navigation.ToAbsoluteUri("/articlehub"))
-            .Build();
-
-        hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
-        {
-            var encodedMsg = $"{user}: {message}";
-            messages.Add(encodedMsg);
-            InvokeAsync(StateHasChanged);
-        });
-
-        await hubConnection.StartAsync();
-    }
-
-    private async Task Send()
-    {
-        if (hubConnection is not null)
-        {
-            await hubConnection.SendAsync("SendMessage", userInput, messageInput);
-        }
-        await Sender.Send(new SendChatMessageCommand { User = userInput ?? string.Empty, Message = messageInput ?? string.Empty });
-    }
-
-    public bool IsConnected =>
-        hubConnection?.State == HubConnectionState.Connected;
-
-    public async ValueTask DisposeAsync()
-    {
-        if (hubConnection is not null)
-        {
-            await hubConnection.DisposeAsync();
-        }
-    }
-    #endregion signal r
-
     #region table -> todo component
     private PaginatedList<ArticleHeader> _headers = new PaginatedList<ArticleHeader>(new List<ArticleHeader>(), 0, 0);
     private int _pageSize = 10;
@@ -159,7 +91,6 @@
     }
     protected override async Task OnInitializedAsync()
     {
-        await OnInitializedSignalRAsync();
         _headers = await Sender.Send(new GetArticleHeadersQuery { OnlyPublished = true, Offset = 0, PageSize = _pageSize });
     }
     private async Task Previous()
