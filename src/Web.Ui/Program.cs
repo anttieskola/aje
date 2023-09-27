@@ -4,7 +4,6 @@ builder.Services.AddInfra();
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddMemoryCache();
-builder.Services.AddSingleton<IIconService, IconService>();
 /*
  * Channel listing in redis after send couple messages in the chat
 127.0.0.1:6379> PUBSUB CHANNELS *

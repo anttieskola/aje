@@ -1,11 +1,10 @@
 ﻿@implements IAsyncDisposable
 @inject IJSRuntime JS
-@inject IIconService IS
 
 <div class="flex">
     <div class="@_paintStyle">
         <div class="@_animationStyle" style="@_marginTopRawStyle">
-            <Icon Name="@_iconName" Width="@_size" Height="@_size" />
+            <Icon Name="@_iconName" Size="@_size" />
         </div>
     </div>
 </div>
@@ -87,9 +86,8 @@
 
     private async Task SelectIcon()
     {
-        var list = await IS.List();
         var random = new Random();
-        _iconName = list.ElementAt(random.Next(list.Count));
+        _iconName = Icondef.List.ElementAt(random.Next(Icondef.List.Count));
 
         if (_js != null)
         {

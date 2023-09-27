@@ -24,26 +24,26 @@
                     @if (_isPreviousEnabled)
                     {
                         <button aria-label="previous" class="w-48 min-w-48 mr-8 submitButton" @onclick="Previous">
-                            <Icon Name="arrow-left-square" Height="28" Width="28" />
+                            <Icon Name="arrow-left-square" Size="28" />
                         </button>
                     }
                     else
                     {
                         <button aria-label="previous" class="w-48 min-w-48 mr-8 submitButton" disabled @onclick="Previous">
-                            <Icon Name="arrow-left-square" Height="28" Width="28" />
+                            <Icon Name="arrow-left-square" Size="28" />
                         </button>
 
                     }
                     @if (_isNextEnabled)
                     {
                         <button aria-label="next" class="w-48 min-w-48 submitButton" @onclick="Next">
-                            <Icon Name="arrow-right-square" Height="28" Width="28" />
+                            <Icon Name="arrow-right-square" Size="28" />
                         </button>
                     }
                     else
                     {
                         <button aria-label="next" class="w-48 min-w-48 submitButton" disabled @onclick="Next">
-                            <Icon Name="arrow-right-square" Height="28" Width="28" />
+                            <Icon Name="arrow-right-square" Size="28" />
                         </button>
                     }
                 </div>

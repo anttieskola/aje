@@ -1,5 +1,4 @@
 ﻿@page "/icons"
-@inject IIconService IS
 
 <PageTitle>Icons</PageTitle>
 
@@ -7,12 +6,12 @@
 
 <table class="table-auto">
     <tr>
-        <td><label>Color:</label></td>
+        <td><label for="color">Color:</label></td>
         <td>
-            <input class="w-40" type="color" @bind="_color" />
+            <input id="color" class="w-40" type="color" @bind="_color" />
         </td>
-        <td><label>Min Size</label></td>
-        <td><input type="range" min="8" max="@_maxSize" step="1" @bind="_minSize" /></td>
+        <td><label for="minSize">Min Size</label></td>
+        <td><input id="minSize" type="range" min="8" max="@_maxSize" step="1" @bind="_minSize" aria-label="icon min size selector" /></td>
         <td><label>@_minSize</label></td>
     </tr>
     <tr>
@@ -25,15 +24,15 @@
                 <option>all</option>
             </select>
         </td>
-        <td><label>Max Size</label></td>
-        <td><input type="range" min="@_minSize" max="496" step="1" @bind="_maxSize" /></td>
+        <td><label for="maxSize">Max Size</label></td>
+        <td><input id="maxSize" type="range" min="@_minSize" max="496" step="1" @bind="_maxSize" /></td>
         <td><label>@_maxSize</label></td>
     </tr>
     <tr>
-        <td colspan="3"><input class="w-96 p-1" type="search" aria-label="search" @bind="_search" @onkeydown="SearchEvent" /></td>
+        <td colspan="3"><input class="w-96 p-1" type="search" aria-label="search keyword" @bind="_search" @onkeydown="SearchEvent" /></td>
         <td colspan="2">
-            <button class="mt-1 min-w-full w-full max-w-lg submitButton">
-                <Icon Name="search" AriaLabel="search" Width="20" Height="20" Padding="2" />
+            <button class="mt-1 min-w-full w-full max-w-lg submitButton" aria-label="search">
+                <Icon Name="search" Size="20" Padding="2" />
             </button>
         </td>
     </tr>
@@ -52,7 +51,7 @@
                 <p class="text-xs">@name</p>
             </div>
             <div class="text-blue-600" style="@_colorStyle">
-                <Icon Name="@name" AriaLabel="@name" Height="@_currentSize" Width="@_currentSize" />
+                <Icon Name="@name" Size="@_currentSize" />
             </div>
         </div>
 
@@ -63,27 +62,27 @@
 <div class="flex flex-wrap mt-4">
     @if (_isPreviousEnabled)
     {
-        <button class="w-48 min-w-48 mr-8 submitButton" @onclick="Previous">
-            <Icon Name="arrow-left-square" Height="28" Width="28" />
+        <button class="w-48 min-w-48 mr-8 submitButton" @onclick="Previous" aria-label="previous page of results">
+            <Icon Name="arrow-left-square" Size="28" />
         </button>
     }
     else
     {
-        <button class="w-48 min-w-48 mr-8 submitButton" disabled @onclick="Previous">
-            <Icon Name="arrow-left-square" Height="28" Width="28" />
+        <button class="w-48 min-w-48 mr-8 submitButton" disabled @onclick="Previous" aria-label="previous page of results">
+            <Icon Name="arrow-left-square" Size="28" />
         </button>
 
     }
     @if (_isNextEnabled)
     {
-        <button class="w-48 min-w-48 submitButton" @onclick="Next">
-            <Icon Name="arrow-right-square" Height="28" Width="28" />
+        <button class="w-48 min-w-48 submitButton" @onclick="Next" aria-label="next page of results">
+            <Icon Name="arrow-right-square" Size="28" />
         </button>
     }
     else
     {
-        <button class="w-48 min-w-48 submitButton" disabled @onclick="Next">
-            <Icon Name="arrow-right-square" Height="28" Width="28" />
+        <button class="w-48 min-w-48 submitButton" disabled @onclick="Next" aria-label="next page of results">
+            <Icon Name="arrow-right-square" Size="28" />
         </button>
     }
 </div>
@@ -111,7 +110,6 @@
     private string _keyword = String.Empty;
     private int _index = 0;
     private int _pageSize = 80;
-    private List<string> _iconList = new List<string>();
     private IEnumerable<string> _iconSearchList = Array.Empty<string>();
     private IEnumerable<string> _currentSelection = Array.Empty<string>();
 
@@ -198,16 +196,15 @@
             keyword = keyword.Substring(0, keyword.Length - 1);
 
         _keyword = keyword ?? string.Empty;
-        _iconSearchList = _iconList.Where(n => n.Contains(_keyword));
+        _iconSearchList = Icondef.List.Where(n => n.Contains(_keyword));
         _index = 0;
         _currentSelection = _iconSearchList.Take(_pageSize);
         InvokeAsync(() => StateHasChanged());
     }
 
-    protected async override Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        _iconList = await IS.List();
-        _iconSearchList = _iconList;
+        _iconSearchList = Icondef.List;
         _currentSelection = _iconSearchList.Take(_pageSize);
         StateHasChanged();
     }

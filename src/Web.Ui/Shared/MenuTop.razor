@@ -4,9 +4,9 @@
     @{
         /* Home and nav links */
     }
-    <NavLink href="/" class="mr-2">
-        <button type="button" class="menuButton">
-            <Icon Name="house" AriaLabel="Home" Padding="@IconPadding" Width="@_iconSize" Height="@_iconSize" />
+    <NavLink href="/" class="mr-2" aria-label="home">
+        <button type="button" class="menuButton" aria-label="home">
+            <Icon Name="house" Padding="@IconPadding" Size="@_iconSize"/>
         </button>
     </NavLink>
     @foreach (var link in _navLinks)
@@ -21,14 +21,14 @@
         /* Theme */
     }
     <div class="mr-2">
-        <button type="button" @onclick="ToggleTheme" class="menuButton">
+        <button type="button" @onclick="ToggleTheme" class="menuButton" aria-label="theme">
             @if (_darkMode)
             {
-                <Icon Name="sun-fill" AriaLabel="Bright mode" Padding="@IconPadding" Width="@_iconSize" Height="@_iconSize" />
+                <Icon Name="sun-fill" Padding="@IconPadding" Size="@_iconSize" />
             }
             else
             {
-                <Icon Name="moon-fill" AriaLabel="Dark mode" Padding="@IconPadding" Width="@_iconSize" Height="@_iconSize" />
+                <Icon Name="moon-fill" Padding="@IconPadding" Size="@_iconSize" />
             }
         </button>
     </div>
@@ -36,21 +36,21 @@
             /* Menu location */
     }
     <div class="mr-2">
-        <button type="button" class="menuButton">
-            <Icon Name="box-arrow-in-left" AriaLabel="Placeholder" Padding="@IconPadding" Width="@_iconSize" Height="@_iconSize" />
+        <button type="button" class="menuButton" aria-label="unused">
+            <Icon Name="box-arrow-in-left" Padding="@IconPadding" Size="@_iconSize" />
         </button>
     </div>
     @{
         /* Future */
     }
     <div class="mr-2">
-        <button type="button" class="menuButton">
-            <Icon Name="arrows-collapse" AriaLabel="Placeholder" Padding="@IconPadding" Width="@_iconSize" Height="@_iconSize" />
+        <button type="button" class="menuButton" aria-label="unused">
+            <Icon Name="arrows-collapse" Padding="@IconPadding" Size="@_iconSize" />
         </button>
     </div>
     <div class="mr-2">
-        <button type="button" class="menuButton">
-            <Icon Name="arrows-expand" AriaLabel="Placeholder" Padding="@IconPadding" Width="@_iconSize" Height="@_iconSize" />
+        <button type="button" class="menuButton" aria-label="unused">
+            <Icon Name="arrows-expand" Padding="@IconPadding" Size="@_iconSize" />
         </button>
     </div>
 </nav>
