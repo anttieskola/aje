@@ -1,21 +1,21 @@
-# /etc/systemd/system/aje.service
+# /etc/systemd/system/aje-news.service
 
 # install
 # sudo systemctl daemon-reload
-# sudo systemctl enable aje.service
-# sudo systemctl start aje.service
+# sudo systemctl enable aje-news.service
+# sudo systemctl start aje-news.service
 
 # removal
-# sudo systemctl stop aje.service
-# sudo systemctl disable aje.service
+# sudo systemctl stop aje-news.service
+# sudo systemctl disable aje-news.service
 # remove the service file
 # reload daemon
 
 # full log you can see with
-# journalctl -u aje.service
+# journalctl -u aje-news.service
 
 [Unit]
-Description=AJE WebApp
+Description=AJE News
 After=network.target
 
 [Service]
@@ -23,11 +23,11 @@ Type=simple
 Restart=always
 # Note working directory is a must
 # otherwiser process can't find resources -> odd errors
-WorkingDirectory=/usr/local/bin/aje
-ExecStart=/usr/local/bin/aje/AJE.Web.Ui
+WorkingDirectory=/usr/local/bin/aje-news
+ExecStart=/usr/local/bin/aje-news/AJE.Service.News
 User=antti
 
-SyslogIdentifier=aje
+SyslogIdentifier=aje-news
 StandardOutput=syslog
 StandardError=syslog
 
