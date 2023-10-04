@@ -2,38 +2,39 @@
 
 public class ArticleIndex
 {
+    private readonly ILogger<ArticleIndex> _logger;
     private readonly IConnectionMultiplexer _connection;
 
-    public ArticleIndex(IConnectionMultiplexer connection)
+    public ArticleIndex(
+        ILogger<ArticleIndex> logger,
+        IConnectionMultiplexer connection)
     {
+        _logger = logger;
         _connection = connection;
     }
 
     public async Task Initialize()
     {
-        var db = _connection.GetDatabase();
-        var ft = db.FT();
+        var ft = _connection.GetDatabase().FT();
         var arIndexes = await ft._ListAsync();
 
-        // index
-        if (arIndexes.Any(i => i.ToString() == ArticleConstants.IndexName))
+        if (arIndexes.Any(i => i.ToString() == ArticleConstants.INDEX_NAME))
         {
+            _logger.LogDebug("Index already exists");
             return;
         }
 
-        // This works
-        // FT.DROPINDEX idx:Test
-        // FT.CREATE idx:Test ON JSON PREFIX 1 test: SCORE 1.0 SCHEMA $.id AS id TEXT WEIGHT 1.0 $.title AS title TEXT WEIGHT 1.0 $.published AS published TAG
-        // note to self: Using text field with boolean breaks index from working
+        var cp = new FTCreateParams()
+            .On(IndexDataType.JSON)
+            .Prefix(ArticleConstants.INDEX_PREFIX);
 
-        // create
-        var cp = new FTCreateParams().On(IndexDataType.JSON).Prefix(ArticleConstants.IndexPrefix);
         var schema = new Schema()
-            .AddTextField(new FieldName("$.id", "id"))
+            .AddTagField(new FieldName("$.id", "id"))
             .AddTextField(new FieldName("$.title", "title"))
-            .AddTagField(new FieldName("$.published", "published"))
-            .AddTextField(new FieldName("$.content", "content"));
+            .AddTagField(new FieldName("$.source", "source"))
+            .AddTagField(new FieldName("$.published", "published"));
 
-        await ft.CreateAsync(ArticleConstants.IndexName, cp, schema);
+        await ft.CreateAsync(ArticleConstants.INDEX_NAME, cp, schema);
+        _logger.LogDebug("Index {indexName} created", ArticleConstants.INDEX_NAME);
     }
 }

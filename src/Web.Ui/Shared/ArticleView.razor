@@ -1,0 +1,27 @@
+﻿@if (Model == null)
+{
+    <p class="text-rose-600">null</p>
+}
+else
+{
+    <div>
+        <h1>@Model.Title</h1>
+    </div>
+    @foreach (var content in Model.Content)
+    {
+        <div>
+            @if (content as MarkdownHeaderElement != null)
+            {
+                <h3>@(content as MarkdownHeaderElement).Title</h3>
+            }
+            <p>@content.Text</p>
+        </div>
+    }
+}
+
+@code {
+
+    [Parameter]
+    public Article? Model { get; set; }
+
+}

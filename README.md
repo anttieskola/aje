@@ -59,6 +59,7 @@ boosted by into redis.
 		 
 ##  Links
 - [this repository](https://github.com/anttieskola/aje)
+- [redis commands](https://redis.io/commands/)
 - [ui-lifecycle](https://learn.microsoft.com/en-us/aspnet/core/blazor/components/lifecycle?view=aspnetcore-7.0)
 - [blazor forms](https://learn.microsoft.com/en-us/aspnet/core/blazor/forms-and-input-components?view=aspnetcore-3.1)
 - [signal-r](https://learn.microsoft.com/en-us/aspnet/core/signalr/hubs?view=aspnetcore-7.0)
@@ -100,6 +101,83 @@ server {
 
 
 # Misc
+
+## Redis
+- KEYS List all keys
+- FT._LIST List all search indexes
+- FT.EXPLAIN -> explains query, very good for learning
+
+### Guid/Url type of columns in index
+So I had added stuff with bogus to redis and was trying to search does any article have source
+url `https://rosetta.net/decentralized/human/refined-granite-shoes`. So the source field was added
+to the index as text field.
+
+Studied [tokenization](https://redis.io/docs/interact/search-and-query/advanced-concepts/escaping/) on characters
+that gotta be escaped. This let me to a point where I thought it should find the one article having that source value
+but always end up getting 0 results. The explain from the query looked fine:
+- `"@source:https://rosetta.net/decentralized/human/refined-granite-shoes\n"`
+
+Then I Tried the same using the GUID values and that end up with same conclusion, search looks fine:
+But it won't match...
+- `"@id:b1653517-25f2-4c82-87b5-f610e7fd6dbc\n"`
+
+But when I switched the field types to tag I could match the exact value. But all could been easier if I had read the
+documentation better :) But this was good practice
+
+- TEXT - Allows full-text search queries against the value in this attribute.
+- TAG - Allows ***exact-match queries***, such as categories or primary keys, against the value in this attribute. For more information, see Tag Fields.
+
+
+As Text -> naah
+```
+FT.DROPINDEX idx:article
+FT.CREATE "idx:article" ON JSON PREFIX 1 article: SCORE 1.0 SCHEMA $.id AS id TEXT WEIGHT 1.0
+FT.SEARCH "idx:article" "*"
+FT.SEARCH "idx:article" "@id:\"b1653517\\-25f2\\-4c82\\-87b5\\-f610e7fd6dbc\""
+# explain: "@id:b1653517-25f2-4c82-87b5-f610e7fd6dbc\n"
+```
+
+As Tag -> works
+```
+FT.DROPINDEX idx:article
+FT.CREATE "idx:article" ON JSON PREFIX 1 article: SCORE 1.0 SCHEMA $.id AS id TAG
+FT.SEARCH "idx:article" "*"
+FT.SEARCH "idx:article" "@id:{b1653517\\-25f2\\-4c82\\-87b5\\-f610e7fd6dbc}"
+# explain: "TAG:@id {\n  b1653517-25f2-4c82-87b5-f610e7fd6dbc\n}\n"
+```
+
+So after reading documentation better and practicing yeah tag is the correct type for these.
+Maybe if some point I would like to search articles where source is some specific domain I need to add it as text...
+
+Can I add same field twice? Yes :)
+
+```
+FT.DROPINDEX idx:article
+FT.CREATE "idx:article" ON JSON PREFIX 1 article: SCORE 1.0 SCHEMA $.id AS id TAG $.source as source TAG $.source as sourcetext TEXT WEIGHT 1.0
+
+# ok... maybe not sure really as '.' means
+FT.SEARCH "idx:article" "@sourcetext:rosetta.net"
+# explain: "@sourcetext:INTERSECT {\n  @sourcetext:UNION {\n    @sourcetext:rosetta\n    @sourcetext:+rosetta(expanded)\n  }\n  @sourcetext:UNION {\n    @sourcetext:net\n    @sourcetext:+net(expanded)\n  }\n}\n"
+
+# ok... correct way?
+FT.SEARCH "idx:article" "@sourcetext:rosetta\.net"
+# explain: "@sourcetext:INTERSECT {\n  @sourcetext:UNION {\n    @sourcetext:rosetta\n    @sourcetext:+rosetta(expanded)\n  }\n  @sourcetext:UNION {\n    @sourcetext:net\n    @sourcetext:+net(expanded)\n  }\n}\n"
+
+# not finding
+FT.SEARCH "idx:article" "@sourcetext:rosetta\\.net"
+# explain: "@sourcetext:UNION {\n  @sourcetext:rosetta.net\n  @sourcetext:+rosetta.net(expanded)\n}\n"
+
+```
+
+
+
+
+### Index
+Example
+```
+FT.CREATE idxArticle ON JSON PREFIX 1 article: SCORE 1.0 SCHEMA $.id AS id TEXT WEIGHT 1.0 $.title AS title TEXT WEIGHT 1.0 $.source AS source TEXT WEIGHT 1.0 $.published AS published TAG
+```
+
 
 ## making C# solution in linux
 

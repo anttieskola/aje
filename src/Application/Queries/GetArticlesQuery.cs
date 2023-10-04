@@ -1,22 +1,22 @@
 ﻿namespace AJE.Application.Queries;
 
-public record GetArticleHeadersQuery : IRequest<PaginatedList<ArticleHeader>>
+public record GetArticlesQuery : IRequest<Article>
 {
     public bool OnlyPublished { get; init; }
     public int Offset { get; init; }
     public int PageSize { get; init; }
 }
 
-public class GetArticleHeadersQueryHandler : IRequestHandler<GetArticleHeadersQuery, PaginatedList<ArticleHeader>>
+public class GetArticlesQueryHandler : IRequestHandler<GetArticlesQuery, Article>
 {
-    private readonly IConnectionMultiplexer _connection;
+    private IConnectionMultiplexer _connection;
 
-    public GetArticleHeadersQueryHandler(IConnectionMultiplexer connection)
+    public GetArticlesQueryHandler(IConnectionMultiplexer connection)
     {
         _connection = connection;
     }
 
-    public async Task<PaginatedList<ArticleHeader>> Handle(GetArticleHeadersQuery request, CancellationToken cancellationToken)
+    public async Task<Article> Handle(GetArticlesQuery request, CancellationToken cancellationToken)
     {
         var ft = _connection.GetDatabase().FT();
 
@@ -29,7 +29,7 @@ public class GetArticleHeadersQueryHandler : IRequestHandler<GetArticleHeadersQu
         var headers = from doc in result.Documents
                       select Parse(doc);
 
-        return new PaginatedList<ArticleHeader>(headers.ToArray(), request.Offset, result.TotalResults);
+        return new Article();
     }
 
     private static ArticleHeader Parse(Document document)

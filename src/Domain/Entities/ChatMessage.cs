@@ -1,5 +1,11 @@
 ﻿namespace AJE.Domain.Entities;
 
+
+public static class ChatConstants
+{
+    public static readonly string CHANNEL = "chat";
+}
+
 public class ChatMessage
 {
     [Required]

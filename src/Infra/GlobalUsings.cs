@@ -10,3 +10,4 @@ global using StackExchange.Redis;
 global using NRedisStack.Search;
 global using NRedisStack.Search.Literals.Enums;
 global using NRedisStack.RedisStackCommands;
+global using Microsoft.Extensions.Logging;

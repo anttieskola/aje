@@ -2,33 +2,48 @@
 
 public static class ArticleConstants
 {
-    public static readonly string IndexName = $"idxArticle";
-    public static readonly string IndexPrefix = $"article:";
+    public static readonly string INDEX_NAME = "idx:article";
+    public static readonly string INDEX_PREFIX = "article:";
+    public static readonly string CHANNEL = "articles";
 }
+
+public enum ArticleCategory
+{
+    NEWS = 1,
+};
 
 public class ArticleHeader
 {
     [JsonPropertyName("id")]
     public Guid Id { get; set; }
+
     [JsonPropertyName("title")]
     public string Title { get; set; } = string.Empty;
 }
 
-public class ArticleFooter : ArticleHeader
+public class Article : ArticleHeader
 {
-    [JsonPropertyName("chat")]
-    public List<ChatMessage> Chat { get; set; } = new List<ChatMessage>();
+    [JsonPropertyName("source")]
+    public string Source { get; set; } = string.Empty;
+
+    [JsonPropertyName("category")]
+    public ArticleCategory Category { get; set; }
+
     [JsonPropertyName("created")]
     public DateTime Created { get; set; }
+
     [JsonPropertyName("updated")]
     public DateTime Updated { get; set; }
-}
 
-public class Article : ArticleFooter
-{
     [JsonPropertyName("published")]
     public bool Published { get; set; }
 
+    [JsonPropertyName("language")]
+    public string Language { get; set; } = string.Empty;
+
     [JsonPropertyName("content")]
-    public string Content { get; set; } = string.Empty;
+    public IEnumerable<MarkdownElement> Content { get; set; } = Array.Empty<MarkdownElement>();
+
+    [JsonPropertyName("chat")]
+    public IEnumerable<ChatMessage> Chat { get; set; } = Array.Empty<ChatMessage>();
 }

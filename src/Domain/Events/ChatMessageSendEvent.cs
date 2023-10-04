@@ -1,5 +1,5 @@
 ﻿namespace AJE.Domain.Events;
-public class ChatMessageSendEvent
+public record ChatMessageSendEvent
 {
 
 }

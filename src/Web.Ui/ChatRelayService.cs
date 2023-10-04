@@ -42,7 +42,7 @@
         private async Task Subscribe()
         {
             var s = _connection.GetSubscriber();
-            await s.SubscribeAsync(AJEConstants.CHANNEL_CHAT, HandleMessage);
+            await s.SubscribeAsync(ChatConstants.CHANNEL, HandleMessage);
         }
 
         private void HandleMessage(RedisChannel channel, RedisValue value)

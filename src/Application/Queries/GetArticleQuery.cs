@@ -2,48 +2,30 @@
 
 public record GetArticleQuery : IRequest<Article>
 {
-    public bool OnlyPublished { get; init; }
-    public int Offset { get; init; }
-    public int PageSize { get; init; }
+    public required Guid Id { get; init; }
 }
 
-public class GetArticle : IRequestHandler<GetArticleQuery, Article>
+public class GetArticleQueryHandler : IRequestHandler<GetArticleQuery, Article>
 {
-    private IConnectionMultiplexer _connection;
+    private readonly IConnectionMultiplexer _connection;
 
-    public GetArticle(IConnectionMultiplexer connection)
+    public GetArticleQueryHandler(IConnectionMultiplexer connection)
     {
         _connection = connection;
     }
 
     public async Task<Article> Handle(GetArticleQuery request, CancellationToken cancellationToken)
     {
-        var db = _connection.GetDatabase();
-        var ft = db.FT();
+        var json = _connection.GetDatabase().JSON();
 
-        // FT.SEARCH DocumentIndexV1 "*" LIMIT 0 10 RETURN 2 $.Id $.Title
-        var query = new Query(request.OnlyPublished ? "@published:{true}" : "*")
-            .Limit(request.Offset, request.PageSize)
-            .ReturnFields(new FieldName("id"), new FieldName("title"))
-            .Dialect(3);
-
-        var result = await ft.SearchAsync(ArticleConstants.IndexName, query);
-        var headers = from doc in result.Documents
-                      select Parse(doc);
-
-        return new Article();
-    }
-
-    private static ArticleHeader Parse(Document document)
-    {
-        var id = document["id"].ToString();
-        var title = document["title"].ToString();
-        var IdArray = JsonSerializer.Deserialize<Guid[]>(id) ?? throw new Exception();
-        var titleArray = JsonSerializer.Deserialize<string[]>(title) ?? throw new Exception();
-        if (IdArray.Length != 1 || titleArray.Length != 1)
+        var redisId = $"{ArticleConstants.INDEX_PREFIX}{request.Id}";
+        var result = (string?)await json.GetAsync(redisId);
+        if (result != null)
         {
-            throw new Exception();
+            var article = JsonSerializer.Deserialize<Article>(result);
+            if (article != null)
+                return article;
         }
-        return new ArticleHeader { Id = IdArray[0], Title = titleArray[0] };
+        throw new Exception("todo");
     }
 }

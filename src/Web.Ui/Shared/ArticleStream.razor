@@ -1,0 +1,33 @@
+﻿@using AJE.Domain.Events;
+@inject IConnectionMultiplexer Connection
+@inject ISender Sender
+
+<ArticleView Model="_article" />
+
+@code {
+    private Article? _article;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var pubsub = Connection.GetSubscriber();
+        await pubsub.SubscribeAsync(ArticleConstants.CHANNEL, Message);        
+    }
+
+    private void Message(RedisChannel channel, RedisValue message)
+    {
+        if (message.HasValue)
+        {
+            var msg = JsonSerializer.Deserialize<ArticlePublishedEvent>(message.ToString());
+            if (msg != null)
+            {
+                InvokeAsync(() => Load(msg.Id));
+            }
+        }
+    }
+
+    private async Task Load(Guid id)
+    {
+        _article = await Sender.Send(new GetArticleQuery { Id = id });
+        StateHasChanged();
+    }
+}

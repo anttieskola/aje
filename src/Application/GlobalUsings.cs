@@ -1,12 +1,15 @@
 ﻿global using AJE.Application.Entities;
 global using AJE.Domain;
+global using AJE.Domain.Commands;
 global using AJE.Domain.Entities;
 global using AJE.Domain.Events;
+global using AJE.Domain.Exceptions;
 global using System;
 global using MediatR;
 global using Microsoft.Extensions.DependencyInjection;
 global using StackExchange.Redis;
 global using NRedisStack.Search;
 global using NRedisStack.RedisStackCommands;
+global using System.Text;
 global using System.Text.Json;
 global using System.Reflection;
