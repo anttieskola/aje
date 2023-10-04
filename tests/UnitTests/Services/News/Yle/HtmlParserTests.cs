@@ -211,7 +211,7 @@ public class HtmlParserTests
 
         var textListElement = article.Content.ElementAt(2) as MarkdownElement;
         Assert.NotNull(textListElement);
-        Assert.Equal("- Bullet one\r\n- Bullet two\r\n", textListElement.Text);
+        Assert.Equal("- Bullet one" + Environment.NewLine + "- Bullet two" + Environment.NewLine, textListElement.Text);
     }
 
 
