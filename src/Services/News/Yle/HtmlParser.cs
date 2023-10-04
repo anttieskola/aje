@@ -94,9 +94,21 @@
                                     {
                                         text.AppendLine($"- {item}");
                                     }
-                                    elements.Add(new MarkdownElement
+                                    elements.Add(new MarkdownTextElement
                                     {
                                         Text = text.ToString(),
+                                    });
+                                }
+                            }
+                            break;
+                        case "LivefeedBlock":
+                            {
+                                var feedId = (string?)c["livefeedId"];
+                                if (feedId != null)
+                                {
+                                    elements.Add(new MarkdownTextElement
+                                    {
+                                        Text = feedId,
                                     });
                                 }
                             }

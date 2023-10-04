@@ -214,4 +214,43 @@ public class HtmlParserTests
         Assert.Equal("- Bullet one\r\n- Bullet two\r\n", textListElement.Text);
     }
 
+
+    private const string _htmlLiveFeed = @"
+<!DOCTYPE html>
+<html>
+    <head></head>
+    <body>
+        <script type=""text/javascript"">
+            window.__INITIAL__STATE__={
+                ""pageData"": {
+                    ""article"": {
+                        ""title"": ""Article title"",
+                        ""language"": ""en"",
+                        ""content"": [
+                            {
+                                ""type"": ""LivefeedBlock"",
+                                ""livefeedId"": ""64-1-1519""
+                            }
+                        ]
+
+                    }
+                }
+            }
+        </script>
+    </body>
+</html>
+";
+    [Fact]
+    public void LiveFeed()
+    {
+        var article = HtmlParser.Parse(_htmlLiveFeed);
+        Assert.NotNull(article);
+        Assert.Equal("Article title", article.Title);
+        Assert.NotEmpty(article.Content);
+        Assert.Single(article.Content);
+
+        var textElement = article.Content.ElementAt(0) as MarkdownTextElement;
+        Assert.NotNull(textElement);
+        Assert.Equal("64-1-1519", textElement.Text);
+    }
 }
