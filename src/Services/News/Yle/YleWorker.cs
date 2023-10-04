@@ -76,6 +76,7 @@ public class YleWorker : BackgroundService
                 article.Id = Guid.NewGuid();
                 article.Category = ArticleCategory.NEWS;
                 article.Source = link;
+                article.Published = true;
                 article.Created = DateTime.UtcNow;
                 await _sender.Send(new PublishArticleCommand { Article = article }, ct);
             }
