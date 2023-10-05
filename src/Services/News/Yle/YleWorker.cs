@@ -75,9 +75,9 @@ public class YleWorker : BackgroundService
                 var article = HtmlParser.Parse(content);
                 article.Id = Guid.NewGuid();
                 article.Category = ArticleCategory.NEWS;
-                article.Source = link;
+                article.Modified = DateTime.UtcNow.Ticks;
                 article.Published = true;
-                article.Created = DateTime.UtcNow;
+                article.Source = link;
                 await _sender.Send(new PublishArticleCommand { Article = article }, ct);
             }
         }

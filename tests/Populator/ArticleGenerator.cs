@@ -16,13 +16,13 @@ internal class ArticleGenerator
         var article = new Article
         {
             Id = Guid.NewGuid(),
+            Category = ArticleCategory.BOGUS,
             Title = _faker.Commerce.ProductName(),
-
-            Source = _faker.Internet.UrlWithPath(),
-            Created = DateTime.UtcNow,
-            Updated = DateTime.UtcNow,
+            Modified = DateTime.UtcNow.Ticks,
             Published = _faker.Random.Bool(),
+            Source = string.Empty,
             Language = "en",
+
             Content = GenerateContent(),
             Chat = GenerateChat(),
         };

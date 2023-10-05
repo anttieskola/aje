@@ -30,9 +30,12 @@ public class ArticleIndex
 
         var schema = new Schema()
             .AddTagField(new FieldName("$.id", "id"))
+            .AddTagField(new FieldName("$.category", "category"))
             .AddTextField(new FieldName("$.title", "title"))
+            .AddNumericField(new FieldName("$.modified", "modified"), sortable: true)
+            .AddTagField(new FieldName("$.published", "published"))
             .AddTagField(new FieldName("$.source", "source"))
-            .AddTagField(new FieldName("$.published", "published"));
+            .AddTagField(new FieldName("$.language", "language"));
 
         await ft.CreateAsync(ArticleConstants.INDEX_NAME, cp, schema);
         _logger.LogDebug("Index {indexName} created", ArticleConstants.INDEX_NAME);

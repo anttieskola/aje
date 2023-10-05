@@ -9,7 +9,8 @@ public static class ArticleConstants
 
 public enum ArticleCategory
 {
-    NEWS = 1,
+    BOGUS = 1,
+    NEWS = 2,
 };
 
 public class ArticleHeader
@@ -17,30 +18,27 @@ public class ArticleHeader
     [JsonPropertyName("id")]
     public Guid Id { get; set; }
 
-    [JsonPropertyName("title")]
-    public string Title { get; set; } = string.Empty;
-}
-
-public class Article : ArticleHeader
-{
-    [JsonPropertyName("source")]
-    public string Source { get; set; } = string.Empty;
-
     [JsonPropertyName("category")]
     public ArticleCategory Category { get; set; }
 
-    [JsonPropertyName("created")]
-    public DateTime Created { get; set; }
+    [JsonPropertyName("title")]
+    public string Title { get; set; } = string.Empty;
 
-    [JsonPropertyName("updated")]
-    public DateTime Updated { get; set; }
+    [JsonPropertyName("modified")]
+    public long Modified { get; set; }
 
     [JsonPropertyName("published")]
     public bool Published { get; set; }
 
+    [JsonPropertyName("source")]
+    public string Source { get; set; } = string.Empty;
+
     [JsonPropertyName("language")]
     public string Language { get; set; } = string.Empty;
+}
 
+public class Article : ArticleHeader
+{
     [JsonPropertyName("content")]
     public IEnumerable<MarkdownElement> Content { get; set; } = Array.Empty<MarkdownElement>();
 
