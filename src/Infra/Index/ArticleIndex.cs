@@ -30,7 +30,7 @@ public class ArticleIndex
 
         var schema = new Schema()
             .AddTagField(new FieldName("$.id", "id"))
-            .AddTagField(new FieldName("$.category", "category"))
+            .AddNumericField(new FieldName("$.category", "category"))
             .AddTextField(new FieldName("$.title", "title"))
             .AddNumericField(new FieldName("$.modified", "modified"), sortable: true)
             .AddTagField(new FieldName("$.published", "published"))
