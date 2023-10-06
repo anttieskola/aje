@@ -6,13 +6,13 @@
     }
     <NavLink href="/" class="mr-2" aria-label="home">
         <button type="button" class="menuButton" aria-label="home">
-            <Icon Name="house" Padding="@IconPadding" Size="@_iconSize"/>
+            <Icon Name="house" Padding="@IconPadding" Size="@_iconSize" />
         </button>
     </NavLink>
     @foreach (var link in _navLinks)
     {
         <NavLink href="@link" class="mr-2">
-            <button type="button" class="menuButton p-1 text-xl">
+            <button type="button" class="menuButton p-1 text-lg/[32px]">
                 @link
             </button>
         </NavLink>
@@ -55,12 +55,15 @@
     </div>
 </nav>
 <div class="h-[42px] min-h-full">
+    @{
+        /* this pushes content down so menu not on top of page (even tho it hovers on top of it) */
+    }
 </div>
 @code {
     private bool _darkMode = false;
     private IJSObjectReference? _js;
 
-    private static string[] _navLinks = new string[] { "localchat", "globalchat", "storybook", "icons", "articles" };
+    private static string[] _navLinks = new string[] { "articles", "storybook", "icons" };
     private int IconPadding => 2;
     private int _iconSize => 36;
 
