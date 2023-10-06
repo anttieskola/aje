@@ -47,6 +47,7 @@
 
         private static Article ParseArticle(JsonNode article)
         {
+            var dateJsonModified = (article["dateJsonModified"]?.ToString()) ?? throw new ParsingException("no date");
             var titleElement = article["title"] ?? throw new ParsingException("no title");
             var languageElement = article["language"] ?? throw new ParsingException("no language");
             var contentArray = (article["content"]?.AsArray()) ?? throw new ParsingException("no content array");
@@ -124,8 +125,13 @@
             }
             return new Article
             {
+                Id = Guid.NewGuid(),
+                Category = ArticleCategory.NEWS,
+                // timestamps have no milliseconds so we need to parse it manually
+                Modified = DateTimeOffset.ParseExact(dateJsonModified, "yyyy-MM-ddTHH:mm:sszzz", CultureInfo.InvariantCulture).UtcTicks,
                 Title = titleElement.ToString(),
                 Language = languageElement.ToString(),
+                Published = true,
                 Content = elements
             };
         }

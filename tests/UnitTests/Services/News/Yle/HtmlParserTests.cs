@@ -10,7 +10,7 @@ public class HtmlParserTests
 <html>
     <head></head>
     <body>
-    
+
     </body>
 </html>
 ";
@@ -56,6 +56,29 @@ public class HtmlParserTests
         Assert.Equal("unable to find article", expection.Message);
     }
 
+    private const string _htmlNoDate = @"
+<!DOCTYPE html>
+<html>
+    <head></head>
+    <body>
+        <script type=""text/javascript"">
+            window.__INITIAL__STATE__={
+                ""pageData"": {
+                    ""article"": {
+                    }
+                }
+            }
+        </script>
+    </body>
+</html>
+";
+    [Fact]
+    public void NoDate()
+    {
+        var expection = Assert.Throws<ParsingException>(() => HtmlParser.Parse(_htmlNoDate));
+        Assert.Equal("no date", expection.Message);
+    }
+
     private const string _htmlNoTitle = @"
 <!DOCTYPE html>
 <html>
@@ -65,6 +88,7 @@ public class HtmlParserTests
             window.__INITIAL__STATE__={
                 ""pageData"": {
                     ""article"": {
+                        ""dateJsonModified"": ""1980-09-12T18:00:00+0300""
                     }
                 }
             }
@@ -88,6 +112,7 @@ public class HtmlParserTests
             window.__INITIAL__STATE__={
                 ""pageData"": {
                     ""article"": {
+                        ""dateJsonModified"": ""1980-09-12T18:00:00+0300"",
                         ""title"": ""Article title""
                     }
                 }
@@ -112,6 +137,7 @@ public class HtmlParserTests
             window.__INITIAL__STATE__={
                 ""pageData"": {
                     ""article"": {
+                        ""dateJsonModified"": ""1980-09-12T18:00:00+0300"",
                         ""title"": ""Article title"",
                         ""language"": ""en""
                     }
@@ -137,6 +163,7 @@ public class HtmlParserTests
             window.__INITIAL__STATE__={
                 ""pageData"": {
                     ""article"": {
+                        ""dateJsonModified"": ""1980-09-12T18:00:00+0300"",
                         ""title"": ""Article title"",
                         ""language"": ""en"",
                         ""content"": []
@@ -163,6 +190,7 @@ public class HtmlParserTests
             window.__INITIAL__STATE__={
                 ""pageData"": {
                     ""article"": {
+                        ""dateJsonModified"": ""1980-09-12T18:00:00+0300"",
                         ""title"": ""Article title"",
                         ""language"": ""en"",
                         ""content"": [
@@ -196,7 +224,9 @@ public class HtmlParserTests
     {
         var article = HtmlParser.Parse(_htmlOk);
         Assert.NotNull(article);
+        Assert.Equal(new DateTimeOffset(1980, 9, 12, 18, 0, 0, TimeSpan.FromHours(3)).UtcTicks, article.Modified);
         Assert.Equal("Article title", article.Title);
+        Assert.Equal("en", article.Language);
         Assert.NotEmpty(article.Content);
         Assert.Equal(3, article.Content.Count());
 
@@ -224,6 +254,7 @@ public class HtmlParserTests
             window.__INITIAL__STATE__={
                 ""pageData"": {
                     ""article"": {
+                        ""dateJsonModified"": ""1980-09-12T18:00:00+0300"",
                         ""title"": ""Article title"",
                         ""language"": ""en"",
                         ""content"": [

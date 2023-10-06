@@ -21,7 +21,7 @@ public class GetLatestArticlesQueryHandler : IRequestHandler<GetLatestArticlesQu
         var query = new Query("*")
             .Limit(0, request.Count)
             .ReturnFields(new FieldName("id"))
-            .SetSortBy("modified")
+            .SetSortBy("modified", false)
             .Dialect(3);
 
         var result = await ft.SearchAsync(ArticleConstants.INDEX_NAME, query);

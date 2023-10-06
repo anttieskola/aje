@@ -22,6 +22,8 @@ public class YleWorker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken ct)
     {
+        await Reload(ct);
+
         while (!ct.IsCancellationRequested)
         {
             // update current links
@@ -30,13 +32,33 @@ public class YleWorker : BackgroundService
 
             _logger.LogInformation("Link count {}", _currentLinks.Count);
 
-            // handle links 
+            // handle links
             foreach (var link in _currentLinks)
             {
                 await HandleLink(link, ct);
             }
 
             await Task.Delay(_refreshDelay, ct);
+        }
+    }
+
+    private async Task Reload(CancellationToken ct)
+    {
+        // Note, we want to crash if any errors occur in reloading
+
+        var files = Directory.GetFiles(_configuration.DumpFolder, "*.html");
+        _logger.LogInformation("Found {} files in dump folder", files.Length);
+
+        foreach (var file in files)
+        {
+            var source = $"https://yle.fi/a/{Path.GetFileNameWithoutExtension(file)}";
+            if (!await _sender.Send(new ArticleExistsQuery { Source = source }, ct))
+            {
+                var content = await File.ReadAllTextAsync(file, ct);
+                var article = HtmlParser.Parse(content);
+                article.Source = source;
+                await _sender.Send(new PublishArticleCommand { Article = article }, ct);
+            }
         }
     }
 
@@ -47,7 +69,7 @@ public class YleWorker : BackgroundService
             using var client = new HttpClient();
             var response = await client.GetAsync(feed.Url, ct);
             var content = await response.Content.ReadAsStringAsync(ct);
-            await File.WriteAllTextAsync(Path.Combine(_configuration.DumpFolder, CreateFileNameFromUrl(feed.Url, "xml")), content, ct);
+            await File.WriteAllTextAsync(Path.Combine(_configuration.DumpFolder, CreateRSSFileName(feed.Url)), content, ct);
             var links = RssParser.Parse(content);
             foreach (var link in links)
             {
@@ -61,6 +83,7 @@ public class YleWorker : BackgroundService
         }
     }
 
+
     private async Task HandleLink(string link, CancellationToken ct)
     {
         try
@@ -70,13 +93,9 @@ public class YleWorker : BackgroundService
                 using var client = new HttpClient();
                 var response = await client.GetAsync(link, ct);
                 var content = await response.Content.ReadAsStringAsync(ct);
-                await File.WriteAllTextAsync(Path.Combine(_configuration.DumpFolder, CreateFileNameFromUrl(link, "html")), content, ct);
-                
+                await File.WriteAllTextAsync(Path.Combine(_configuration.DumpFolder, CreateHTMLFileName(link)), content, ct);
+
                 var article = HtmlParser.Parse(content);
-                article.Id = Guid.NewGuid();
-                article.Category = ArticleCategory.NEWS;
-                article.Modified = DateTime.UtcNow.Ticks;
-                article.Published = true;
                 article.Source = link;
                 await _sender.Send(new PublishArticleCommand { Article = article }, ct);
             }
@@ -87,21 +106,23 @@ public class YleWorker : BackgroundService
         }
     }
 
-    public static string CreateFileNameFromUrl(Uri uri, string extension)
-        => CreateFileNameFromUrl(uri.ToString(), extension);
-
-    public static string CreateFileNameFromUrl(string url, string extension)
+    public static string CreateRSSFileName(Uri uri)
     {
         var sb = new StringBuilder();
-        foreach (var c in url)
+        foreach (var c in uri.ToString())
         {
             if (char.IsAsciiLetterOrDigit(c))
             {
                 sb.Append(c);
             }
         }
-        sb.Append('.');
-        sb.Append(extension);
+        sb.Append(".xml");
         return sb.ToString();
+    }
+
+    public static string CreateHTMLFileName(string url)
+    {
+        var fileName = url.Replace("https://yle.fi/a/", string.Empty);
+        return $"{fileName}.html";
     }
 }

@@ -7,14 +7,14 @@ public static class RssParser
         var doc = XDocument.Parse(rss);
         var list = new List<string>();
         var items = from item in doc.Descendants("item")
-                   select item;
+                    select item;
 
         foreach (var item in items)
         {
             var articleLink = item.Element("link");
             if (articleLink != null)
             {
-                list.Add(articleLink.Value);
+                list.Add(articleLink.Value.Replace("?origin=rss", string.Empty));
             }
         }
         return list;

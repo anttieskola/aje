@@ -49,7 +49,7 @@ public class RssParserTests
 
         links = RssParser.Parse(_rssTwo);
         Assert.Equal(2, links.Count());
-        Assert.Equal("https://yle.fi/a/74-20052790?origin=rss", links.ElementAt(0));
-        Assert.Equal("https://yle.fi/a/74-20052777?origin=rss", links.ElementAt(1));
+        Assert.Equal("https://yle.fi/a/74-20052790", links.ElementAt(0));
+        Assert.Equal("https://yle.fi/a/74-20052777", links.ElementAt(1));
     }
 }
