@@ -52,25 +52,6 @@
     </tbody>
 </table>
 
-@{
-        /* for template
-        <TableTemplate Items="_headers.Items" TItem="ArticleHeader" Context="header">
-    <TableHeader>
-    <th>Title</th>
-        </TableHeader>
-            <RowTemplate>
-                <tr>
-                <td>
-                @{ var href = $"/article/{header.Id}"; }
-                <NavLink href="@href">
-            @header.Title
-        </NavLink>
-            </td>
-            </tr>
-        </RowTemplate>
-    </TableTemplate>
-    */
-}
 @code {
     #region table -> todo component
     private PaginatedList<ArticleHeader> _headers = new PaginatedList<ArticleHeader>(new List<ArticleHeader>(), 0, 0);
@@ -79,7 +60,7 @@
     {
         get
         {
-            return _headers.Offset > _pageSize;
+            return _headers.Offset >= _pageSize;
         }
     }
     private bool _isNextEnabled
@@ -97,14 +78,24 @@
     {
         if (_isPreviousEnabled)
         {
-            _headers = await Sender.Send(new GetArticleHeadersQuery { OnlyPublished = true, Offset = _headers.Offset - _pageSize, PageSize = _pageSize });
+            _headers = await Sender.Send(new GetArticleHeadersQuery
+                {
+                    OnlyPublished = true,
+                    Offset = _headers.Offset - _pageSize,
+                    PageSize = _pageSize
+                });
         }
     }
     private async Task Next()
     {
         if (_isNextEnabled)
         {
-            _headers = await Sender.Send(new GetArticleHeadersQuery { OnlyPublished = true, Offset = _headers.Offset + _pageSize, PageSize = _pageSize });
+            _headers = await Sender.Send(new GetArticleHeadersQuery
+                {
+                    OnlyPublished = true,
+                    Offset = _headers.Offset + _pageSize,
+                    PageSize = _pageSize
+                });
         }
     }
     #endregion table -> todo component
