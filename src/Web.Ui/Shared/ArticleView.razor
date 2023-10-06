@@ -4,18 +4,20 @@
 }
 else
 {
-    <div>
-        <h1>@Model.Title</h1>
-    </div>
     @foreach (var content in Model.Content)
     {
-        <div>
-            @if (content as MarkdownHeaderElement != null)
-            {
-                <h3>@(content as MarkdownHeaderElement).Title</h3>
-            }
-            <p>@content.Text</p>
-        </div>
+        switch (content)
+        {
+            case MarkdownHeaderElement header:
+                <MarkDownHeader Element="@header" />
+                break;
+            case MarkdownTextElement text:
+                <MarkDownText Element="@text" />
+                break;
+            default:
+                <p class="text-rose-600">Unknown content type</p>
+                break;
+        }
     }
 }
 

@@ -1,5 +1,7 @@
 ﻿namespace AJE.Domain.Entities;
 
+[JsonDerivedType(typeof(MarkdownTextElement), "text")]
+[JsonDerivedType(typeof(MarkdownHeaderElement), "header")]
 public record MarkdownElement
 {
     [JsonPropertyName("text")]

@@ -1,0 +1,8 @@
+﻿@if (Element != null)
+{
+    <p>@Element.Text</p>
+}
+@code {
+    [Parameter]
+    public MarkdownTextElement? Element { get; set; }
+}
