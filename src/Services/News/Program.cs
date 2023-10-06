@@ -1,18 +1,22 @@
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices(services =>
     {
-        services.AddApplication();
-        services.AddInfra();
-        services.AddHostedService<YleWorker>();
-
         var config = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json", false, true)
             .Build();
 
+        var redisConfiguration = (config.GetSection(nameof(RedisConfiguration)).Get<RedisConfiguration>())
+            ?? throw new SystemException(nameof(RedisConfiguration));
+        services.AddSingleton(redisConfiguration);
+
         var yleConfig = (config.GetSection(nameof(YleConfiguration)).Get<YleConfiguration>())
             ?? throw new SystemException(nameof(YleConfiguration));
         services.AddSingleton(yleConfig);
+
+        services.AddApplication();
+        services.AddInfra(redisConfiguration);
+        services.AddHostedService<YleWorker>();
 
     })
     .ConfigureLogging(logging =>

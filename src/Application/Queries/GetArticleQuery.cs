@@ -26,6 +26,6 @@ public class GetArticleQueryHandler : IRequestHandler<GetArticleQuery, Article>
             if (article != null)
                 return article;
         }
-        throw new Exception("todo");
+        throw new KeyNotFoundException($"Article with id {request.Id} not found");
     }
 }
