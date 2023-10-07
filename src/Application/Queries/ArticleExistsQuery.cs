@@ -15,7 +15,7 @@ public class ArticleExistsQueryHandler : IRequestHandler<ArticleExistsQuery, boo
     }
 
     public async Task<bool> Handle(ArticleExistsQuery request, CancellationToken cancellationToken)
-    {   
+    {
         var ft = _connection.GetDatabase().FT();
 
         var sourceKeyword = request.Source.RedisEscape();
@@ -26,5 +26,5 @@ public class ArticleExistsQueryHandler : IRequestHandler<ArticleExistsQuery, boo
 
         var results = await ft.SearchAsync(ArticleConstants.INDEX_NAME, query);
         return results.TotalResults > 0;
-    }    
+    }
 }

@@ -1,6 +1,6 @@
 ﻿using AJE.Application;
 
-namespace AJE.UnitTests;
+namespace AJE.UnitTests.Application;
 
 public class RedisTokenizerTest
 {

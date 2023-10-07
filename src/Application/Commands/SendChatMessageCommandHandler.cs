@@ -1,10 +1,8 @@
-﻿using AJE.Domain.Commands;
-
-namespace AJE.Application.Commands;
+﻿namespace AJE.Application.Commands;
 
 public class SendChatMessageCommandHandler : IRequestHandler<SendChatMessageCommand, ChatMessageSendEvent>
 {
-    private IConnectionMultiplexer _connection;
+    private readonly IConnectionMultiplexer _connection;
 
     public SendChatMessageCommandHandler(IConnectionMultiplexer connection)
     {
