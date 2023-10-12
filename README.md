@@ -56,7 +56,7 @@ boosted by into redis.
 	  each line for example.
 	- Will make use of the small font size and load css so font is cached on client side.
 	- This version I wanna keep the fun mess I made
-		 
+
 ##  Links
 - [this repository](https://github.com/anttieskola/aje)
 - [redis commands](https://redis.io/commands/)
@@ -106,6 +106,20 @@ server {
 - KEYS List all keys
 - FT._LIST List all search indexes
 - FT.EXPLAIN -> explains query, very good for learning
+
+### Executing commands with StackExchange.Redis
+This took an hour to figure out...
+
+```csharp
+// When executing command with arguments in List
+var arguments = new List<string> { "idx:article", "*", "NOCONTENT" };
+var resException = await db.ExecuteAsync("FT.SEARCH", arguments);
+// Will result in RedisTimeoutException
+
+// But if you execute command with array of arguments
+var resOk = await db.ExecuteAsync("FT.SEARCH", arguments.ToArray());
+// All will work fine
+```
 
 ### Guid/Url type of columns in index
 So I had added stuff with bogus to redis and was trying to search does any article have source

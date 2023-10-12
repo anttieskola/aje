@@ -1,6 +1,12 @@
-﻿@using System.ComponentModel.DataAnnotations;
-@using System.Net.Http
-@using System.Timers;
+﻿@using AJE.Web.Ui
+@using AJE.Web.Ui.Shared
+@using AJE.Application.Commands;
+@using AJE.Application.Entities;
+@using AJE.Application.Indexes;
+@using AJE.Application.Queries;
+@using AJE.Domain.Commands;
+@using AJE.Domain.Entities;
+@using AJE.Domain.Events;
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Forms
@@ -9,8 +15,6 @@
 @using Microsoft.AspNetCore.Components.Web.Virtualization
 @using Microsoft.AspNetCore.SignalR.Client
 @using Microsoft.JSInterop
-@using AJE.Web.Ui
-@using AJE.Web.Ui.Shared
-@using AJE.Application.Commands;
-@using AJE.Application.Queries;
-@using AJE.Application.Entities;
+@using System.ComponentModel.DataAnnotations;
+@using System.Net.Http
+@using System.Timers;

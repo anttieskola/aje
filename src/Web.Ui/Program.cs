@@ -27,11 +27,7 @@ builder.Logging.AddSimpleConsole(option =>
 builder.Services.AddHostedService<ChatRelayService>();
 var app = builder.Build();
 
-var rcs = app.Services.GetService<RedisConfiguratorService>();
-if (rcs != null)
-{
-    await rcs.Initialize();
-}
+await app.Services.InitializeRedis();
 
 if (!app.Environment.IsDevelopment())
 {

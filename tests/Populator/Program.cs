@@ -23,10 +23,5 @@ IHost host = Host.CreateDefaultBuilder(args)
     })
     .Build();
 
-var rcs = host.Services.GetService<RedisConfiguratorService>();
-if (rcs != null)
-{
-    await rcs.Initialize();
-}
-
+await host.Services.InitializeRedis();
 host.Run();

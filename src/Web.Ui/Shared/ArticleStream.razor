@@ -1,5 +1,4 @@
-﻿@using AJE.Domain.Events;
-@inject IConnectionMultiplexer Connection
+﻿@inject IConnectionMultiplexer Connection
 @inject ISender Sender
 @implements IDisposable
 
@@ -19,13 +18,15 @@
     [Parameter]
     public int DelayInSeconds { get; set; } = 30;
 
+    private IRedisIndex _index = new ArticleIndex();
     private Article? _article;
     private Queue<Guid> _queue = new Queue<Guid>();
     private Timer _timer = default!;
     protected override async Task OnInitializedAsync()
     {
         var pubsub = Connection.GetSubscriber();
-        await pubsub.SubscribeAsync(ArticleConstants.CHANNEL, Message);
+        // TODO: Magic string
+        await pubsub.SubscribeAsync(_index.Channel, Message);
 
         await QueueLatest();
 
@@ -42,9 +43,9 @@
 
     private async Task QueueLatest()
     {
-        var latest = await Sender.Send(new GetLatestArticlesQuery { Count = LatestCount });
-        foreach (var id in latest)
-            _queue.Enqueue(id);
+        var headers = await Sender.Send(new GetArticleHeadersQuery { OnlyPublished = true, Offset = 0, PageSize = LatestCount });
+        foreach (var header in headers.Items)
+            _queue.Enqueue(header.Id);
     }
 
     private void Trigger(object? sender, ElapsedEventArgs e)

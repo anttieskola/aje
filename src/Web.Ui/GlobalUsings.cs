@@ -7,8 +7,6 @@ global using AJE.Domain;
 global using AJE.Domain.Entities;
 global using AJE.Infra;
 global using System;
-global using NRedisStack;
-global using NRedisStack.RedisStackCommands;
 global using StackExchange.Redis;
 global using MediatR;
 global using Microsoft.Extensions.Caching.Memory;

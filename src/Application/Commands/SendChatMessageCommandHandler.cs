@@ -11,7 +11,9 @@ public class SendChatMessageCommandHandler : IRequestHandler<SendChatMessageComm
     public async Task<ChatMessageSendEvent> Handle(SendChatMessageCommand request, CancellationToken cancellationToken)
     {
         var sb = _connection.GetSubscriber();
-        await sb.PublishAsync(ChatConstants.CHANNEL, JsonSerializer.Serialize(request));
+        var msg = JsonSerializer.Serialize(request);
+        var channel = new RedisChannel(ChatConstants.CHANNEL, RedisChannel.PatternMode.Auto);
+        await sb.PublishAsync(channel, msg);
         return new ChatMessageSendEvent();
     }
 }

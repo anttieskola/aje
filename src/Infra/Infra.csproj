@@ -4,7 +4,7 @@
     <RootNamespace>AJE.Infra</RootNamespace>
     <AssemblyName>AJE.Infra</AssemblyName>
   </PropertyGroup>
-  
+
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -13,7 +13,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.1" />
-    <PackageReference Include="NRedisStack" Version="0.8.1" />
+    <PackageReference Include="StackExchange.Redis" Version="2.6.122" />
   </ItemGroup>
 
   <ItemGroup>

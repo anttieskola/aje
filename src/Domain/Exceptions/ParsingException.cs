@@ -1,5 +1,6 @@
 ﻿namespace AJE.Domain.Exceptions;
 
+[Serializable]
 public class ParsingException : Exception
 {
     public ParsingException(string? message)

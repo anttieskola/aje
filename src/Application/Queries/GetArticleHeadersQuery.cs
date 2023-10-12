@@ -9,6 +9,7 @@ public record GetArticleHeadersQuery : IRequest<PaginatedList<ArticleHeader>>
 
 public class GetArticleHeadersQueryHandler : IRequestHandler<GetArticleHeadersQuery, PaginatedList<ArticleHeader>>
 {
+    private readonly IRedisIndex _index = new ArticleIndex();
     private readonly IConnectionMultiplexer _connection;
 
     public GetArticleHeadersQueryHandler(IConnectionMultiplexer connection)
@@ -18,30 +19,25 @@ public class GetArticleHeadersQueryHandler : IRequestHandler<GetArticleHeadersQu
 
     public async Task<PaginatedList<ArticleHeader>> Handle(GetArticleHeadersQuery request, CancellationToken cancellationToken)
     {
-        var ft = _connection.GetDatabase().FT();
-
-        var query = new Query(request.OnlyPublished ? "@published:{true}" : "*")
-            .Limit(request.Offset, request.PageSize)
-            .ReturnFields(new FieldName("id"), new FieldName("title"))
-            .Dialect(3);
-
-        var result = await ft.SearchAsync(ArticleConstants.INDEX_NAME, query);
-        var headers = from doc in result.Documents
-                      select Parse(doc);
-
-        return new PaginatedList<ArticleHeader>(headers.ToArray(), request.Offset, result.TotalResults);
-    }
-
-    private static ArticleHeader Parse(Document document)
-    {
-        var id = document["id"].ToString();
-        var title = document["title"].ToString();
-        var IdArray = JsonSerializer.Deserialize<Guid[]>(id) ?? throw new Exception();
-        var titleArray = JsonSerializer.Deserialize<string[]>(title) ?? throw new Exception();
-        if (IdArray.Length != 1 || titleArray.Length != 1)
+        var db = _connection.GetDatabase();
+        var query = request.OnlyPublished ? "@published:{true}" : "*";
+        var arguments = new string[] { _index.Name, query, "SORTBY", "modified", "DESC", "RETURN", "2", "$.id", "$.title", "LIMIT", request.Offset.ToString(), request.PageSize.ToString() };
+        var result = await db.ExecuteAsync("FT.SEARCH", arguments);
+        // first item is total count (integer)
+        var rows = (RedisResult[])result!;
+        var totalCount = (long)rows[0];
+        var list = new List<ArticleHeader>();
+        // then pairs of key (bulk string) and value (multibulk)
+        for (long i = 1; i < rows.LongLength; i += 2)
         {
-            throw new Exception();
+            // value is in this case defined in return statement (with labels)
+            // $.id, id-value, $.title, title-value
+            var data = (RedisResult[])rows[i + 1]!;
+            var id = (string)data[1]! ?? throw new DataException($"invalid data value in key {rows[i]}");
+            var title = (string)data[3]! ?? throw new DataException($"invalid data value in key {rows[i]}");
+            list.Add(new ArticleHeader { Id = Guid.Parse(id), Title = title });
         }
-        return new ArticleHeader { Id = IdArray[0], Title = titleArray[0] };
+
+        return new PaginatedList<ArticleHeader>(list, request.Offset, totalCount);
     }
 }

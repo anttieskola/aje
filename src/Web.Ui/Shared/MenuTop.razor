@@ -54,7 +54,7 @@
         </button>
     </div>
 </nav>
-<div class="h-[42px] min-h-full">
+<div class="h-[48px] min-h-full">
     @{
         /* this pushes content down so menu not on top of page (even tho it hovers on top of it) */
     }
@@ -62,11 +62,9 @@
 @code {
     private bool _darkMode = false;
     private IJSObjectReference? _js;
-
     private static string[] _navLinks = new string[] { "articles", "storybook", "icons" };
     private int IconPadding => 2;
     private int _iconSize => 36;
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)

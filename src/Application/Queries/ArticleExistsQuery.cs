@@ -7,6 +7,7 @@ public record ArticleExistsQuery : IRequest<bool>
 
 public class ArticleExistsQueryHandler : IRequestHandler<ArticleExistsQuery, bool>
 {
+    private readonly IRedisIndex _index = new ArticleIndex();
     private readonly IConnectionMultiplexer _connection;
 
     public ArticleExistsQueryHandler(IConnectionMultiplexer connection)
@@ -16,15 +17,10 @@ public class ArticleExistsQueryHandler : IRequestHandler<ArticleExistsQuery, boo
 
     public async Task<bool> Handle(ArticleExistsQuery request, CancellationToken cancellationToken)
     {
-        var ft = _connection.GetDatabase().FT();
-
-        var sourceKeyword = request.Source.RedisEscape();
-        var query = new Query($"@source:{{{sourceKeyword}}}")
-            .Limit(0, 1)
-            .ReturnFields(new FieldName("id"))
-            .Dialect(3);
-
-        var results = await ft.SearchAsync(ArticleConstants.INDEX_NAME, query);
-        return results.TotalResults > 0;
+        var db = _connection.GetDatabase();
+        var arguments = new string[] { _index.Name, $"@source:{{{request.Source.RedisEscape()}}}", "NOCONTENT" };
+        var result = await db.ExecuteAsync("FT.SEARCH", arguments);
+        var resultItems = (RedisResult[])result!;
+        return ((int)resultItems[0]) > 0;
     }
 }

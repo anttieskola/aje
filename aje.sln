@@ -21,6 +21,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Doc", "Doc", "{5B59DCCC-A40
 	ProjectSection(SolutionItems) = preProject
 		README.md = README.md
 		doc\Tailwind.md = doc\Tailwind.md
+		CloudFront_ErrorPage.html = CloudFront_ErrorPage.html
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{1F2CC064-FF62-4052-B834-31EF506C62F8}"
