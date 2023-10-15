@@ -12,14 +12,14 @@ public class Utility
         var files = Directory.GetFiles(folder, "http*.html");
         foreach (var file in files)
         {
-            if (file.StartsWith("httpsylefia74"))
+            if (file.Contains("httpsylefia74"))
             {
                 var newFile = file
                     .Replace("httpsylefia74", "74-")
                     .Replace("originrss", string.Empty);
                 File.Move(file, newFile);
             }
-            else if (file.StartsWith("httpsylefia3"))
+            else if (file.Contains("httpsylefia3"))
             {
                 var newFile = file
                     .Replace("httpsylefia3", "3-")
