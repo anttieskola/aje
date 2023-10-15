@@ -58,9 +58,18 @@ public class YleWorker : BackgroundService
             if (!await _sender.Send(new ArticleExistsQuery { Source = source }, ct))
             {
                 var content = await File.ReadAllTextAsync(file, ct);
-                var article = HtmlParser.Parse(content);
-                article.Source = source;
-                await _sender.Send(new PublishArticleCommand { Article = article }, ct);
+                try
+                {
+                    var article = HtmlParser.Parse(content);
+                    article.Source = source;
+                    await _sender.Send(new PublishArticleCommand { Article = article }, ct);
+                }
+                catch (ParsingException pe)
+                {
+                    // file most likely cloudfront error page
+                    // TODO: Remove try/catch when feature to detect error page is implemented
+                    _logger.LogWarning(pe, "file {}", file);
+                }
             }
         }
     }
