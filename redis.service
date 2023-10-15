@@ -1,0 +1,35 @@
+# /etc/systemd/system/redis.service
+
+# install
+# sudo systemctl daemon-reload
+# sudo systemctl enable redis.service
+# sudo systemctl start redis.service
+
+# removal
+# sudo systemctl stop redis.service
+# sudo systemctl disable redis.service
+# remove the service file
+# reload daemon
+
+# full log you can see with
+# journalctl -u redis.service
+
+[Unit]
+Description=Redis
+After=network.target
+
+[Service]
+Type=simple
+Restart=always
+# Note working directory is a must
+# otherwiser process can't find resources -> odd errors
+WorkingDirectory=/usr/local/bin/redis/src
+ExecStart=/usr/local/bin/redis/src/redis-server /usr/local/bin/redis.conf
+User=antti
+
+SyslogIdentifier=redis
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target
