@@ -12,11 +12,24 @@ public class Utility
         var files = Directory.GetFiles(folder, "http*.html");
         foreach (var file in files)
         {
-            var newFile = file
-                .Replace("httpsylefia74", "74-")
-                .Replace("originrss", string.Empty);
-
-            File.Move(file, newFile);
+            if (file.StartsWith("httpsylefia74"))
+            {
+                var newFile = file
+                    .Replace("httpsylefia74", "74-")
+                    .Replace("originrss", string.Empty);
+                File.Move(file, newFile);
+            }
+            else if (file.StartsWith("httpsylefia3"))
+            {
+                var newFile = file
+                    .Replace("httpsylefia3", "3-")
+                    .Replace("originrss", string.Empty);
+                File.Move(file, newFile);
+            }
+            else
+            {
+                Assert.True(false, $"Can't fix: {file}");
+            }
         }
     }
 }
