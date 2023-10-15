@@ -45,30 +45,41 @@ public class YleWorker : BackgroundService
 
     private async Task Reload(CancellationToken ct)
     {
-        // Note, we want to crash if any errors occur in reloading
-        // Yle uses [Amazon CloudFron](https://aws.amazon.com/cloudfront/)
-        // So in case of high traffic or similar we might download an CloudFront error page
-        // TODO: Feature that detects the error page and works around it
         var files = Directory.GetFiles(_configuration.DumpFolder, "*.html");
         _logger.LogInformation("Found {} files in dump folder", files.Length);
 
         foreach (var file in files)
         {
-            var source = $"https://yle.fi/a/{Path.GetFileNameWithoutExtension(file)}";
-            if (!await _sender.Send(new ArticleExistsQuery { Source = source }, ct))
+            var link = $"https://yle.fi/a/{Path.GetFileNameWithoutExtension(file)}";
+            if (!await _sender.Send(new ArticleExistsQuery { Source = link }, ct))
             {
                 var content = await File.ReadAllTextAsync(file, ct);
-                try
+                if (TestHtmlParse(content))
                 {
+                    // publish
                     var article = HtmlParser.Parse(content);
-                    article.Source = source;
+                    article.Source = link;
                     await _sender.Send(new PublishArticleCommand { Article = article }, ct);
                 }
-                catch (ParsingException pe)
+                else
                 {
-                    // file most likely cloudfront error page
-                    // TODO: Remove try/catch when feature to detect error page is implemented
-                    _logger.LogWarning(pe, "file {}", file);
+                    // file content is invalid, downloading again to see if we get valid article
+                    content = await Request(new Uri(link), ct);
+                    if (TestHtmlParse(content))
+                    {
+                        // save valid article file
+                        _logger.LogInformation("Article file {} fixed with valid content", file);
+                        await File.WriteAllTextAsync(Path.Combine(_configuration.DumpFolder, CreateHTMLFileName(link)), content, ct);
+
+                        // publish
+                        var article = HtmlParser.Parse(content);
+                        article.Source = link;
+                        await _sender.Send(new PublishArticleCommand { Article = article }, ct);
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Article file {} could not be fixed", file);
+                    }
                 }
             }
         }
@@ -95,13 +106,16 @@ public class YleWorker : BackgroundService
         }
     }
 
-
     private async Task HandleLink(string link, CancellationToken ct)
     {
         try
         {
             if (!await _sender.Send(new ArticleExistsQuery { Source = link }, ct))
             {
+                // Note, we want to crash if any errors occur in reloading
+                // Yle uses [Amazon CloudFron](https://aws.amazon.com/cloudfront/)
+                // So in case of high traffic or similar we might download an CloudFront error page
+                // TODO: Feature that detects the error page and works around it
                 var content = await Request(new Uri(link), ct);
                 await File.WriteAllTextAsync(Path.Combine(_configuration.DumpFolder, CreateHTMLFileName(link)), content, ct);
                 var article = HtmlParser.Parse(content);
@@ -112,6 +126,19 @@ public class YleWorker : BackgroundService
         catch (Exception e)
         {
             _logger.LogError(e, "Error handling link {}", link);
+        }
+    }
+
+    public static bool TestHtmlParse(string content)
+    {
+        try
+        {
+            HtmlParser.Parse(content);
+            return true;
+        }
+        catch (ParsingException)
+        {
+            return false;
         }
     }
 
