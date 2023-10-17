@@ -5,4 +5,5 @@ global using AJE.Domain.Entities;
 global using Bogus;
 global using Moq;
 global using StackExchange.Redis;
+global using System.Data;
 global using Xunit;
