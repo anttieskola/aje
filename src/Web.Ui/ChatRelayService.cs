@@ -42,7 +42,7 @@
         private async Task Subscribe()
         {
             var s = _connection.GetSubscriber();
-            await s.SubscribeAsync(ChatConstants.CHANNEL, HandleMessage);
+            await s.SubscribeAsync(new RedisChannel(ChatConstants.CHANNEL, RedisChannel.PatternMode.Auto), HandleMessage);
         }
 
         private void HandleMessage(RedisChannel channel, RedisValue value)
@@ -54,7 +54,8 @@
                 {
                     _hubContext.Clients.All.ReceiveMessage(msg!.UserName, msg!.Message);
                 }
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 _logger.LogError(e, "Failed to deserialize message");
             }

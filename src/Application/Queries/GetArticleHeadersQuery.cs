@@ -1,10 +1,9 @@
 ﻿namespace AJE.Application.Queries;
 
-public record GetArticleHeadersQuery : IRequest<PaginatedList<ArticleHeader>>
+public record GetArticleHeadersQuery : PaginatedQuery, IRequest<PaginatedList<ArticleHeader>>
 {
-    public bool OnlyPublished { get; init; }
-    public int Offset { get; init; }
-    public int PageSize { get; init; }
+    public bool? Published { get; init; }
+    public string? Language { get; init; }
 }
 
 public class GetArticleHeadersQueryHandler : IRequestHandler<GetArticleHeadersQuery, PaginatedList<ArticleHeader>>
@@ -20,7 +19,14 @@ public class GetArticleHeadersQueryHandler : IRequestHandler<GetArticleHeadersQu
     public async Task<PaginatedList<ArticleHeader>> Handle(GetArticleHeadersQuery request, CancellationToken cancellationToken)
     {
         var db = _connection.GetDatabase();
-        var query = request.OnlyPublished ? "@published:{true}" : "*";
+
+        var builder = new QueryBuilder();
+        if (request.Published != null)
+            builder.Conditions.Add(new QueryCondition { Expression = $"@published:{{{request.Published}}}" });
+        if (request.Language != null)
+            builder.Conditions.Add(new QueryCondition { Expression = $"@language:{{{request.Language}}}" });
+        var query = builder.Build();
+
         var arguments = new string[] { _index.Name, query, "SORTBY", "modified", "DESC", "RETURN", "2", "$.id", "$.title", "LIMIT", request.Offset.ToString(), request.PageSize.ToString() };
         var result = await db.ExecuteAsync("FT.SEARCH", arguments);
         // first item is total count (integer)

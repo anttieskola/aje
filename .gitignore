@@ -114,3 +114,6 @@ orleans.codegen.cs
 
 # Microsoft Fakes
 FakesAssemblies/
+
+# llama.cpp source
+llama.cpp/*

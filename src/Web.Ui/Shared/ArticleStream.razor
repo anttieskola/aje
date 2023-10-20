@@ -43,7 +43,7 @@
 
     private async Task QueueLatest()
     {
-        var headers = await Sender.Send(new GetArticleHeadersQuery { OnlyPublished = true, Offset = 0, PageSize = LatestCount });
+        var headers = await Sender.Send(new GetArticleHeadersQuery { Offset = 0, PageSize = LatestCount });
         foreach (var header in headers.Items)
             _queue.Enqueue(header.Id);
     }

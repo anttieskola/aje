@@ -1,8 +1,8 @@
 ﻿namespace AJE.UnitTests;
-public class TempTests
+public class Playground
 {
     [Fact]
-    public void Playground()
+    public void FerrisWheel()
     {
     }
 }

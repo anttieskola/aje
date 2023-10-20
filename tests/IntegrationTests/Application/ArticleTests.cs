@@ -100,7 +100,7 @@ public class ArticleTests : IClassFixture<RedisFixture>
 
         // act: get article headers (paged)
         var headersHandler = new GetArticleHeadersQueryHandler(_redisFixture.Connection);
-        var headers = await headersHandler.Handle(new GetArticleHeadersQuery { OnlyPublished = true, Offset = 0, PageSize = 10 }, CancellationToken.None);
+        var headers = await headersHandler.Handle(new GetArticleHeadersQuery { Offset = 0, PageSize = 10 }, CancellationToken.None);
         Assert.NotNull(headers);
         Assert.NotEmpty(headers.Items);
 

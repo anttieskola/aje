@@ -3,6 +3,19 @@
 
 <PageTitle>articles</PageTitle>
 
+<label for="language">Filter by language</label>
+<select name="language" @onchange="Language">
+    <option value="">-</option>
+    <option value="en">en</option>
+    <option value="fi">fi</option>
+    <option value="krl">krl</option>
+    <option value="ru">ru</option>
+    <option value="se">se</option>
+    <option value="smn">smn</option>
+    <option value="sms">sms</option>
+    <option value="uk">uk</option>
+</select>
+
 <table class="table-auto">
     <tbody>
         @foreach (var item in _headers.Items)
@@ -53,6 +66,27 @@
 </table>
 
 @code {
+
+    private string? _language;
+
+    private async Task Language(ChangeEventArgs a)
+    {
+        if (a.Value is null || a.Value.ToString() == "")
+            _language = null;
+        else
+            _language = a.Value.ToString();
+
+        _headers = await Sender.Send(new GetArticleHeadersQuery
+            {
+                Offset = 0,
+                PageSize = _pageSize,
+                Language = _language,
+            });
+
+        await InvokeAsync(() => StateHasChanged());
+    }
+
+
     #region table -> todo component
     private PaginatedList<ArticleHeader> _headers = new PaginatedList<ArticleHeader>(new List<ArticleHeader>(), 0, 0);
     private int _pageSize = 10;
@@ -72,7 +106,12 @@
     }
     protected override async Task OnInitializedAsync()
     {
-        _headers = await Sender.Send(new GetArticleHeadersQuery { OnlyPublished = true, Offset = 0, PageSize = _pageSize });
+        _headers = await Sender.Send(new GetArticleHeadersQuery
+            {
+                Offset = 0,
+                PageSize = _pageSize,
+                Language = _language,
+            });
     }
     private async Task Previous()
     {
@@ -80,9 +119,9 @@
         {
             _headers = await Sender.Send(new GetArticleHeadersQuery
                 {
-                    OnlyPublished = true,
                     Offset = _headers.Offset - _pageSize,
-                    PageSize = _pageSize
+                    PageSize = _pageSize,
+                    Language = _language,
                 });
         }
     }
@@ -92,9 +131,9 @@
         {
             _headers = await Sender.Send(new GetArticleHeadersQuery
                 {
-                    OnlyPublished = true,
                     Offset = _headers.Offset + _pageSize,
-                    PageSize = _pageSize
+                    PageSize = _pageSize,
+                    Language = _language,
                 });
         }
     }

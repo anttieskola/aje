@@ -18,7 +18,8 @@ builder.Services.AddSignalR()
     .AddStackExchangeRedis(redisConfiguration.Host, options =>
     {
         // one redis multiple signal-r apps with separate prefixes
-        options.Configuration.ChannelPrefix = "AJE_";
+        // not required currently but good to know
+        options.Configuration.ChannelPrefix = new RedisChannel("AJE_", RedisChannel.PatternMode.Auto);
     });
 builder.Logging.AddSimpleConsole(option =>
 {
