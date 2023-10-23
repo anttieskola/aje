@@ -136,10 +136,10 @@ public class CompletionRequest
 
     /// <summary>
     /// Set grammar for grammar-based sampling
-    /// (default: no grammar)
+    /// (default: "")
     /// </summary>
     [JsonPropertyName("grammar")]
-    public string Grammar { get; set; } = "no grammar";
+    public string Grammar { get; set; } = string.Empty;
 
     /// <summary>
     /// Set the random number generator (RNG) seed
@@ -275,10 +275,10 @@ public class GenerationSettings
 
     /// <summary>
     /// Set grammar for grammar-based sampling
-    /// (default: no grammar)
+    /// (default: "")
     /// </summary>
     [JsonPropertyName("grammar")]
-    public string Grammar { get; set; } = "no grammar";
+    public string Grammar { get; set; } = string.Empty;
 
     /// <summary>
     /// Ignore end of stream token and continue generating

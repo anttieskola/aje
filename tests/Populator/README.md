@@ -1,0 +1,1 @@
+Just a dummy app I made in beginning to fill Redis with bogus data

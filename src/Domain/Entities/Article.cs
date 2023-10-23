@@ -13,6 +13,9 @@ public class ArticleHeader
 
     [JsonPropertyName("title")]
     public string Title { get; set; } = string.Empty;
+
+    [JsonPropertyName("polarity")]
+    public Polarity Polarity { get; set; } = Polarity.Unknown;
 }
 
 public class Article : ArticleHeader

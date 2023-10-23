@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
+using AJE.Domain.Entities;
 
-namespace AJE.UnitTests;
+namespace AJE.UnitTests.Domain.Entities;
 
 public class SerializationTests
 {

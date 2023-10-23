@@ -1,4 +1,5 @@
-﻿using AJE.Domain.Exceptions;
+﻿using AJE.Domain.Entities;
+using AJE.Domain.Exceptions;
 using AJE.Service.News.Yle;
 
 namespace AJE.UnitTests.Services.News.Yle;

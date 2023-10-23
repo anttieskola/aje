@@ -1,4 +1,6 @@
-﻿namespace AJE.UnitTests;
+﻿using AJE.Application.Entities;
+
+namespace AJE.UnitTests;
 
 public class QueryBuilderTests
 {

@@ -1,5 +1,6 @@
 ﻿using AJE.Application.Commands;
 using AJE.Domain.Commands;
+using AJE.Domain.Entities;
 using AJE.Domain.Exceptions;
 
 namespace AJE.UnitTests.Application.Commands;
