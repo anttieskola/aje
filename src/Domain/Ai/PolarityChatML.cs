@@ -5,7 +5,7 @@ public interface IPolarity : IPromptCreator
     Polarity Parse(string text);
 }
 
-public class PolarityChatMLCreator : ChatMLCreator, IPolarity
+public class PolarityChatML : ChatMLCreator, IPolarity
 {
     public const string EntityName = "assistant";
     public static readonly string[] SystemInstructions = {
@@ -13,7 +13,7 @@ public class PolarityChatMLCreator : ChatMLCreator, IPolarity
             "You will respond using only one single word that is either neutral, positive or negative"
         };
 
-    public PolarityChatMLCreator() :
+    public PolarityChatML() :
         base(EntityName, SystemInstructions)
     {
     }

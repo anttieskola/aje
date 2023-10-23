@@ -6,16 +6,12 @@ var host = Host.CreateDefaultBuilder(args)
             .AddJsonFile("appsettings.json", false, true)
             .Build();
 
-        var redisConfiguration = (config.GetSection(nameof(RedisConfiguration)).Get<RedisConfiguration>())
-            ?? throw new SystemException(nameof(RedisConfiguration));
-        services.AddSingleton(redisConfiguration);
-
         var yleConfig = (config.GetSection(nameof(YleConfiguration)).Get<YleConfiguration>())
             ?? throw new SystemException(nameof(YleConfiguration));
         services.AddSingleton(yleConfig);
 
         services.AddApplication();
-        services.AddInfra(redisConfiguration);
+        services.AddInfra(config);
         services.AddHostedService<YleWorker>();
 
     })

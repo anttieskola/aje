@@ -28,6 +28,7 @@ public class GetArticlePolarityCommandHandler : IRequestHandler<GetArticlePolari
         var request = new CompletionRequest
         {
             Prompt = prompt,
+            Temperature = 0.1,
         };
         var response = await _aiModel.CompletionAsync(request, cancellationToken);
         var polarity = _polarity.Parse(response.Content);

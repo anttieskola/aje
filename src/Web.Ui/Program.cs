@@ -5,12 +5,10 @@ var config = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json", false, true)
     .Build();
 
-var redisConfiguration = (config.GetSection(nameof(RedisConfiguration)).Get<RedisConfiguration>())
-    ?? throw new SystemException(nameof(RedisConfiguration));
-builder.Services.AddSingleton(redisConfiguration);
+var redisConfiguration = config.GetRedisConfiguration();
 
 builder.Services.AddApplication();
-builder.Services.AddInfra(redisConfiguration);
+builder.Services.AddInfra(config);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddMemoryCache();

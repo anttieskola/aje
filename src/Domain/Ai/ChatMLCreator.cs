@@ -23,13 +23,16 @@ public abstract class ChatMLCreator : IPromptCreator
         _systemInstructions = systemInstructions;
     }
 
+    // TODO: history support
+    /*
     public ChatMLCreator(
         string entityName,
         string[] systemInstructions,
         IEnumerable<HistoryEntry> history)
     {
-        // TODO: history support
+
     }
+    */
 
     private string _iStart = "<|im_start|>";
     private string _iEnd = "<|im_end|>";

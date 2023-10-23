@@ -6,6 +6,9 @@ using AJE.Domain.Entities;
 
 namespace AJE.IntegrationTests.Application;
 
+/// <summary>
+/// Tests require redis running on localhost:6379
+/// </summary>
 public class ArticleTests : IClassFixture<RedisFixture>
 {
     private readonly RedisFixture _redisFixture;

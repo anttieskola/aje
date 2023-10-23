@@ -6,13 +6,9 @@ IHost host = Host.CreateDefaultBuilder(args)
             .AddJsonFile("appsettings.json", false, true)
             .Build();
 
-        var redisConfiguration = (config.GetSection(nameof(RedisConfiguration)).Get<RedisConfiguration>())
-            ?? throw new SystemException(nameof(RedisConfiguration));
-        services.AddSingleton(redisConfiguration);
-
         services.AddHostedService<ArticleWorker>();
         services.AddApplication();
-        services.AddInfra(redisConfiguration);
+        services.AddInfra(config);
     })
     .ConfigureLogging(logging =>
     {
