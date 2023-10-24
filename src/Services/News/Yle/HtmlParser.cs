@@ -126,7 +126,7 @@
             return new Article
             {
                 Id = Guid.NewGuid(),
-                Category = ArticleCategory.NEWS,
+                Category = Category.NEWS,
                 // timestamps have no milliseconds so we need to parse it manually
                 Modified = DateTimeOffset.ParseExact(dateJsonModified, "yyyy-MM-ddTHH:mm:sszzz", CultureInfo.InvariantCulture).UtcTicks,
                 Title = titleElement.ToString(),

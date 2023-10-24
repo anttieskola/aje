@@ -1,11 +1,5 @@
 ﻿namespace AJE.Domain.Entities;
 
-public enum ArticleCategory
-{
-    BOGUS = 1,
-    NEWS = 2,
-};
-
 public class ArticleHeader
 {
     [JsonPropertyName("id")]
@@ -13,15 +7,12 @@ public class ArticleHeader
 
     [JsonPropertyName("title")]
     public string Title { get; set; } = string.Empty;
-
-    [JsonPropertyName("polarity")]
-    public Polarity Polarity { get; set; } = Polarity.Unknown;
 }
 
 public class Article : ArticleHeader
 {
     [JsonPropertyName("category")]
-    public ArticleCategory Category { get; set; }
+    public Category Category { get; set; }
 
     [JsonPropertyName("modified")]
     public long Modified { get; set; }
@@ -34,6 +25,12 @@ public class Article : ArticleHeader
 
     [JsonPropertyName("language")]
     public string Language { get; set; } = string.Empty;
+
+    [JsonPropertyName("polarity")]
+    public Polarity Polarity { get; set; } = Polarity.Unknown;
+
+    [JsonPropertyName("polarityVersion")]
+    public int PolarityVersion { get; set; } = 0;
 
     [JsonPropertyName("content")]
     public IEnumerable<MarkdownElement> Content { get; set; } = Array.Empty<MarkdownElement>();

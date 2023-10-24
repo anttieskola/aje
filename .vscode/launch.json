@@ -24,6 +24,17 @@
             "console": "internalConsole"
         },
         {
+            "name": "NewsAnalyzer",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/src/Services/NewsAnalyzer/bin/Debug/net7.0/AJE.Service.NewsAnalyzer",
+            "args": [],
+            "cwd": "${workspaceFolder}/src/Services/NewsAnalyzer",
+            "stopAtEntry": false,
+            "console": "internalConsole"
+        },
+        {
             // Use IntelliSense to find out which attributes exist for C# debugging
             // Use hover for the description of the existing attributes
             // For further information visit https://github.com/dotnet/vscode-csharp/blob/main/debugger-launchjson.md.

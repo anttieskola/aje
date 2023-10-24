@@ -3,6 +3,7 @@ using AJE.Domain.Ai;
 using AJE.Domain.Commands;
 using AJE.Domain.Entities;
 using AJE.Infra;
+using Microsoft.Extensions.Logging;
 
 namespace AJE.IntegrationTests.Domain;
 
@@ -79,7 +80,10 @@ public class GetArticlePolarityCommandHandlerTests
         var article = JsonSerializer.Deserialize<Article>(_article);
         Assert.NotNull(article);
         var configuration = new LlamaConfiguration { Host = "http://localhost:8080" };
-        var handler = new GetArticlePolarityCommandHandler(new ArticleContextCreator(new MarkDownSimplifier()), new PolarityChatML(), new LlamaAiModel(configuration));
+        var handler = new GetArticlePolarityCommandHandler(
+            new ArticleContextCreator(new MarkDownSimplifier()),
+            new PolarityChatML(),
+            new LlamaAiModel(new Mock<ILogger<LlamaAiModel>>().Object, configuration));
         var command = new GetArticlePolarityCommand { Article = article };
         var response = await handler.Handle(command, CancellationToken.None);
         Assert.NotNull(response);

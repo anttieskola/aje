@@ -1,9 +1,14 @@
-﻿namespace AJE.Application.Queries;
+﻿using AJE.Domain.Enums;
+
+namespace AJE.Application.Queries;
 
 public record GetArticleHeadersQuery : PaginatedQuery, IRequest<PaginatedList<ArticleHeader>>
 {
+    public Category? Category { get; init; }
     public bool? Published { get; init; }
     public string? Language { get; init; }
+    public Polarity? Polarity { get; init; }
+    public int? MaxPolarityVersion { get; init; }
 }
 
 public class GetArticleHeadersQueryHandler : IRequestHandler<GetArticleHeadersQuery, PaginatedList<ArticleHeader>>
@@ -21,10 +26,16 @@ public class GetArticleHeadersQueryHandler : IRequestHandler<GetArticleHeadersQu
         var db = _connection.GetDatabase();
 
         var builder = new QueryBuilder();
+        if (request.Category != null)
+            builder.Conditions.Add(new QueryCondition { Expression = $"@category:{{{request.Category}}}" });
         if (request.Published != null)
             builder.Conditions.Add(new QueryCondition { Expression = $"@published:{{{request.Published}}}" });
         if (request.Language != null)
             builder.Conditions.Add(new QueryCondition { Expression = $"@language:{{{request.Language}}}" });
+        if (request.Polarity != null)
+            builder.Conditions.Add(new QueryCondition { Expression = $"@polarity:{{{request.Polarity}}}" });
+        if (request.MaxPolarityVersion != null)
+            builder.Conditions.Add(new QueryCondition { Expression = $"@polarityVersion:[-inf {request.MaxPolarityVersion}]" });
         var query = builder.Build();
 
         var arguments = new string[] { _index.Name, query, "SORTBY", "modified", "DESC", "RETURN", "2", "$.id", "$.title", "LIMIT", request.Offset.ToString(), request.PageSize.ToString() };

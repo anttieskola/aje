@@ -1,6 +1,7 @@
 ﻿using AJE.Application.Commands;
 using AJE.Domain.Commands;
 using AJE.Domain.Entities;
+using AJE.Domain.Enums;
 using AJE.Domain.Exceptions;
 
 namespace AJE.UnitTests.Application.Commands;
@@ -11,7 +12,7 @@ public class PublishArticleCommandHandlerTests
         new Article
         {
             Id = Guid.Parse("12300000-1200-1200-1200-000000000034"),
-            Category = ArticleCategory.NEWS,
+            Category = Category.NEWS,
             Title = "AJE is born",
             Modified = new DateTime(1980, 9, 12, 12, 00, 12).Ticks,
             Published = true,

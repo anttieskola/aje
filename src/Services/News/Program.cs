@@ -13,7 +13,6 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddApplication();
         services.AddInfra(config);
         services.AddHostedService<YleWorker>();
-
     })
     .ConfigureLogging(logging =>
     {

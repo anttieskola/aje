@@ -3,6 +3,7 @@ using AJE.Application.Indexes;
 using AJE.Application.Queries;
 using AJE.Domain.Commands;
 using AJE.Domain.Entities;
+using AJE.Domain.Enums;
 
 namespace AJE.IntegrationTests.Application;
 
@@ -32,7 +33,7 @@ public class ArticleTests : IClassFixture<RedisFixture>
         var article = new Article
         {
             Id = _idOk,
-            Category = ArticleCategory.NEWS,
+            Category = Category.NEWS,
             Title = "test",
             Modified = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
             Published = true,

@@ -16,7 +16,7 @@ internal class ArticleGenerator
         var article = new Article
         {
             Id = Guid.NewGuid(),
-            Category = ArticleCategory.BOGUS,
+            Category = Category.BOGUS,
             Title = _faker.Commerce.ProductName(),
             Modified = DateTime.UtcNow.Ticks,
             Published = _faker.Random.Bool(),

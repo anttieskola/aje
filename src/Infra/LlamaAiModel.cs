@@ -7,11 +7,15 @@
 /// </summary>
 public class LlamaAiModel : IAiModel
 {
+    private readonly ILogger<LlamaAiModel> _logger;
     private readonly LlamaConfiguration _configuration;
     private readonly Uri _serverUri;
 
-    public LlamaAiModel(LlamaConfiguration configuration)
+    public LlamaAiModel(
+        ILogger<LlamaAiModel> logger,
+        LlamaConfiguration configuration)
     {
+        _logger = logger;
         _configuration = configuration;
         _serverUri = new Uri(_configuration.Host);
     }
@@ -37,10 +41,51 @@ public class LlamaAiModel : IAiModel
         return response;
     }
 
-    public Task<CompletionResponse> CompletionStreamAsync(CompletionRequest request, Stream outputStream, CancellationToken cancellationToken)
+    public async Task<CompletionResponse> CompletionStreamAsync(CompletionRequest request, Stream outputStream, CancellationToken cancellationToken)
     {
-        // TODO
-        throw new NotImplementedException();
+        if (!request.Stream)
+            throw new ArgumentException($"Use {nameof(CompletionAsync)} when Stream disabled", nameof(request));
+
+        using var client = new HttpClient();
+        var httpRequest = new HttpRequestMessage(HttpMethod.Post, new Uri(_serverUri, "completion"));
+        httpRequest.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        httpRequest.Content = Serialize(request);
+        var httpResponse = await client.SendAsync(httpRequest, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+        using var stream = await httpResponse.Content.ReadAsStreamAsync(cancellationToken);
+        using var reader = new StreamReader(stream);
+        using var writer = new StreamWriter(outputStream);
+        var sb = new StringBuilder();
+        while (!reader.EndOfStream)
+        {
+            var line = await reader.ReadLineAsync(cancellationToken);
+            if (!string.IsNullOrWhiteSpace(line))
+            {
+                var data = line.Replace("data: ", string.Empty);
+                try
+                {
+
+                    var completion = JsonSerializer.Deserialize<CompletionResponse>(data);
+                    if (completion != null)
+                    {
+                        if (!completion.Stop)
+                        {
+                            await writer.WriteAsync(completion.Content);
+                            sb.Append(completion.Content);
+                        }
+                        else
+                        {
+                            completion.Content = sb.ToString();
+                            return completion;
+                        }
+                    }
+                }
+                catch (JsonException e)
+                {
+                    _logger.LogError("Error parsing json: {}", e.Message);
+                }
+            }
+        }
+        throw new InvalidOperationException("Stream ended without stop");
     }
 
     private static StringContent Serialize(CompletionRequest request)

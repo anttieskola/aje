@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using AJE.Domain.Entities;
+using AJE.Domain.Enums;
 
 namespace AJE.UnitTests.Domain.Entities;
 
@@ -13,7 +14,7 @@ public class SerializationTests
         var original = new Article
         {
             Id = Guid.Parse("12300000-1200-1200-1200-000000000034"),
-            Category = ArticleCategory.NEWS,
+            Category = Category.NEWS,
             Title = "AJE is born",
             Modified = new DateTime(1980, 9, 12, 12, 00, 12).Ticks,
             Published = true,
