@@ -1,5 +1,4 @@
-﻿using AJE.Application.Commands;
-using AJE.Domain.Commands;
+﻿using AJE.Domain.Commands;
 using AJE.Domain.Entities;
 using AJE.Domain.Enums;
 using AJE.Domain.Events;

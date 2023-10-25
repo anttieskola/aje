@@ -37,7 +37,7 @@ public class PolarityWorker : BackgroundService
         {
             Category = Category.NEWS,
             Language = "en",
-            MaxPolarityVersion = GetArticlePolarityCommand.CURRENT_POLARITY_VERSION - 1,
+            MaxPolarityVersion = GetArticlePolarityQuery.CURRENT_POLARITY_VERSION - 1,
             Offset = 0,
             PageSize = 1
         };
@@ -46,7 +46,7 @@ public class PolarityWorker : BackgroundService
         {
             // analyze article "sentiment" polarity
             var article = results.Items.First();
-            var command = new GetArticlePolarityCommand { Article = article };
+            var command = new GetArticlePolarityQuery { Article = article };
             var result = await _sender.Send(command, _cancellationToken);
 
             _logger.LogInformation($"Article {article.Id} polarity: {result.Polarity}");

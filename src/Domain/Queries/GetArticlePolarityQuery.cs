@@ -1,6 +1,6 @@
-﻿namespace AJE.Domain.Commands;
+﻿namespace AJE.Domain.Queries;
 
-public record GetArticlePolarityCommand : IRequest<ArticleClassifiedEvent>
+public record GetArticlePolarityQuery : IRequest<ArticleClassifiedEvent>
 {
     /// <summary>
     /// Current of the polarity model & prompt settings
@@ -9,14 +9,14 @@ public record GetArticlePolarityCommand : IRequest<ArticleClassifiedEvent>
     public required Article Article { get; init; }
 }
 
-public class GetArticlePolarityCommandHandler : IRequestHandler<GetArticlePolarityCommand, ArticleClassifiedEvent>
+public class GetArticlePolarityQueryHandler : IRequestHandler<GetArticlePolarityQuery, ArticleClassifiedEvent>
 {
 
     private readonly IContextCreator<Article> _contextCreator;
     private readonly IPolarity _polarity;
     private readonly IAiModel _aiModel;
 
-    public GetArticlePolarityCommandHandler(
+    public GetArticlePolarityQueryHandler(
         IContextCreator<Article> contextCreator,
         IPolarity polarity,
         IAiModel aiModel)
@@ -26,7 +26,7 @@ public class GetArticlePolarityCommandHandler : IRequestHandler<GetArticlePolari
         _aiModel = aiModel;
     }
 
-    public async Task<ArticleClassifiedEvent> Handle(GetArticlePolarityCommand command, CancellationToken cancellationToken)
+    public async Task<ArticleClassifiedEvent> Handle(GetArticlePolarityQuery command, CancellationToken cancellationToken)
     {
         var context = _contextCreator.Create(command.Article);
         var prompt = _polarity.Create(context);
@@ -42,7 +42,7 @@ public class GetArticlePolarityCommandHandler : IRequestHandler<GetArticlePolari
         {
             Id = command.Article.Id,
             Polarity = polarity,
-            PolarityVersion = GetArticlePolarityCommand.CURRENT_POLARITY_VERSION,
+            PolarityVersion = GetArticlePolarityQuery.CURRENT_POLARITY_VERSION,
         };
     }
 }

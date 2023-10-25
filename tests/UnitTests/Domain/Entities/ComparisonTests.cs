@@ -1,9 +1,8 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Text.Json;
+﻿using System.Text.Json;
 using AJE.Domain.Entities;
 using AJE.Domain.Enums;
 
-namespace AJE.UnitTests;
+namespace AJE.UnitTests.Domain.Entities;
 
 public class ComparisonTests
 {

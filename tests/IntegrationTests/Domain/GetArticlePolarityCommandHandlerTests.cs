@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using AJE.Domain.Ai;
-using AJE.Domain.Commands;
 using AJE.Domain.Entities;
+using AJE.Domain.Queries;
 using AJE.Infra;
 using AJE.Infra.Ai;
 using Microsoft.Extensions.Logging;
@@ -81,11 +81,11 @@ public class GetArticlePolarityCommandHandlerTests
         var article = JsonSerializer.Deserialize<Article>(_article);
         Assert.NotNull(article);
         var configuration = new LlamaConfiguration { Host = "http://localhost:8080" };
-        var handler = new GetArticlePolarityCommandHandler(
+        var handler = new GetArticlePolarityQueryHandler(
             new ArticleContextCreator(new MarkDownSimplifier()),
             new PolarityChatML(),
             new LlamaAiModel(new Mock<ILogger<LlamaAiModel>>().Object, configuration));
-        var command = new GetArticlePolarityCommand { Article = article };
+        var command = new GetArticlePolarityQuery { Article = article };
         var response = await handler.Handle(command, CancellationToken.None);
         Assert.NotNull(response);
     }

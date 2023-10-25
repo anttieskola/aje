@@ -1,11 +1,11 @@
 ﻿using AJE.Domain.Ai;
-using AJE.Domain.Commands;
 using AJE.Domain.Entities;
 using AJE.Domain.Enums;
+using AJE.Domain.Queries;
 
-namespace AJE.UnitTests;
+namespace AJE.UnitTests.Domain.Queries;
 
-public class GetArticlePolarityCommandHandlerTests
+public class GetArticlePolarityQueryHandlerTests
 {
     [Fact]
     public void Ok()
@@ -23,8 +23,8 @@ public class GetArticlePolarityCommandHandlerTests
         mockAiModel.Setup(x => x.CompletionAsync(It.IsAny<CompletionRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(completionResponse);
 
         var articleId = Guid.NewGuid();
-        var command = new GetArticlePolarityCommand { Article = new Article { Id = articleId } };
-        var handler = new GetArticlePolarityCommandHandler(mockContextCreator.Object, mockPolarity.Object, mockAiModel.Object);
+        var command = new GetArticlePolarityQuery { Article = new Article { Id = articleId } };
+        var handler = new GetArticlePolarityQueryHandler(mockContextCreator.Object, mockPolarity.Object, mockAiModel.Object);
 
         // act
         var result = handler.Handle(command, CancellationToken.None).Result;
