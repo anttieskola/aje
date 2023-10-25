@@ -23,13 +23,17 @@ public class PolarityWorker : BackgroundService
     {
         _cancellationToken = cancellationToken;
 
+        // analyze/update articles
         while (!_cancellationToken.IsCancellationRequested)
         {
             await AnalyzeLatest();
+            await Task.Delay(TimeSpan.FromSeconds(1), _cancellationToken);
         }
+
+        // TODO: Listen for new articles/updates
     }
 
-    private async Task AnalyzeLatest()
+    private async Task<bool> AnalyzeLatest()
     {
         // get latest article that has not been analyzed
         // or has been analyzed with older polarity version
@@ -47,9 +51,16 @@ public class PolarityWorker : BackgroundService
             // analyze article "sentiment" polarity
             var article = results.Items.First();
             var command = new GetArticlePolarityQuery { Article = article };
-            var result = await _sender.Send(command, _cancellationToken);
+            var polarityEvent = await _sender.Send(command, _cancellationToken);
 
-            _logger.LogInformation($"Article {article.Id} polarity: {result.Polarity}");
+            // update article with new polarity
+            article.Polarity = polarityEvent.Polarity;
+            article.PolarityVersion = polarityEvent.PolarityVersion;
+            var updateCommand = new UpdateArticleCommand { Article = article };
+            var articleEvent = await _sender.Send(updateCommand, _cancellationToken);
+
+            _logger.LogInformation("Article {} updated with polarity: {}", articleEvent.Id, polarityEvent.Polarity);
         }
+        return results.TotalCount > 1;
     }
 }

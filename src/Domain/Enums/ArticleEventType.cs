@@ -3,5 +3,5 @@
 public enum ArticleEventType
 {
     Added = 1,
-    Modified = 2,
+    Updated = 2,
 }

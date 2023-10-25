@@ -14,22 +14,41 @@ public class ArticleRepository : IArticleRepository
         _connection = connection;
     }
 
+    #region modifications
+
     public async Task AddAsync(Article article)
     {
         var db = _connection.GetDatabase();
         var redisId = _index.RedisId(article.Id.ToString());
         if (await db.KeyExistsAsync(redisId))
-        {
             throw new KeyExistsException(redisId);
-        }
+
         var setResult = await db.ExecuteAsync("JSON.SET", redisId, "$", JsonSerializer.Serialize(article));
         if (setResult.ToString() != "OK")
-        {
             throw new DataException($"failed to set value {redisId}");
-        }
+
         _logger.LogTrace("Added article {Id}", article.Id);
     }
 
+    public async Task UpdateAsync(Article article)
+    {
+        var current = await GetAsync(article.Id);
+        if (current == article)
+            throw new ArgumentException("article is not changed", nameof(article));
+
+        var db = _connection.GetDatabase();
+        var redisId = _index.RedisId(article.Id.ToString());
+
+        var setResult = await db.ExecuteAsync("JSON.SET", redisId, "$", JsonSerializer.Serialize(article));
+        if (setResult.ToString() != "OK")
+            throw new DataException($"failed to set value {redisId}");
+
+        _logger.LogTrace("Updated article {Id}", article.Id);
+    }
+
+    #endregion modifications
+
+    #region queries
     public async Task<Article> GetAsync(Guid id)
     {
         var db = _connection.GetDatabase();
@@ -41,6 +60,7 @@ public class ArticleRepository : IArticleRepository
         var article = JsonSerializer.Deserialize<Article>(json);
         return article ?? throw new DataException($"invalid value in key {redisId}");
     }
+
 
     public async Task<PaginatedList<Article>> GetAsync(GetArticlesQuery query)
     {
@@ -122,4 +142,6 @@ public class ArticleRepository : IArticleRepository
         var resultItems = (RedisResult[])result!;
         return ((int)resultItems[0]) > 0;
     }
+
+    #endregion queries
 }

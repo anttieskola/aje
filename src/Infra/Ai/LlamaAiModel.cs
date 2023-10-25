@@ -38,6 +38,7 @@ public class LlamaAiModel : IAiModel
         var response = JsonSerializer.Deserialize<CompletionResponse>(json)
             ?? throw new InvalidOperationException($"Failed to deserialize response from server: {json}");
 
+        _logger.LogTrace("Model response: {}", response.Content);
         return response;
     }
 
@@ -75,6 +76,7 @@ public class LlamaAiModel : IAiModel
                         else
                         {
                             completion.Content = sb.ToString();
+                            _logger.LogTrace("Model response: {}", completion.Content);
                             return completion;
                         }
                     }
@@ -85,6 +87,7 @@ public class LlamaAiModel : IAiModel
                 }
             }
         }
+        _logger.LogError("Model response: {}", sb.ToString());
         throw new InvalidOperationException("Stream ended without stop");
     }
 

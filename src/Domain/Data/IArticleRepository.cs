@@ -7,4 +7,5 @@ public interface IArticleRepository
     Task<PaginatedList<Article>> GetAsync(GetArticlesQuery query);
     Task<PaginatedList<ArticleHeader>> GetHeadersAsync(GetArticleHeadersQuery query);
     Task<bool> ExistsAsync(string source);
+    Task UpdateAsync(Article article);
 }
