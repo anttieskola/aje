@@ -26,6 +26,7 @@ public class LlamaAiModel : IAiModel
             throw new ArgumentException($"Use {nameof(CompletionStreamAsync)} when Stream enabled", nameof(request));
 
         using var client = new HttpClient();
+        client.Timeout = TimeSpan.FromSeconds(_configuration.TimeoutInSeconds);
         var httpRequest = new HttpRequestMessage(HttpMethod.Post, new Uri(_serverUri, "completion"));
         httpRequest.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         httpRequest.Content = Serialize(request);
@@ -48,6 +49,7 @@ public class LlamaAiModel : IAiModel
             throw new ArgumentException($"Use {nameof(CompletionAsync)} when Stream disabled", nameof(request));
 
         using var client = new HttpClient();
+        client.Timeout = TimeSpan.FromSeconds(_configuration.TimeoutInSeconds);
         var httpRequest = new HttpRequestMessage(HttpMethod.Post, new Uri(_serverUri, "completion"));
         httpRequest.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         httpRequest.Content = Serialize(request);

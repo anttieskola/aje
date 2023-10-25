@@ -7,6 +7,9 @@ public record ArticleHeader
 
     [JsonPropertyName("title")]
     public string Title { get; set; } = string.Empty;
+
+    [JsonPropertyName("polarity")]
+    public Polarity Polarity { get; set; } = Polarity.Unknown;
 }
 
 public record Article : ArticleHeader
@@ -25,9 +28,6 @@ public record Article : ArticleHeader
 
     [JsonPropertyName("language")]
     public string Language { get; set; } = string.Empty;
-
-    [JsonPropertyName("polarity")]
-    public Polarity Polarity { get; set; } = Polarity.Unknown;
 
     [JsonPropertyName("polarityVersion")]
     public int PolarityVersion { get; set; } = 0;

@@ -80,11 +80,12 @@ public class GetArticlePolarityCommandHandlerTests
     {
         var article = JsonSerializer.Deserialize<Article>(_article);
         Assert.NotNull(article);
-        var configuration = new LlamaConfiguration { Host = "http://localhost:8080" };
+        var configuration = new LlamaConfiguration { Host = "http://localhost:8080", LogFolder = "/var/aje/ai" };
         var handler = new GetArticlePolarityQueryHandler(
             new ArticleContextCreator(new MarkDownSimplifier()),
             new PolarityChatML(),
-            new LlamaAiModel(new Mock<ILogger<LlamaAiModel>>().Object, configuration));
+            new LlamaAiModel(new Mock<ILogger<LlamaAiModel>>().Object, configuration),
+            new AiLogger(configuration));
         var command = new GetArticlePolarityQuery { Article = article };
         var response = await handler.Handle(command, CancellationToken.None);
         Assert.NotNull(response);

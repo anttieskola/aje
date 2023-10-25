@@ -1,4 +1,10 @@
-﻿using AJE.Infra.Indexes;
+﻿using AJE.Domain.Ai;
+using AJE.Domain.Entities;
+using AJE.Domain.Queries;
+using AJE.Infra.Data;
+using AJE.Infra.Indexes;
+using AJE.Service.News.Yle;
+using Microsoft.Extensions.Logging;
 
 namespace AJE.IntegrationTests;
 
@@ -9,8 +15,29 @@ public class Playground
     /// Ready, set and go. Playground for new stuff.
     /// </summary>
     [Fact]
-    public void Rollercoaster()
+    public async Task Rollercoaster()
     {
+        // using var connection = await ConnectionMultiplexer.ConnectAsync("localhost:6379");
+        // var db = connection.GetDatabase();
+        // var repository = new ArticleRepository(new Mock<ILogger<ArticleRepository>>().Object, connection);
+        // var contextCreator = new ArticleContextCreator(new MarkDownSimplifier());
+
+        // var guid = new Guid("7d5844ce-825a-4c39-a933-587be0d3459a");
+        // var article = await repository.GetAsync(guid);
+        // var context = contextCreator.Create(article);
+    }
+
+    /// <summary>
+    /// Ready, set and go. Playground for new stuff.
+    /// </summary>
+    [Fact]
+    public async Task HauntedHouse()
+    {
+        // so big article
+        // var html = await File.ReadAllTextAsync("/var/aje/yle/74-20052908.html");
+        // var article = HtmlParser.Parse(html);
+        // var contextCreator = new ArticleContextCreator(new MarkDownSimplifier());
+        // var context = contextCreator.Create(article);
     }
 
     /// <summary>

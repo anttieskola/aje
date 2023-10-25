@@ -19,7 +19,7 @@ public class LlamaAiModelTests
     [Fact]
     public async Task CompletionAsyncTest()
     {
-        var configuration = new LlamaConfiguration { Host = "http://localhost:8080" };
+        var configuration = new LlamaConfiguration { Host = "http://localhost:8080", LogFolder = "/var/aje/ai" };
         var model = new LlamaAiModel(new Mock<ILogger<LlamaAiModel>>().Object, configuration);
         var request = new CompletionRequest
         {
@@ -37,7 +37,7 @@ public class LlamaAiModelTests
     [Fact]
     public async Task CompletionStreamAsync()
     {
-        var configuration = new LlamaConfiguration { Host = "http://localhost:8080" };
+        var configuration = new LlamaConfiguration { Host = "http://localhost:8080", LogFolder = "/var/aje/ai" };
         var model = new LlamaAiModel(new Mock<ILogger<LlamaAiModel>>().Object, configuration);
         var request = new CompletionRequest
         {

@@ -24,7 +24,7 @@ public class GetArticlePolarityQueryHandlerTests
 
         var articleId = Guid.NewGuid();
         var command = new GetArticlePolarityQuery { Article = new Article { Id = articleId } };
-        var handler = new GetArticlePolarityQueryHandler(mockContextCreator.Object, mockPolarity.Object, mockAiModel.Object);
+        var handler = new GetArticlePolarityQueryHandler(mockContextCreator.Object, mockPolarity.Object, mockAiModel.Object, new Mock<IAiLogger>().Object);
 
         // act
         var result = handler.Handle(command, CancellationToken.None).Result;

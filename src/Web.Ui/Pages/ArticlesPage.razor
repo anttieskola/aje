@@ -16,11 +16,23 @@
     <option value="uk">uk</option>
 </select>
 
+<label for="polarity">Filter by sentiment polarity</label>
+<select name="polarity" @onchange="Polarity">
+    <option value="">-</option>
+    <option value="Positive">Positive</option>
+    <option value="Neutral">Neutral</option>
+    <option value="Negative">Negative</option>
+    <option value="Unknown">Unknown</option>
+</select>
+
 <table class="table-auto">
     <tbody>
         @foreach (var item in _headers.Items)
         {
-            <tr>
+            <tr class="p-2">
+                <td>
+                    @item.Polarity
+                </td>
                 <td>
                     @{
                         var href = $"/article/{item.Id}";
@@ -76,11 +88,29 @@
         else
             _language = a.Value.ToString();
 
+        await InvokeAsync(() => Fetch());
+    }
+
+    private string? _polarity;
+
+    private async Task Polarity(ChangeEventArgs a)
+    {
+        if (a.Value is null || a.Value.ToString() == "")
+            _polarity = null;
+        else
+            _polarity = a.Value.ToString();
+
+        await InvokeAsync(() => Fetch());
+    }
+
+    private async Task Fetch(int offset = 0)
+    {
         _headers = await Sender.Send(new GetArticleHeadersQuery
             {
-                Offset = 0,
+                Offset = offset,
                 PageSize = _pageSize,
-                Language = _language,
+                Language = string.IsNullOrEmpty(_language) ? null : _language,
+                Polarity = string.IsNullOrEmpty(_polarity) ? null : Enum.Parse<Polarity>(_polarity),
             });
 
         await InvokeAsync(() => StateHasChanged());
@@ -88,8 +118,11 @@
 
 
     #region table -> todo component
+
     private PaginatedList<ArticleHeader> _headers = new PaginatedList<ArticleHeader>(new List<ArticleHeader>(), 0, 0);
-    private int _pageSize = 10;
+
+    private int _pageSize = 20;
+
     private bool _isPreviousEnabled
     {
         get
@@ -97,6 +130,7 @@
             return _headers.Offset >= _pageSize;
         }
     }
+
     private bool _isNextEnabled
     {
         get
@@ -106,36 +140,19 @@
     }
     protected override async Task OnInitializedAsync()
     {
-        _headers = await Sender.Send(new GetArticleHeadersQuery
-            {
-                Offset = 0,
-                PageSize = _pageSize,
-                Language = _language,
-            });
+        await Fetch();
     }
+
     private async Task Previous()
     {
         if (_isPreviousEnabled)
-        {
-            _headers = await Sender.Send(new GetArticleHeadersQuery
-                {
-                    Offset = _headers.Offset - _pageSize,
-                    PageSize = _pageSize,
-                    Language = _language,
-                });
-        }
+            await Fetch(_headers.Offset - _pageSize);
     }
+
     private async Task Next()
     {
         if (_isNextEnabled)
-        {
-            _headers = await Sender.Send(new GetArticleHeadersQuery
-                {
-                    Offset = _headers.Offset + _pageSize,
-                    PageSize = _pageSize,
-                    Language = _language,
-                });
-        }
+            await Fetch(_headers.Offset + _pageSize);
     }
     #endregion table -> todo component
 }

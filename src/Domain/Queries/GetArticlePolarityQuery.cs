@@ -15,21 +15,25 @@ public class GetArticlePolarityQueryHandler : IRequestHandler<GetArticlePolarity
     private readonly IContextCreator<Article> _contextCreator;
     private readonly IPolarity _polarity;
     private readonly IAiModel _aiModel;
+    private readonly IAiLogger _aiLogger;
 
     public GetArticlePolarityQueryHandler(
         IContextCreator<Article> contextCreator,
         IPolarity polarity,
-        IAiModel aiModel)
+        IAiModel aiModel,
+        IAiLogger aiLogger)
     {
         _contextCreator = contextCreator;
         _polarity = polarity;
         _aiModel = aiModel;
+        _aiLogger = aiLogger;
     }
 
     public async Task<ArticleClassifiedEvent> Handle(GetArticlePolarityQuery command, CancellationToken cancellationToken)
     {
         var context = _contextCreator.Create(command.Article);
         var prompt = _polarity.Create(context);
+
         // update version if prompt changes
         var request = new CompletionRequest
         {
@@ -38,6 +42,15 @@ public class GetArticlePolarityQueryHandler : IRequestHandler<GetArticlePolarity
         };
         var response = await _aiModel.CompletionAsync(request, cancellationToken);
         var polarity = _polarity.Parse(response.Content);
+
+        // detailed logging for unknown polarity
+        if (polarity == Polarity.Unknown)
+        {
+            // TODO: Only works for YLE's articles
+            var fileNamePrefix = command.Article.Source.Replace("https://yle.fi/a/", string.Empty);
+            await _aiLogger.LogAsync(fileNamePrefix, request, response);
+        }
+
         return new ArticleClassifiedEvent
         {
             Id = command.Article.Id,

@@ -74,7 +74,7 @@ public class ArticleRepository : IArticleRepository
         if (query.Language != null)
             builder.Conditions.Add(new QueryCondition { Expression = $"@language:{{{query.Language}}}" });
         if (query.Polarity != null)
-            builder.Conditions.Add(new QueryCondition { Expression = $"@polarity:{{{query.Polarity}}}" });
+            builder.Conditions.Add(new QueryCondition { Expression = $"@polarity:[{(int)query.Polarity} {(int)query.Polarity}]" });
         if (query.MaxPolarityVersion != null)
             builder.Conditions.Add(new QueryCondition { Expression = $"@polarityVersion:[-inf {query.MaxPolarityVersion}]" });
         var queryString = builder.Build();
@@ -109,12 +109,12 @@ public class ArticleRepository : IArticleRepository
         if (query.Language != null)
             builder.Conditions.Add(new QueryCondition { Expression = $"@language:{{{query.Language}}}" });
         if (query.Polarity != null)
-            builder.Conditions.Add(new QueryCondition { Expression = $"@polarity:{{{query.Polarity}}}" });
+            builder.Conditions.Add(new QueryCondition { Expression = $"@polarity:[{(int)query.Polarity} {(int)query.Polarity}]" });
         if (query.MaxPolarityVersion != null)
             builder.Conditions.Add(new QueryCondition { Expression = $"@polarityVersion:[-inf {query.MaxPolarityVersion}]" });
         var queryString = builder.Build();
 
-        var arguments = new string[] { _index.Name, queryString, "SORTBY", "modified", "DESC", "RETURN", "2", "$.id", "$.title", "LIMIT", query.Offset.ToString(), query.PageSize.ToString() };
+        var arguments = new string[] { _index.Name, queryString, "SORTBY", "modified", "DESC", "RETURN", "3", "$.id", "$.title", "$.polarity", "LIMIT", query.Offset.ToString(), query.PageSize.ToString() };
         var result = await db.ExecuteAsync("FT.SEARCH", arguments);
         // first item is total count (integer)
         var rows = (RedisResult[])result!;
@@ -128,7 +128,8 @@ public class ArticleRepository : IArticleRepository
             var data = (RedisResult[])rows[i + 1]!;
             var id = (string)data[1]! ?? throw new DataException($"invalid data value in key {rows[i]}");
             var title = (string)data[3]! ?? throw new DataException($"invalid data value in key {rows[i]}");
-            list.Add(new ArticleHeader { Id = Guid.Parse(id), Title = title });
+            var polarity = (int?)data[5]! ?? throw new DataException($"invalid data value in key {rows[i]}");
+            list.Add(new ArticleHeader { Id = Guid.Parse(id), Title = title, Polarity = (Polarity)polarity });
         }
 
         return new PaginatedList<ArticleHeader>(list, query.Offset, totalCount);
