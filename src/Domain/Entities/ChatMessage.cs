@@ -6,7 +6,7 @@ public static class ChatConstants
     public static readonly string CHANNEL = "chat";
 }
 
-public class ChatMessage
+public record ChatMessage
 {
     [Required]
     [StringLength(36, MinimumLength = 1, ErrorMessage = "length must be 1-36")]

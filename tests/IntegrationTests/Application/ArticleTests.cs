@@ -39,7 +39,7 @@ public class ArticleTests : IClassFixture<RedisFixture>
             Published = true,
             Source = source,
             Language = "en",
-            Content = new List<MarkdownElement>
+            Content = new EquatableList<MarkdownElement>
             {
                 new MarkdownHeaderElement{
                     Level = 1,

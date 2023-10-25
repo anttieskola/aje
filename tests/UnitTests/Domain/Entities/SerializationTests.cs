@@ -20,7 +20,7 @@ public class SerializationTests
             Published = true,
             Source = "https://www.anttieskola.com",
             Language = "en",
-            Content = new List<MarkdownElement>
+            Content = new EquatableList<MarkdownElement>
             {
                 new MarkdownHeaderElement{
                     Level = 1,

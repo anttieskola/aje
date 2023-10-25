@@ -1,6 +1,6 @@
 ﻿namespace AJE.Domain.Entities;
 
-public class ArticleHeader
+public record ArticleHeader
 {
     [JsonPropertyName("id")]
     public Guid Id { get; set; }
@@ -9,7 +9,7 @@ public class ArticleHeader
     public string Title { get; set; } = string.Empty;
 }
 
-public class Article : ArticleHeader
+public record Article : ArticleHeader
 {
     [JsonPropertyName("category")]
     public Category Category { get; set; }
@@ -33,8 +33,8 @@ public class Article : ArticleHeader
     public int PolarityVersion { get; set; } = 0;
 
     [JsonPropertyName("content")]
-    public IEnumerable<MarkdownElement> Content { get; set; } = Array.Empty<MarkdownElement>();
+    public EquatableList<MarkdownElement> Content { get; set; } = EquatableList<MarkdownElement>.Empty;
 
     [JsonPropertyName("chat")]
-    public IEnumerable<ChatMessage> Chat { get; set; } = Array.Empty<ChatMessage>();
+    public EquatableList<ChatMessage> Chat { get; set; } = EquatableList<ChatMessage>.Empty;
 }

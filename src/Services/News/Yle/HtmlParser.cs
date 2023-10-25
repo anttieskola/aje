@@ -51,7 +51,7 @@
             var titleElement = article["title"] ?? throw new ParsingException("no title");
             var languageElement = article["language"] ?? throw new ParsingException("no language");
             var contentArray = (article["content"]?.AsArray()) ?? throw new ParsingException("no content array");
-            var elements = new List<MarkdownElement>();
+            var elements = new EquatableList<MarkdownElement>();
             foreach (var c in contentArray)
             {
                 if (c != null)

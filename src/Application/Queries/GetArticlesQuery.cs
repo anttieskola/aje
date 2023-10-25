@@ -1,11 +1,13 @@
 ﻿
 namespace AJE.Application.Queries;
 
-public record GetArticlesQuery : IRequest<PaginatedList<Article>>
+public record GetArticlesQuery : PaginatedQuery, IRequest<PaginatedList<Article>>
 {
-    public bool OnlyPublished { get; init; }
-    public int Offset { get; init; }
-    public int PageSize { get; init; }
+    public Category? Category { get; init; }
+    public bool? Published { get; init; }
+    public string? Language { get; init; }
+    public Polarity? Polarity { get; init; }
+    public int? MaxPolarityVersion { get; init; }
 }
 
 public class GetArticlesQueryHandler : IRequestHandler<GetArticlesQuery, PaginatedList<Article>>
@@ -21,7 +23,20 @@ public class GetArticlesQueryHandler : IRequestHandler<GetArticlesQuery, Paginat
     public async Task<PaginatedList<Article>> Handle(GetArticlesQuery request, CancellationToken cancellationToken)
     {
         var db = _connection.GetDatabase();
-        var query = request.OnlyPublished ? "@published:{true}" : "*";
+
+        var builder = new QueryBuilder();
+        if (request.Category != null)
+            builder.Conditions.Add(new QueryCondition { Expression = $"@category:[{(int)request.Category} {(int)request.Category}]" });
+        if (request.Published != null)
+            builder.Conditions.Add(new QueryCondition { Expression = $"@published:{{{request.Published}}}" });
+        if (request.Language != null)
+            builder.Conditions.Add(new QueryCondition { Expression = $"@language:{{{request.Language}}}" });
+        if (request.Polarity != null)
+            builder.Conditions.Add(new QueryCondition { Expression = $"@polarity:{{{request.Polarity}}}" });
+        if (request.MaxPolarityVersion != null)
+            builder.Conditions.Add(new QueryCondition { Expression = $"@polarityVersion:[-inf {request.MaxPolarityVersion}]" });
+        var query = builder.Build();
+
         var arguments = new string[] { _index.Name, query, "SORTBY", "modified", "DESC", "LIMIT", request.Offset.ToString(), request.PageSize.ToString() };
         var result = await db.ExecuteAsync("FT.SEARCH", arguments);
         // first item is total count (integer)

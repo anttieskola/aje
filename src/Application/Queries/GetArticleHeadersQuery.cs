@@ -1,6 +1,4 @@
-﻿using AJE.Domain.Enums;
-
-namespace AJE.Application.Queries;
+﻿namespace AJE.Application.Queries;
 
 public record GetArticleHeadersQuery : PaginatedQuery, IRequest<PaginatedList<ArticleHeader>>
 {
@@ -27,7 +25,7 @@ public class GetArticleHeadersQueryHandler : IRequestHandler<GetArticleHeadersQu
 
         var builder = new QueryBuilder();
         if (request.Category != null)
-            builder.Conditions.Add(new QueryCondition { Expression = $"@category:{{{request.Category}}}" });
+            builder.Conditions.Add(new QueryCondition { Expression = $"@category:[{(int)request.Category} {(int)request.Category}]" });
         if (request.Published != null)
             builder.Conditions.Add(new QueryCondition { Expression = $"@published:{{{request.Published}}}" });
         if (request.Language != null)

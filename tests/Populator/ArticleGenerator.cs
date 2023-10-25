@@ -29,9 +29,9 @@ internal class ArticleGenerator
         return article;
     }
 
-    private IEnumerable<MarkdownElement> GenerateContent()
+    private EquatableList<MarkdownElement> GenerateContent()
     {
-        var content = new List<MarkdownElement>();
+        var content = new EquatableList<MarkdownElement>();
         var contentLength = _random.Next(3, 30);
         for (int i = 0; i < contentLength; i++)
         {
@@ -55,9 +55,9 @@ internal class ArticleGenerator
         return content;
     }
 
-    private IEnumerable<ChatMessage> GenerateChat()
+    private EquatableList<ChatMessage> GenerateChat()
     {
-        var messages = new List<ChatMessage>();
+        var messages = new EquatableList<ChatMessage>();
         var chatLength = _random.Next(1, 10);
         for (int i = 0; i < chatLength; i++)
         {

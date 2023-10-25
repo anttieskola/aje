@@ -8,6 +8,8 @@ public interface IPolarity : IPromptCreator
 public class PolarityChatML : ChatMLCreator, IPolarity
 {
     public const string EntityName = "assistant";
+
+    // update CURRENT_POLARITY_VERSION if system instructions change
     public static readonly string[] SystemInstructions = {
             "You are an assistant that classifies polarity of given context as neutral, positive or negative",
             "You will respond using only one single word that is either neutral, positive or negative"

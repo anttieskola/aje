@@ -7,4 +7,7 @@ public record ArticleClassifiedEvent
 
     [JsonPropertyName("polarity")]
     public required Polarity Polarity { get; init; }
+
+    [JsonPropertyName("polarityVersion")]
+    public required int PolarityVersion { get; init; }
 }

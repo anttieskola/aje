@@ -12,7 +12,7 @@ public class ArticleContextCreatorTests
         mockSimplifier.Setup(x => x.Simplify(It.IsAny<string>())).Returns((string s) => s);
         var article = new Article
         {
-            Content = new List<MarkdownElement>
+            Content = new EquatableList<MarkdownElement>
             {
                 new MarkdownHeaderElement{
                     Level = 1,

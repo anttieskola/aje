@@ -1,3 +1,5 @@
+using AJE.Domain;
+
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices(services =>
     {
@@ -7,6 +9,7 @@ var host = Host.CreateDefaultBuilder(args)
             .Build();
 
         services.AddApplication();
+        services.AddDomain();
         services.AddInfra(config);
         services.AddHostedService<PolarityWorker>();
     })

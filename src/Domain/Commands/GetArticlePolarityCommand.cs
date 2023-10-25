@@ -2,11 +2,16 @@
 
 public record GetArticlePolarityCommand : IRequest<ArticleClassifiedEvent>
 {
+    /// <summary>
+    /// Current of the polarity model & prompt settings
+    /// </summary>
+    public const int CURRENT_POLARITY_VERSION = 1;
     public required Article Article { get; init; }
 }
 
 public class GetArticlePolarityCommandHandler : IRequestHandler<GetArticlePolarityCommand, ArticleClassifiedEvent>
 {
+
     private readonly IContextCreator<Article> _contextCreator;
     private readonly IPolarity _polarity;
     private readonly IAiModel _aiModel;
@@ -25,6 +30,7 @@ public class GetArticlePolarityCommandHandler : IRequestHandler<GetArticlePolari
     {
         var context = _contextCreator.Create(command.Article);
         var prompt = _polarity.Create(context);
+        // update version if prompt changes
         var request = new CompletionRequest
         {
             Prompt = prompt,
@@ -36,6 +42,7 @@ public class GetArticlePolarityCommandHandler : IRequestHandler<GetArticlePolari
         {
             Id = command.Article.Id,
             Polarity = polarity,
+            PolarityVersion = GetArticlePolarityCommand.CURRENT_POLARITY_VERSION,
         };
     }
 }
