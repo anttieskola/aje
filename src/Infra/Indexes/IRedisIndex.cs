@@ -1,4 +1,4 @@
-﻿namespace AJE.Application.Indexes;
+﻿namespace AJE.Infra.Indexes;
 
 public interface IRedisIndex
 {

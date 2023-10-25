@@ -1,6 +1,6 @@
-﻿using AJE.Application.Entities;
+﻿using AJE.Infra;
 
-namespace AJE.UnitTests;
+namespace AJE.UnitTests.Infra;
 
 public class QueryBuilderTests
 {

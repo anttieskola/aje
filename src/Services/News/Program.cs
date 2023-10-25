@@ -11,6 +11,7 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddSingleton(yleConfig);
 
         services.AddApplication();
+        services.AddDomain();
         services.AddInfra(config);
         services.AddHostedService<YleWorker>();
     })

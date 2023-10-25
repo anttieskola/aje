@@ -1,4 +1,4 @@
-﻿namespace AJE.Application.Queries;
+﻿namespace AJE.Domain.Queries;
 
 public record PaginatedQuery
 {

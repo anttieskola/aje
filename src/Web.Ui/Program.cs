@@ -8,6 +8,7 @@ var config = new ConfigurationBuilder()
 var redisConfiguration = config.GetRedisConfiguration();
 
 builder.Services.AddApplication();
+builder.Services.AddDomain();
 builder.Services.AddInfra(config);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();

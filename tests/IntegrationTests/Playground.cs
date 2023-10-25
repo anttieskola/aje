@@ -1,4 +1,4 @@
-﻿using AJE.Application.Indexes;
+﻿using AJE.Infra.Indexes;
 
 namespace AJE.IntegrationTests;
 

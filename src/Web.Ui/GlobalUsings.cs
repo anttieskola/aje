@@ -1,8 +1,6 @@
 ﻿global using AJE.Web.Ui;
 global using AJE.Web.Ui.Hubs;
 global using AJE.Application;
-global using AJE.Application.Entities;
-global using AJE.Application.Queries;
 global using AJE.Domain;
 global using AJE.Domain.Entities;
 global using AJE.Infra;

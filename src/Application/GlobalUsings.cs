@@ -1,8 +1,5 @@
 ﻿global using AJE.Application;
 global using AJE.Application.Commands;
-global using AJE.Application.Queries;
-global using AJE.Application.Entities;
-global using AJE.Application.Indexes;
 global using AJE.Domain;
 global using AJE.Domain.Ai;
 global using AJE.Domain.Commands;
@@ -10,6 +7,7 @@ global using AJE.Domain.Entities;
 global using AJE.Domain.Enums;
 global using AJE.Domain.Events;
 global using AJE.Domain.Exceptions;
+global using AJE.Domain.Queries;
 global using MediatR;
 global using Microsoft.Extensions.DependencyInjection;
 global using StackExchange.Redis;

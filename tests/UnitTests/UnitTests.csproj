@@ -32,4 +32,8 @@
     <ProjectReference Include="..\..\src\Application\Application.csproj" />
     <ProjectReference Include="..\..\src\Services\News\News.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Infra/" />
+  </ItemGroup>
 </Project>

@@ -1,5 +1,3 @@
-using AJE.Domain;
-
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices(services =>
     {

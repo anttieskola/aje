@@ -1,7 +1,4 @@
-﻿using AJE.Application.Indexes;
-using AJE.Domain.Exceptions;
-
-namespace AJE.Infra;
+﻿namespace AJE.Infra;
 
 public interface IRedisService
 {

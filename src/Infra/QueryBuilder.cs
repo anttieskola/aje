@@ -1,4 +1,4 @@
-﻿namespace AJE.Application.Entities;
+﻿namespace AJE.Infra;
 
 public class QueryBuilder
 {

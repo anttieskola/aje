@@ -56,10 +56,10 @@ public class YleWorker : BackgroundService
                 var content = await File.ReadAllTextAsync(file, ct);
                 if (TestHtmlParse(content))
                 {
-                    // publish
+                    // add
                     var article = HtmlParser.Parse(content);
                     article.Source = link;
-                    await _sender.Send(new PublishArticleCommand { Article = article }, ct);
+                    await _sender.Send(new AddArticleCommand { Article = article }, ct);
                 }
                 else
                 {
@@ -71,10 +71,10 @@ public class YleWorker : BackgroundService
                         _logger.LogInformation("Article file {} fixed with valid content", file);
                         await File.WriteAllTextAsync(Path.Combine(_configuration.DumpFolder, CreateHTMLFileName(link)), content, ct);
 
-                        // publish
+                        // add
                         var article = HtmlParser.Parse(content);
                         article.Source = link;
-                        await _sender.Send(new PublishArticleCommand { Article = article }, ct);
+                        await _sender.Send(new AddArticleCommand { Article = article }, ct);
                     }
                     else
                     {
@@ -120,7 +120,7 @@ public class YleWorker : BackgroundService
                 await File.WriteAllTextAsync(Path.Combine(_configuration.DumpFolder, CreateHTMLFileName(link)), content, ct);
                 var article = HtmlParser.Parse(content);
                 article.Source = link;
-                await _sender.Send(new PublishArticleCommand { Article = article }, ct);
+                await _sender.Send(new AddArticleCommand { Article = article }, ct);
             }
         }
         catch (Exception e)

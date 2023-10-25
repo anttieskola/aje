@@ -1,8 +1,5 @@
 global using AJE.MChatter;
 global using AJE.Application.Commands;
-global using AJE.Application.Entities;
-global using AJE.Application.Indexes;
-global using AJE.Application.Queries;
 global using AJE.Domain.Commands;
 global using AJE.Domain.Entities;
 global using AJE.Domain.Events;

@@ -1,9 +1,10 @@
 ﻿using AJE.Application.Commands;
-using AJE.Application.Indexes;
-using AJE.Application.Queries;
 using AJE.Domain.Commands;
 using AJE.Domain.Entities;
 using AJE.Domain.Enums;
+using AJE.Domain.Events;
+using AJE.Domain.Queries;
+using AJE.Infra.Indexes;
 
 namespace AJE.IntegrationTests.Application;
 
@@ -29,7 +30,7 @@ public class ArticleTests : IClassFixture<RedisFixture>
         // arrange article
         await _redisFixture.Database.KeyDeleteAsync(_index.RedisId(_idOk.ToString()));
         var source = "https://www.anttieskola.com";
-        var publishHandler = new PublishArticleCommandHandler(_redisFixture.Connection);
+        var publishHandler = new AddArticleCommandHandler(_redisFixture.ArticleRepository, new Mock<IArticleEventHandler>().Object);
         var article = new Article
         {
             Id = _idOk,
@@ -59,17 +60,17 @@ public class ArticleTests : IClassFixture<RedisFixture>
         };
 
         // act: publish article
-        var publishEvent = await publishHandler.Handle(new PublishArticleCommand { Article = article }, CancellationToken.None);
+        var publishEvent = await publishHandler.Handle(new AddArticleCommand { Article = article }, CancellationToken.None);
         Assert.NotNull(publishEvent);
         Assert.Equal(_idOk, publishEvent.Id);
 
         // act: query that article exists
-        var existsHandler = new ArticleExistsQueryHandler(_redisFixture.Connection);
+        var existsHandler = new ArticleExistsQueryHandler(_redisFixture.ArticleRepository);
         var exists = await existsHandler.Handle(new ArticleExistsQuery { Source = source }, CancellationToken.None);
         Assert.True(exists);
 
         // act: get article
-        var articleHandler = new GetArticleQueryHandler(_redisFixture.Connection);
+        var articleHandler = new GetArticleQueryHandler(_redisFixture.ArticleRepository);
         var copy = await articleHandler.Handle(new GetArticleQuery { Id = _idOk }, CancellationToken.None);
 
         // check article
@@ -103,13 +104,13 @@ public class ArticleTests : IClassFixture<RedisFixture>
         }
 
         // act: get article headers (paged)
-        var headersHandler = new GetArticleHeadersQueryHandler(_redisFixture.Connection);
+        var headersHandler = new GetArticleHeadersQueryHandler(_redisFixture.ArticleRepository);
         var headers = await headersHandler.Handle(new GetArticleHeadersQuery { Offset = 0, PageSize = 10 }, CancellationToken.None);
         Assert.NotNull(headers);
         Assert.NotEmpty(headers.Items);
 
         // act: get articles (paged)
-        var articlesHandler = new GetArticlesQueryHandler(_redisFixture.Connection);
+        var articlesHandler = new GetArticlesQueryHandler(_redisFixture.ArticleRepository);
         var articles = await articlesHandler.Handle(new GetArticlesQuery { Offset = 0, PageSize = 10 }, CancellationToken.None);
         Assert.NotNull(articles);
         Assert.NotEmpty(articles.Items);
@@ -123,7 +124,7 @@ public class ArticleTests : IClassFixture<RedisFixture>
     public async Task GetArticleQuery_Missing()
     {
         // arrange
-        var getHandler = new GetArticleQueryHandler(_redisFixture.Connection);
+        var getHandler = new GetArticleQueryHandler(_redisFixture.ArticleRepository);
         await _redisFixture.Database.KeyDeleteAsync(_index.RedisId(_idMissing.ToString()));
 
         // act

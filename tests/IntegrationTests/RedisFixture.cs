@@ -1,4 +1,6 @@
-﻿using AJE.Infra;
+﻿using AJE.Domain.Data;
+using AJE.Infra;
+using AJE.Infra.Data;
 using Microsoft.Extensions.Logging;
 
 namespace AJE.IntegrationTests;
@@ -8,12 +10,13 @@ public class RedisFixture : IDisposable
 
     public IConnectionMultiplexer Connection { get; }
     public IDatabase Database { get; }
+    public IArticleRepository ArticleRepository { get; }
 
     public RedisFixture()
     {
         Connection = ConnectionMultiplexer.Connect("localhost:6379");
         Database = Connection.GetDatabase();
-
+        ArticleRepository = new ArticleRepository(new Mock<ILogger<ArticleRepository>>().Object, Connection);
         var redis = new RedisService(new Mock<ILogger<RedisService>>().Object, Connection);
         redis.Initialize().Wait();
     }

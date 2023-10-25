@@ -3,6 +3,7 @@ using AJE.Domain.Ai;
 using AJE.Domain.Commands;
 using AJE.Domain.Entities;
 using AJE.Infra;
+using AJE.Infra.Ai;
 using Microsoft.Extensions.Logging;
 
 namespace AJE.IntegrationTests.Domain;
