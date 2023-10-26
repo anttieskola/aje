@@ -33,7 +33,7 @@ public class ArticleTests : IClassFixture<RedisFixture>
         var article = new Article
         {
             Id = _idOk,
-            Category = Category.NEWS,
+            Category = Category.BOGUS,
             Title = "test",
             Modified = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
             Published = true,

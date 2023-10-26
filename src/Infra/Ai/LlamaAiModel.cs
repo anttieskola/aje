@@ -9,14 +9,17 @@ public class LlamaAiModel : IAiModel
 {
     private readonly ILogger<LlamaAiModel> _logger;
     private readonly LlamaConfiguration _configuration;
+    private readonly IHttpClientFactory _httpClientFactory;
     private readonly Uri _serverUri;
 
     public LlamaAiModel(
         ILogger<LlamaAiModel> logger,
-        LlamaConfiguration configuration)
+        LlamaConfiguration configuration,
+        IHttpClientFactory httpClientFactory)
     {
         _logger = logger;
         _configuration = configuration;
+        _httpClientFactory = httpClientFactory;
         _serverUri = new Uri(_configuration.Host);
     }
 
@@ -25,7 +28,7 @@ public class LlamaAiModel : IAiModel
         if (request.Stream)
             throw new ArgumentException($"Use {nameof(CompletionStreamAsync)} when Stream enabled", nameof(request));
 
-        using var client = new HttpClient();
+        using var client = _httpClientFactory.CreateClient();
         client.Timeout = TimeSpan.FromSeconds(_configuration.TimeoutInSeconds);
         var httpRequest = new HttpRequestMessage(HttpMethod.Post, new Uri(_serverUri, "completion"));
         httpRequest.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -48,7 +51,7 @@ public class LlamaAiModel : IAiModel
         if (!request.Stream)
             throw new ArgumentException($"Use {nameof(CompletionAsync)} when Stream disabled", nameof(request));
 
-        using var client = new HttpClient();
+        using var client = _httpClientFactory.CreateClient();
         client.Timeout = TimeSpan.FromSeconds(_configuration.TimeoutInSeconds);
         var httpRequest = new HttpRequestMessage(HttpMethod.Post, new Uri(_serverUri, "completion"));
         httpRequest.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -82,10 +85,13 @@ public class LlamaAiModel : IAiModel
                             return completion;
                         }
                     }
+                    else
+                        throw new AiException($"invalid response from server: {data}");
                 }
                 catch (JsonException e)
                 {
                     _logger.LogError("Error parsing json: {}", e.Message);
+                    throw;
                 }
             }
         }
@@ -93,7 +99,70 @@ public class LlamaAiModel : IAiModel
         throw new InvalidOperationException("Stream ended without stop");
     }
 
-    private static StringContent Serialize(CompletionRequest request)
+    public async Task<TokenizeResponse> TokenizeAsync(TokenizeRequest request, CancellationToken cancellationToken)
+    {
+        using var client = _httpClientFactory.CreateClient();
+        client.Timeout = TimeSpan.FromSeconds(_configuration.TimeoutInSeconds);
+        var httpRequest = new HttpRequestMessage(HttpMethod.Post, new Uri(_serverUri, "tokenize"));
+        httpRequest.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        httpRequest.Content = Serialize(request);
+        var httpResponse = await client.SendAsync(httpRequest, cancellationToken);
+        var json = await httpResponse.Content.ReadAsStringAsync(cancellationToken);
+        try
+        {
+            var response = JsonSerializer.Deserialize<TokenizeResponse>(json);
+            return response ?? throw new AiException($"invalid response from server: {json}");
+        }
+        catch (JsonException e)
+        {
+            _logger.LogError("Error parsing json: {}", e.Message);
+            throw;
+        }
+    }
+
+    public async Task<DeTokenizeResponse> DeTokenizeAsync(DeTokenizeRequest request, CancellationToken cancellationToken)
+    {
+        using var client = _httpClientFactory.CreateClient();
+        client.Timeout = TimeSpan.FromSeconds(_configuration.TimeoutInSeconds);
+        var httpRequest = new HttpRequestMessage(HttpMethod.Post, new Uri(_serverUri, "detokenize"));
+        httpRequest.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        httpRequest.Content = Serialize(request);
+        var httpResponse = await client.SendAsync(httpRequest, cancellationToken);
+        var json = await httpResponse.Content.ReadAsStringAsync(cancellationToken);
+        try
+        {
+            var response = JsonSerializer.Deserialize<DeTokenizeResponse>(json);
+            return response ?? throw new AiException($"invalid response from server: {json}");
+        }
+        catch (JsonException e)
+        {
+            _logger.LogError("Error parsing json: {}", e.Message);
+            throw;
+        }
+    }
+
+    public async Task<EmbeddingResponse> EmbeddingAsync(EmbeddingRequest request, CancellationToken cancellationToken)
+    {
+        using var client = _httpClientFactory.CreateClient();
+        client.Timeout = TimeSpan.FromSeconds(_configuration.TimeoutInSeconds);
+        var httpRequest = new HttpRequestMessage(HttpMethod.Post, new Uri(_serverUri, "embedding"));
+        httpRequest.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        httpRequest.Content = Serialize(request);
+        var httpResponse = await client.SendAsync(httpRequest, cancellationToken);
+        var json = await httpResponse.Content.ReadAsStringAsync(cancellationToken);
+        try
+        {
+            var response = JsonSerializer.Deserialize<EmbeddingResponse>(json);
+            return response ?? throw new AiException($"invalid response from server: {json}");
+        }
+        catch (JsonException e)
+        {
+            _logger.LogError("Error parsing json: {}", e.Message);
+            throw;
+        }
+    }
+
+    private static StringContent Serialize(object request)
     {
         // We gotta allow the < and > ('\u003C', '\u003E') characters as llama.cpp won't decode anything
         // for the model. It does not work to use AllowCharacters as if character is in the Global block list

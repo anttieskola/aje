@@ -11,8 +11,15 @@ namespace AJE.IntegrationTests.Domain;
 /// <summary>
 /// Tests require a llama.cpp server running in localhost:8080
 /// </summary>
-public class GetArticlePolarityCommandHandlerTests
+public class GetArticlePolarityCommandHandlerTests : IClassFixture<HttpClientFixture>
 {
+    private readonly HttpClientFixture _fixture;
+
+    public GetArticlePolarityCommandHandlerTests(HttpClientFixture fixture)
+    {
+        _fixture = fixture;
+    }
+
     #region json
     private static string _article = @"
 {
@@ -84,7 +91,7 @@ public class GetArticlePolarityCommandHandlerTests
         var handler = new GetArticlePolarityQueryHandler(
             new ArticleContextCreator(new MarkDownSimplifier()),
             new PolarityChatML(),
-            new LlamaAiModel(new Mock<ILogger<LlamaAiModel>>().Object, configuration),
+            new LlamaAiModel(new Mock<ILogger<LlamaAiModel>>().Object, configuration, _fixture.HttpClientFactory),
             new AiLogger(configuration));
         var command = new GetArticlePolarityQuery { Article = article };
         var response = await handler.Handle(command, CancellationToken.None);

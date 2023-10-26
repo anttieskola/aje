@@ -12,6 +12,7 @@ public static class DependencyInjection
         var llamaConfiguration = config.GetLlamaConfiguration();
         services.AddSingleton(llamaConfiguration);
 
+        services.AddHttpClient();
         services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConfiguration.Host));
         services.AddSingleton<IAiModel, LlamaAiModel>();
         services.AddSingleton<IAiLogger, AiLogger>();
