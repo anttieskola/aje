@@ -1,71 +1,89 @@
-# Goal
+# Background / Goal
 Project started with learning to create an application to modify my notes that are
-stored in Github as markdown and same time create homepage for myself.
+stored in Github as markdown and same time create homepage for myself. Idea was to
+basically copy functionality what Github already offers and learning to use few selected
+technologies better. The editing of articles is suppose to support up to one thousand users
+editing same time by leveraging signal-r communication that is extended to support multiple
+host front end nodes with Redis.
 
-There basically already is one thats Github's UI. But I wanted to write application
-which would support hundreds of people modify content in real time with each other
-and same create a new working homepage for myself.
+This has turned now to become a simple news downloader (News microservice). So currently
+It download all YLE news articles as they release them, convert them little bit into simple
+markdown article format. Then NewsAnalyze microservice feeds them to Mistral AI model
+running with llama.cpp for classification. I am running the models with my Nvidia
+GTX 3060 & 3080 gaming cards.
 
-To achieve this I will use redis to store data and connect blazor servers. Then I can have
-many more servers running the application. Pub/Sub message patterns from using signal-r are
-boosted by into redis.
+Idea is to just classify articles so I can browse only positive news :)
 
-# Learned things along the way
-- redis can be integrated directly [read the documentation](https://learn.microsoft.com/en-us/aspnet/core/signalr/redis-backplane?view=aspnetcore-7.0)
-	- package [Microsoft.AspNetCore.SignalR.StackExchangeRedis](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.signalr.stackexchangeredis?view=aspnetcore-7.0)
-	- package kinda does same thing I had in mind to relay messages
-	- still if I want to create let's say some rust app that produces data don't think I can send data directly to these channels
-	  as they are generated as needed and follow own naming conventions and message formats
-		- so I can send to my custom channel data from the rust app that something like the ChatRelayService then send into signal-r
-		- ofc the setup using redis with signal-r I can reach all servers directly
-- each signal-r hub has its own websocket connection (pre .net 4.7 there was only one connection for all hubs)
-- so there is limitation on number of users single server can handle
-- azure signal-r service moves the socket load from server to service (the selling point of the product)
+Other thing I am currently working is to write very good instructions for model to
+mimic myself. It seems to be really fun to interract this way. Maybe I get the instructions
+good enough that I can use models with instructions to write some job applications.
 
+After I learn to create good enough instructions I want to learn to fine-tune models
+and start creating a data-set to use in fine-tuning these awesome open source models.
 
-## Short list of hopes and dreams (features)
-- dotnet... i wanted to use 8 but not ready so 7 it is
-	- Experienced issues with 8.0 preview
-	- Using .net 7.0, because tried two hours to run [sample codes](https://github.com/dotnet/blazor-samples.git)
-	with the 8.0 preview template. Not sure did I break template but all worked with 7.
-- command/query split
-	- commands -> events
-- runs on debian 12 [my nodes setup](https://github.com/anttieskola/setup)
-- redis used as data store and messaging
-	- no sql at all in beginning
-	- using atleast redis modules like [RediSearch](https://github.com/RediSearch/RediSearch) and [RedisJSON](https://github.com/RedisJSON/RedisJSON)
-- want to keep an grpc server in the project if I need to expand the interface outside redis
-- supports multiple front end servers (nginx)
-- nginx proxies to .net app
-- server rendered blazor app
-- templates used as model, thanks a bunch \o/
-	- [CleanArchitecture](https://github.com/ardalis/CleanArchitecture)
-	- [CleanArchitecture](https://github.com/jasontaylordev/CleanArchitecture)
-- using the lovely [MediatR](https://github.com/jbogard/MediatR)
-- learning to use [tailwind css](https://github.com/tailwindlabs/tailwindcss)
+## Current todo list
+- Improve UI for news browsing
+- Improve the AI instructions for news classification and could try more different models
+	- Maybe use multiple sets of instructions for different classifications?
+- Statistic from the news, I want to see graph showing me for many positive news articles
+are released daily. Vision to see history graph and some way to dig thru the graph aswell
+into actual articles.
+- Chat with me feature using large set of instructions and good model like Mistral that I
+currently use
 
-## UI-Components
-- TableTemplate
-	- Planned
-- Icon
-	- Took [bootstrap icons](https://github.com/twbs/icons) and made a component that creates the svg element directly
-	- So basically all icons are written directly to responses which is a very
-      stupid idea as you can see if you list them all the pagesize is huge and
-	  client can't cache it, but you can control the drawing better and was fun
-	  thing to make. Sizes are small still but you don't want to write those into
-	  each line for example.
-	- Will make use of the small font size and load css so font is cached on client side.
-	- This version I wanna keep the fun mess I made
+# Code architecture
+All is done using clean architecture / "domain based" programming. Most of all I want to
+thank [Jason Taylor](https://github.com/jasontaylordev/CleanArchitecture) for really great
+template from which I have copied most of structure for this project.
 
-##  Links
-- [this repository](https://github.com/anttieskola/aje)
-- [redis commands](https://redis.io/commands/)
-- [ui-lifecycle](https://learn.microsoft.com/en-us/aspnet/core/blazor/components/lifecycle?view=aspnetcore-7.0)
-- [blazor forms](https://learn.microsoft.com/en-us/aspnet/core/blazor/forms-and-input-components?view=aspnetcore-3.1)
-- [signal-r](https://learn.microsoft.com/en-us/aspnet/core/signalr/hubs?view=aspnetcore-7.0)
+Using Command/Query separation pattern with [MediatR](https://github.com/jbogard/MediatR).
+Even my domain has dependency on MediatR as it is essential for the architecture.
 
-# Deployment
-- Currently published on server into path `/usr/local/bin/aje/`
+# Components
+Each component is true microservice so they work on their own. What they do share is
+Redis so that data is shared between them. Communication between components happens
+using events send in Redis channells. Each component can have database but it will be their own.
+
+List of current components and used software
+- Microservices
+	- [News](./doc/News.md) Downloads news from internet, convert and store them into Redis
+	- [NewsAnalyzer](./doc/NewsAnalyzer.md) Classifies news articles with large language models
+- [Web.Ui](./doc/WebUi.md) User interface for the application
+	- Using server rendered blazor as I want to learn to use it better and I think it is
+	fits my needs best
+- Utilities (under Tests currently)
+	- MChatter: Chat application with large language model
+	- Populator: Utility to fill Redis with bogus data
+- All code I write in C# (might do some in rust as went thrue the [book](https://doc.rust-lang.org/book/) a while ago)
+	- Currently using .Net 7.0 as had issues with 8.0 RC with blazor
+- [Llama.cpp](https://github.com/ggerganov/llama.cpp) server
+	- Used to run large language models locally
+	- Models I use I get from [Hugginface](https://huggingface.co/)
+- [Nginx](https://nginx.org/en/) as front-end/proxy for Asp.Net applications
+- [Redis](https://redis.io/) for data storage and messaging. Modules I use:
+	- [RedisJSON](https://github.com/RedisJSON/RedisJSON) JSON support
+	- [RediSearch](https://github.com/RediSearch/RediSearch) Search/indexing
+- [Postgresql](https://www.postgresql.org/) for databases
+- [Tailwind](https://github.com/tailwindlabs/tailwindcss) for UI styling
+- [Debian](https://www.debian.org/)
+	- Platform for everything
+	- Currently running version 12 (bookworm)
+	- [My servers setup](https://github.com/anttieskola/setup)
+
+## Deployment locations
+- Web.Ui published on server into path `/usr/local/bin/aje/`
+- News published on server into path `/usr/local/bin/aje-news/`
+- TODO: Publish NewsAnalyze (have to go back to Kokkola to setup another server with GPU)
+
+## Folder paths
+- `/var/aje/yle` is used to store raw YLE news downloads
+- `/var/aje/ai` is used to dump AI model input & outputs that require inspection
+
+## Databases (postgresql)
+- [installation](https://wiki.debian.org/PostgreSql)
+
+## Systemd
+- Each component is their own service
 - Service installation instructions are found in [service definition](./aje.service)
 	- [Debian systemd](https://wiki.debian.org/systemd/Services)
 	- Running as my normal user for now
@@ -98,16 +116,19 @@ server {
 		...
 }
 ```
+# Links
+- [this repository](https://github.com/anttieskola/aje)
+- [redis commands](https://redis.io/commands/)
+- [ui-lifecycle](https://learn.microsoft.com/en-us/aspnet/core/blazor/components/lifecycle?view=aspnetcore-7.0)
+- [blazor forms](https://learn.microsoft.com/en-us/aspnet/core/blazor/forms-and-input-components?view=aspnetcore-3.1)
+- [signal-r](https://learn.microsoft.com/en-us/aspnet/core/signalr/hubs?view=aspnetcore-7.0)
 
-
-# Misc
-
-## Redis
+# Redis
 - KEYS List all keys
 - FT._LIST List all search indexes
 - FT.EXPLAIN -> explains query, very good for learning
 
-### Executing commands with StackExchange.Redis
+## Executing commands with StackExchange.Redis
 This took an hour to figure out...
 
 ```csharp
@@ -121,11 +142,11 @@ var resOk = await db.ExecuteAsync("FT.SEARCH", arguments.ToArray());
 // All will work fine
 ```
 
-### indexes
+## indexes
 - Numeric data fields can't be made tag, index breaks and nothing is found
 - When we add fields to model's/indexe's redis data has to be updated or reloaded even if json has default value but the field is missing in redis data of key and query won't work
 
-### Guid/Url type of columns in index
+## Guid/Url type of columns in index
 So I had added stuff with bogus to redis and was trying to search does any article have source
 url `https://rosetta.net/decentralized/human/refined-granite-shoes`. So the source field was added
 to the index as text field.
@@ -144,7 +165,6 @@ documentation better :) But this was good practice
 
 - TEXT - Allows full-text search queries against the value in this attribute.
 - TAG - Allows ***exact-match queries***, such as categories or primary keys, against the value in this attribute. For more information, see Tag Fields.
-
 
 As Text -> naah
 ```
@@ -187,17 +207,29 @@ FT.SEARCH "idx:article" "@sourcetext:rosetta\\.net"
 
 ```
 
-
-
-
-### Index
+## Index
 Example
 ```
 FT.CREATE idxArticle ON JSON PREFIX 1 article: SCORE 1.0 SCHEMA $.id AS id TEXT WEIGHT 1.0 $.title AS title TEXT WEIGHT 1.0 $.source AS source TEXT WEIGHT 1.0 $.published AS published TAG
 ```
 
+# Random things learned along the way
+- dotnet... i wanted to use 8 but not ready so 7 it is
+	- Experienced issues with 8.0 preview
+	- Using .net 7.0, because tried two hours to run [sample codes](https://github.com/dotnet/blazor-samples.git)
+	with the 8.0 preview template. Not sure did I break template but all worked with 7.
+- redis can be integrated directly [read the documentation](https://learn.microsoft.com/en-us/aspnet/core/signalr/redis-backplane?view=aspnetcore-7.0)
+	- package [Microsoft.AspNetCore.SignalR.StackExchangeRedis](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.signalr.stackexchangeredis?view=aspnetcore-7.0)
+	- package kinda does same thing I had in mind to relay messages
+	- still if I want to create let's say some rust app that produces data don't think I can send data directly to these channels
+	  as they are generated as needed and follow own naming conventions and message formats
+		- so I can send to my custom channel data from the rust app that something like the ChatRelayService then send into signal-r
+		- ofc the setup using redis with signal-r I can reach all servers directly
+- each signal-r hub has its own websocket connection (pre .net 4.7 there was only one connection for all hubs)
+	- there is limitation on number of users single server can handle
+- azure signal-r service moves the socket load from server to service (the selling point of the product)
 
-## making C# solution in linux
+# making C# solution in linux
 
 ```bash
 # creates new component with the name of directory
@@ -221,19 +253,4 @@ using templates:
     <RootNamespace>AJE.Application</RootNamespace>
     <AssemblyName>AJE.Application</AssemblyName>
   </PropertyGroup>
-```
-
-
-## llama.cpp
-- how to combine llama.cpp (running on one node with the GTX)
-	- works already on one machine
-	- there must be already made server
-	- https://github.com/ggerganov/llama.cpp/blob/master/examples/server/README.md
-
-## database ???
-- [installation](https://wiki.debian.org/PostgreSql)
-
-```bash
-sudo -u postgres psql
-createdb -O antti aje
 ```

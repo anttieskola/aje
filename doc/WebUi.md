@@ -1,10 +1,23 @@
-Howto tailwind blazor without node?
+# UI-Components
+- TableTemplate
+	- Planned
+- Icon
+	- Took [bootstrap icons](https://github.com/twbs/icons) and made a component that creates the svg element directly
+	- So basically all icons are written directly to responses which is a very
+      stupid idea as you can see if you list them all the pagesize is huge and
+	  client can't cache it, but you can control the drawing better and was fun
+	  thing to make. Sizes are small still but you don't want to write those into
+	  each line for example.
+	- Will make use of the small font size and load css so font is cached on client side.
+	- This version I wanna keep the fun mess I made
+
+# Howto tailwind blazor without node?
 
 Install [Tailwind-CLI](https://github.com/tailwindlabs/tailwindcss)
 	- Just saves the CLI as d:\tailwind-cli\tailwind-cli.exe
 	- Added path to environment variables
 	- Same as `arduino-cli`
-	
+
 Create Tailwind configuration (in the new blazorserver app folder)
 ```sh
 tailwind-cli init

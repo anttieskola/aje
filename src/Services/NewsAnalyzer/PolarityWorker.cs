@@ -51,7 +51,9 @@ public class PolarityWorker : BackgroundService
             var article = results.Items.First();
             _logger.LogInformation("Article: {} - Polarity start", article.Source);
             var command = new GetArticlePolarityQuery { Article = article };
+            var timer = Stopwatch.StartNew();
             var polarityEvent = await _sender.Send(command, _cancellationToken);
+            timer.Stop();
 
             // update article with new polarity
             article.Polarity = polarityEvent.Polarity;
@@ -59,7 +61,7 @@ public class PolarityWorker : BackgroundService
             var updateCommand = new UpdateArticleCommand { Article = article };
             await _sender.Send(updateCommand, _cancellationToken);
 
-            _logger.LogInformation("Article {} - Polarity complete with polarity: {}", article.Source, polarityEvent.Polarity);
+            _logger.LogInformation("Article {} - Polarity complete in {} ms with polarity: {}", article.Source, timer.ElapsedMilliseconds, polarityEvent.Polarity);
         }
         return results.TotalCount > 1;
     }

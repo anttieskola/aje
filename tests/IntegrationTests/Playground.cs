@@ -17,6 +17,7 @@ public class Playground
     [Fact]
     public async Task Rollercoaster()
     {
+        await Task.Delay(TimeSpan.FromMicroseconds(1));
         // using var connection = await ConnectionMultiplexer.ConnectAsync("localhost:6379");
         // var db = connection.GetDatabase();
         // var repository = new ArticleRepository(new Mock<ILogger<ArticleRepository>>().Object, connection);
@@ -33,6 +34,7 @@ public class Playground
     [Fact]
     public async Task HauntedHouse()
     {
+        await Task.Delay(TimeSpan.FromMicroseconds(1));
         // so big article
         // var html = await File.ReadAllTextAsync("/var/aje/yle/74-20052908.html");
         // var article = HtmlParser.Parse(html);

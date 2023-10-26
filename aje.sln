@@ -20,9 +20,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Doc", "Doc", "{5B59DCCC-A404-4956-A0FD-92C4E7248E3D}"
 	ProjectSection(SolutionItems) = preProject
 		README.md = README.md
-		doc\Tailwind.md = doc\Tailwind.md
 		CloudFront_ErrorPage.html = CloudFront_ErrorPage.html
-		doc\SentimentPolarity.md = doc\SentimentPolarity.md
+		doc\News.md = doc\News.md
+		doc\NewsAnalyzer.md = doc\NewsAnalyzer.md
+		doc\WebUi.md = doc\WebUi.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{1F2CC064-FF62-4052-B834-31EF506C62F8}"
