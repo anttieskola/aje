@@ -1,0 +1,35 @@
+# /etc/systemd/system/AJE.Ui.Public.service
+
+# install
+# sudo systemctl daemon-reload
+# sudo systemctl enable AJE.Ui.Public.service
+# sudo systemctl start AJE.Ui.Public.service
+
+# removal
+# sudo systemctl stop AJE.Ui.Public.service
+# sudo systemctl disable AJE.Ui.Public.service
+# remove the service file
+# reload daemon
+
+# full log you can see with
+# journalctl -u AJE.Ui.Public.service
+
+[Unit]
+Description=AJE.Ui.Public
+After=network.target
+
+[Service]
+Type=simple
+Restart=always
+# Note working directory is a must
+# otherwiser process can't find resources -> odd errors
+WorkingDirectory=/usr/local/bin/AJE.Ui.Public
+ExecStart=/usr/local/bin/AJE.Ui.Public/AJE.Ui.Public
+User=antti
+
+SyslogIdentifier=AJE.Ui.Public
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target

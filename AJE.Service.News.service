@@ -1,0 +1,35 @@
+# /etc/systemd/system/AJE.Service.News.service
+
+# install
+# sudo systemctl daemon-reload
+# sudo systemctl enable AJE.Service.News.service
+# sudo systemctl start AJE.Service.News.service
+
+# removal
+# sudo systemctl stop AJE.Service.News.service
+# sudo systemctl disable AJE.Service.News.service
+# remove the service file
+# reload daemon
+
+# full log you can see with
+# journalctl -u AJE.Service.News
+
+[Unit]
+Description=AJE.Service.News
+After=network.target
+
+[Service]
+Type=simple
+Restart=always
+# Note working directory is a must
+# otherwiser process can't find resources -> odd errors
+WorkingDirectory=/usr/local/bin/AJE.Service.News
+ExecStart=/usr/local/bin/AJE.Service.News/AJE.Service.News
+User=antti
+
+SyslogIdentifier=AJE.Service.News
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target

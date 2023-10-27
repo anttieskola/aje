@@ -6,9 +6,9 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/tests/MChatter/bin/Debug/net7.0/AJE.MChatter",
+            "program": "${workspaceFolder}/util/MChatter/bin/Debug/net7.0/AJE.MChatter",
             "args": [],
-            "cwd": "${workspaceFolder}/tests/MChatter",
+            "cwd": "${workspaceFolder}/util/MChatter",
             "stopAtEntry": false,
             "console": "externalTerminal"
         },
@@ -17,9 +17,9 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/src/Services/News/bin/Debug/net7.0/AJE.Service.News",
+            "program": "${workspaceFolder}/src/Service/News/bin/Debug/net7.0/AJE.Service.News",
             "args": [],
-            "cwd": "${workspaceFolder}/src/Services/News",
+            "cwd": "${workspaceFolder}/src/Service/News",
             "stopAtEntry": false,
             "console": "internalConsole"
         },
@@ -28,9 +28,9 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/src/Services/NewsAnalyzer/bin/Debug/net7.0/AJE.Service.NewsAnalyzer",
+            "program": "${workspaceFolder}/src/Service/NewsAnalyzer/bin/Debug/net7.0/AJE.Service.NewsAnalyzer",
             "args": [],
-            "cwd": "${workspaceFolder}/src/Services/NewsAnalyzer",
+            "cwd": "${workspaceFolder}/src/Service/NewsAnalyzer",
             "stopAtEntry": false,
             "console": "internalConsole"
         },
@@ -38,14 +38,14 @@
             // Use IntelliSense to find out which attributes exist for C# debugging
             // Use hover for the description of the existing attributes
             // For further information visit https://github.com/dotnet/vscode-csharp/blob/main/debugger-launchjson.md.
-            "name": "Web.Ui",
+            "name": "Ui.Public",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/src/Web.Ui/bin/Debug/net7.0/AJE.Web.Ui.dll",
+            "program": "${workspaceFolder}/src/Ui/Public/bin/Debug/net7.0/AJE.Ui.Public.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/src/Web.Ui",
+            "cwd": "${workspaceFolder}/src/Ui/Public",
             "stopAtEntry": false,
             // Enable launching a web browser when ASP.NET Core starts. For more information: https://aka.ms/VSCode-CS-LaunchJson-WebBrowser
             "serverReadyAction": {

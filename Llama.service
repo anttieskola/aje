@@ -1,0 +1,35 @@
+# /etc/systemd/system/Llama.service
+
+# install
+# sudo systemctl daemon-reload
+# sudo systemctl enable Llama.service
+# sudo systemctl start Llama.service
+
+# removal
+# sudo systemctl stop Llama.service
+# sudo systemctl disable Llama.service
+# remove the service file
+# reload daemon
+
+# full log you can see with
+# journalctl -u Llama.service
+
+[Unit]
+Description=Llama
+After=network.target
+
+[Service]
+Type=simple
+Restart=always
+# Note working directory is a must
+# otherwiser process can't find resources -> odd errors
+WorkingDirectory=/usr/local/bin/Llama/
+ExecStart=/usr/local/bin/Llama/llama.sh
+User=antti
+
+SyslogIdentifier=Llama
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target
