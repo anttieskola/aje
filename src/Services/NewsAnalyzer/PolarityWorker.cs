@@ -49,19 +49,15 @@ public class PolarityWorker : BackgroundService
         {
             // analyze article "sentiment" polarity
             var article = results.Items.First();
-            _logger.LogInformation("Article: {} - Polarity start", article.Source);
             var command = new GetArticlePolarityQuery { Article = article };
-            var timer = Stopwatch.StartNew();
             var polarityEvent = await _sender.Send(command, _cancellationToken);
-            timer.Stop();
 
             // update article with new polarity
             article.Polarity = polarityEvent.Polarity;
             article.PolarityVersion = polarityEvent.PolarityVersion;
             var updateCommand = new UpdateArticleCommand { Article = article };
             await _sender.Send(updateCommand, _cancellationToken);
-
-            _logger.LogInformation("Article {} - Polarity complete in {} ms with polarity: {}", article.Source, timer.ElapsedMilliseconds, polarityEvent.Polarity);
+            _logger.LogInformation("Updated Article {} with polarity {}", article.Source, article.Polarity);
         }
         return results.TotalCount > 1;
     }

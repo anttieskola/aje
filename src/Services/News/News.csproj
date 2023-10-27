@@ -4,7 +4,7 @@
     <RootNamespace>AJE.Service.News</RootNamespace>
     <AssemblyName>AJE.Service.News</AssemblyName>
   </PropertyGroup>
-  
+
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
