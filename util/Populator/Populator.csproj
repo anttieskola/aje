@@ -19,7 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Application\Application.csproj" />
-    <ProjectReference Include="..\..\src\Infra\Infra.csproj" />
+    <ProjectReference Include="..\..\src\Infra\Redis\Redis.csproj" />
   </ItemGroup>
 
 </Project>
