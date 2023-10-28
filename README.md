@@ -39,16 +39,29 @@ template from which I have copied most of structure for this project.
 Using Command/Query separation pattern with [MediatR](https://github.com/jbogard/MediatR).
 Even my domain has dependency on MediatR as it is essential for the architecture.
 
+## Libraries
+- Domain the "holy grail"
+	- This has dependency on MediaRt & Dependency injection to be able to use the command &
+	query architecture
+	- ***No other dependencies should be added***
+- Application higher level implementations... kinda empty still as many things implemented
+features are placed currently in the component that is kinda wrong way and should be fixed
+- Infra, folder that contains shared infrastructure implementations
+	- AI api to llama server running models
+	- Redis our shared data storage and messaging
+- Each component should have their own infrastructure library when they need (database as an example)
+
 # Components
 Each component is true microservice so they work on their own. What they do share is
-Redis so that data is shared between them. Communication between components happens
-using events send in Redis channells. Each component can have database but it will be their own.
+Redis so that data is shared between them, but note that ***Redis data is not permanent*** and
+components need to be able to build up Redis data from scratch. Communication between components
+happens using events send in Redis channels.
 
 List of current components and used software
 - Microservices
 	- [News](./doc/News.md) Downloads news from internet, convert and store them into Redis
 	- [NewsAnalyzer](./doc/NewsAnalyzer.md) Classifies news articles with large language models
-- [Web.Ui](./doc/WebUi.md) User interface for the application
+- [Ui.Public](./doc/UiPublic.md) User interface for the application
 	- Using server rendered blazor as I want to learn to use it better and I think it is
 	fits my needs best
 - Utilities (under Tests currently)
@@ -71,9 +84,15 @@ List of current components and used software
 	- [My servers setup](https://github.com/anttieskola/setup)
 
 ## Deployment locations
-- Web.Ui published on server into path `/usr/local/bin/aje/`
-- News published on server into path `/usr/local/bin/aje-news/`
-- TODO: Publish NewsAnalyze (have to go back to Kokkola to setup another server with GPU)
+- Web.Ui published on server into path `/usr/local/bin/AJE.Ui.Public/`
+- News published on server into path `/usr/local/bin/AJE.Service.News/`
+- NewsAnalyzer published on server into path `/usr/local/bin/AJE.Service.NewsAnalyzer/`
+- Llama.cpp is installed manually on server into path `/usr/local/bin/Llama/`
+- Redis is installed manually on server into path `/usr/local/bin/Redis/`
+	- Modules have own folders under `/usr/local/bin`
+- Postgresql is installed using their apt package repository
+
+Could someday learn to create docker containers and make one for each component.
 
 ## Folder paths
 - `/var/aje/yle` is used to store raw YLE news downloads

@@ -1,4 +1,4 @@
-﻿namespace AJE.Infra;
+﻿namespace AJE.Infra.Redis;
 
 public interface IRedisService
 {

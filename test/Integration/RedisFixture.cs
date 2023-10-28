@@ -1,6 +1,6 @@
 ﻿using AJE.Domain.Data;
-using AJE.Infra;
-using AJE.Infra.Data;
+using AJE.Infra.Redis;
+using AJE.Infra.Redis.Data;
 using Microsoft.Extensions.Logging;
 
 namespace AJE.Test.Integration;

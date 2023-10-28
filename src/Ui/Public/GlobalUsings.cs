@@ -3,7 +3,7 @@ global using AJE.Ui.Public.Hubs;
 global using AJE.Application;
 global using AJE.Domain;
 global using AJE.Domain.Entities;
-global using AJE.Infra;
+global using AJE.Infra.Redis;
 global using System;
 global using StackExchange.Redis;
 global using MediatR;

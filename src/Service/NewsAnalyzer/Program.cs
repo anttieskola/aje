@@ -8,7 +8,8 @@ var host = Host.CreateDefaultBuilder(args)
 
         services.AddApplication();
         services.AddDomain();
-        services.AddInfra(config);
+        services.AddAi(config);
+        services.AddRedis(config);
         services.AddHostedService<PolarityWorker>();
     })
     .ConfigureLogging(logging =>

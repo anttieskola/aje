@@ -1,4 +1,4 @@
-﻿namespace AJE.Infra.Data;
+﻿namespace AJE.Infra.Redis.Data;
 
 public class ArticleRepository : IArticleRepository
 {

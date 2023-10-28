@@ -1,5 +1,5 @@
 ﻿
-namespace AJE.Infra.Events;
+namespace AJE.Infra.Redis.Events;
 
 public class ArticleEventHandler : IArticleEventHandler
 {

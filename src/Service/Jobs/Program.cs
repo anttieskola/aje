@@ -6,13 +6,8 @@ var host = Host.CreateDefaultBuilder(args)
             .AddJsonFile("appsettings.json", false, true)
             .Build();
 
-        var yleConfig = (config.GetSection(nameof(MolConfiguration)).Get<MolConfiguration>())
-            ?? throw new SystemException(nameof(MolConfiguration));
-        services.AddSingleton(yleConfig);
-
         services.AddApplication();
         services.AddDomain();
-        services.AddInfra(config);
         services.AddHostedService<MolWorker>();
     })
     .ConfigureLogging(logging =>
@@ -24,5 +19,4 @@ var host = Host.CreateDefaultBuilder(args)
     })
     .Build();
 
-await host.Services.InitializeRedis();
 host.Run();

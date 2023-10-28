@@ -2,7 +2,6 @@
 using AJE.Domain.Ai;
 using AJE.Domain.Entities;
 using AJE.Domain.Queries;
-using AJE.Infra;
 using AJE.Infra.Ai;
 using Microsoft.Extensions.Logging;
 

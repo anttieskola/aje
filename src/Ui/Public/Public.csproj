@@ -17,7 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Application\Application.csproj" />
-    <ProjectReference Include="..\..\Infra\Infra.csproj" />
+    <ProjectReference Include="..\..\Infra\Redis\Redis.csproj" />
   </ItemGroup>
 
   <ItemGroup>

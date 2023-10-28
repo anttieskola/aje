@@ -1,4 +1,4 @@
-﻿using AJE.Infra;
+﻿using AJE.Infra.Redis;
 
 namespace AJE.Test.Unit.Infra;
 

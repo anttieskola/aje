@@ -6,7 +6,6 @@ global using AJE.Domain.Entities;
 global using AJE.Domain.Enums;
 global using AJE.Domain.Exceptions;
 global using AJE.Domain.Queries;
-global using AJE.Infra;
 global using System.Collections.Concurrent;
 global using System.Globalization;
 global using System.IO.Compression;

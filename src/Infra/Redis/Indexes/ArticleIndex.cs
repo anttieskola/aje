@@ -1,5 +1,5 @@
 ﻿
-namespace AJE.Infra.Indexes;
+namespace AJE.Infra.Redis.Indexes;
 
 public class ArticleIndex : IRedisIndex
 {

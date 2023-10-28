@@ -3,7 +3,7 @@ using AJE.Domain.Entities;
 using AJE.Domain.Enums;
 using AJE.Domain.Events;
 using AJE.Domain.Queries;
-using AJE.Infra.Indexes;
+using AJE.Infra.Redis.Indexes;
 
 namespace AJE.Test.Integration.Application;
 

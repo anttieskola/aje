@@ -1,4 +1,4 @@
-﻿namespace AJE.Infra;
+﻿namespace AJE.Infra.Ai;
 
 public class LlamaConfiguration
 {

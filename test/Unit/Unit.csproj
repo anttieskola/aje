@@ -36,5 +36,6 @@
   <ItemGroup>
     <Folder Include="Domain/Queries/" />
     <Folder Include="Infra/" />
+    <Folder Include="Infra/Redis/" />
   </ItemGroup>
 </Project>

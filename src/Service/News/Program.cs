@@ -12,7 +12,7 @@ var host = Host.CreateDefaultBuilder(args)
 
         services.AddApplication();
         services.AddDomain();
-        services.AddInfra(config);
+        services.AddRedis(config);
         services.AddHostedService<YleWorker>();
     })
     .ConfigureLogging(logging =>

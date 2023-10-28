@@ -1,21 +1,15 @@
-﻿namespace AJE.Infra;
+﻿namespace AJE.Infra.Redis;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfra(
+    public static IServiceCollection AddRedis(
         this IServiceCollection services,
         IConfigurationRoot config)
     {
         var redisConfiguration = config.GetRedisConfiguration();
         services.AddSingleton(redisConfiguration);
 
-        var llamaConfiguration = config.GetLlamaConfiguration();
-        services.AddSingleton(llamaConfiguration);
-
-        services.AddHttpClient();
         services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConfiguration.Host));
-        services.AddSingleton<IAiModel, LlamaAiModel>();
-        services.AddSingleton<IAiLogger, AiLogger>();
         services.AddSingleton<IArticleRepository, ArticleRepository>();
         services.AddSingleton<IArticleEventHandler, ArticleEventHandler>();
         services.AddSingleton<IRedisService, RedisService>();
@@ -26,12 +20,6 @@ public static class DependencyInjection
     {
         return (config.GetSection(nameof(RedisConfiguration)).Get<RedisConfiguration>())
             ?? throw new SystemException(nameof(RedisConfiguration));
-    }
-
-    public static LlamaConfiguration GetLlamaConfiguration(this IConfigurationRoot config)
-    {
-        return (config.GetSection(nameof(LlamaConfiguration)).Get<LlamaConfiguration>())
-            ?? throw new SystemException(nameof(LlamaConfiguration));
     }
 
     public static async Task InitializeRedis(this IServiceProvider provider)
