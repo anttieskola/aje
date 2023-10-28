@@ -1,5 +1,19 @@
 {
     "files.exclude": {
         "**/llama.cpp": true
-    }
+    },
+    "sqltools.connections": [
+        {
+            "database": "newsanalyzer",
+            "driver": "PostgreSQL",
+            "name": "newsanalyzer@localhost",
+            "pgOptions": {
+                "ssl": false
+            },
+            "previewLimit": 1000,
+            "server": "/run/postgresql",
+            "username": "antti",
+            "password": ""
+        }
+    ]
 }
