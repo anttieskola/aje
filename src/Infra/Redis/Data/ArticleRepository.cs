@@ -126,6 +126,10 @@ public class ArticleRepository : IArticleRepository
             // value is in this case defined in return statement (with labels)
             // $.id, id-value, $.title, title-value
             var data = (RedisResult[])rows[i + 1]!;
+            if (data.Length != 6)
+            {
+                throw new DataException($"invalid data value in key {rows[i]}");
+            }
             var id = (string)data[1]! ?? throw new DataException($"invalid data value in key {rows[i]}");
             var title = (string)data[3]! ?? throw new DataException($"invalid data value in key {rows[i]}");
             var polarity = (int?)data[5]! ?? throw new DataException($"invalid data value in key {rows[i]}");

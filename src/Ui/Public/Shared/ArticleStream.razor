@@ -84,5 +84,5 @@
         StateHasChanged();
     }
 
-    void IDisposable.Dispose() => _timer.Dispose();
+    void IDisposable.Dispose() => _timer?.Dispose();
 }

@@ -127,6 +127,8 @@
             {
                 Id = Guid.NewGuid(),
                 Category = Category.NEWS,
+                Polarity = Polarity.Unknown,
+                PolarityVersion = 0,
                 // timestamps have no milliseconds so we need to parse it manually
                 Modified = DateTimeOffset.ParseExact(dateJsonModified, "yyyy-MM-ddTHH:mm:sszzz", CultureInfo.InvariantCulture).UtcTicks,
                 Title = titleElement.ToString(),

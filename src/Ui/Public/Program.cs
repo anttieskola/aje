@@ -10,6 +10,7 @@ var redisConfiguration = config.GetRedisConfiguration();
 builder.Services.AddApplication();
 builder.Services.AddDomain();
 builder.Services.AddRedis(config);
+builder.Services.AddAi(config);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddMemoryCache();
