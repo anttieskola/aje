@@ -53,7 +53,8 @@ public class GetArticlePolarityQueryHandler : IRequestHandler<GetArticlePolarity
 
         return new ArticleClassifiedEvent
         {
-            Id = command.Article.Id,
+            Timestamp = DateTimeOffset.UtcNow,
+            Source = command.Article.Source,
             Polarity = polarity,
             PolarityVersion = GetArticlePolarityQuery.CURRENT_POLARITY_VERSION,
         };

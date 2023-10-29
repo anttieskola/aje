@@ -5,12 +5,17 @@ var host = Host.CreateDefaultBuilder(args)
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json", false, true)
             .Build();
-
+        services.AddDbContext<NewsAnalyzerContext>(options =>
+        {
+            options.UseNpgsql(config.GetConnectionString("NewsAnalyzer"));
+        });
         services.AddApplication();
         services.AddDomain();
         services.AddAi(config);
         services.AddRedis(config);
-        services.AddHostedService<PolarityWorker>();
+        // TODO: Temporary solution to save data from Redis to database
+        // services.AddHostedService<PolarityWorker>();
+        services.AddHostedService<OneTimeSaveWorker>();
     })
     .ConfigureLogging(logging =>
     {

@@ -22,8 +22,7 @@ public class GetArticlePolarityQueryHandlerTests
         var mockAiModel = new Mock<IAiModel>();
         mockAiModel.Setup(x => x.CompletionAsync(It.IsAny<CompletionRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(completionResponse);
 
-        var articleId = Guid.NewGuid();
-        var command = new GetArticlePolarityQuery { Article = new Article { Id = articleId } };
+        var command = new GetArticlePolarityQuery { Article = new Article { Source = "source" } };
         var handler = new GetArticlePolarityQueryHandler(mockContextCreator.Object, mockPolarity.Object, mockAiModel.Object, new Mock<IAiLogger>().Object);
 
         // act
@@ -31,7 +30,7 @@ public class GetArticlePolarityQueryHandlerTests
 
         // assert
         Assert.NotNull(result);
-        Assert.Equal(articleId, result.Id);
+        Assert.Equal("source", result.Source);
         Assert.Equal(Polarity.Positive, result.Polarity);
     }
 }

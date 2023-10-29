@@ -50,3 +50,83 @@ Configuration to connect using unix socket
     ]
 }
 ```
+
+# Usage
+Follow these steps
+
+## EF Tools
+Required to install for development environment
+
+- [Guide](https://learn.microsoft.com/en-us/ef/core/cli/dotnet)
+
+```bash
+# install tools globally
+dotnet tool install --global dotnet-ef
+
+# update it if need
+dotnet tool update --global dotnet-ef
+
+# add to .bash_aliases, globally installed dotnet tools
+export PATH=$PATH:$HOME/.dotnet/tools
+```
+
+## Nuget packages
+For the component using EF & Database
+- [Homepage](https://www.npgsql.org/)
+- [Type mapping](https://www.npgsql.org/doc/types/basic.html)
+
+Postgresql package (required)
+```xml
+<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.11" />
+```
+
+Tools (not required now, as using globally installed tools)
+```xml
+<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.13" />
+```
+
+## Create DbContext
+Example
+
+```csharp
+public class NewsAnalyzerContext : DbContext
+{
+    public NewsAnalyzerContext(DbContextOptions dbContextOptions)
+        : base(dbContextOptions)
+    {
+    }
+
+    public NewsAnalyzerContext()
+        : base()
+    {
+    }
+
+    public DbSet<ArticleClassifiedEvent> ArticleClassifiedEvents { get; set; } = null!;
+}
+```
+## Connection string
+In the component's appsettings.json
+```json
+{
+  "ConnectionStrings": {
+    "NewsAnalyzer": "Host=/run/postgresql;Database=newsanalyzer;"
+  }
+}
+```
+
+## Register DbContext
+In the component startup
+```csharp
+services.AddDbContext<NewsAnalyzerContext>(options =>
+{
+    options.UseNpgsql(config.GetConnectionString("NewsAnalyzer"));
+});
+```
+
+## Create migration
+In the component root, in console
+```bash
+dotnet ef migrations add InitialCreate --context NewsAnalyzerContext
+
+# Should create Migrations folder and migration script
+```

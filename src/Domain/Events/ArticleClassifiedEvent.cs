@@ -2,8 +2,11 @@
 
 public record ArticleClassifiedEvent
 {
-    [JsonPropertyName("id")]
-    public required Guid Id { get; init; }
+    [JsonPropertyName("timestamp")]
+    public required DateTimeOffset Timestamp { get; init; }
+
+    [JsonPropertyName("source")]
+    public required string Source { get; init; }
 
     [JsonPropertyName("polarity")]
     public required Polarity Polarity { get; init; }
