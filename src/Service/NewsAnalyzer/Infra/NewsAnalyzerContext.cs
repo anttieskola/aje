@@ -1,4 +1,5 @@
-﻿namespace AJE.Service.NewsAnalyzer.Infra;
+﻿
+namespace AJE.Service.NewsAnalyzer.Infra;
 
 public record ArticleClassifiedEventRecord : ArticleClassifiedEvent
 {
@@ -21,4 +22,20 @@ public class NewsAnalyzerContext : DbContext
     }
 
     public DbSet<ArticleClassifiedEventRecord> ArticleClassifiedEventRecords { get; set; } = null!;
+}
+
+public class EventSaver : IEventSaver
+{
+    public async Task SaveAsync(ArticleClassifiedEvent articleClassifiedEvent, CancellationToken cancellationToken)
+    {
+        using var context = new NewsAnalyzerContext();
+        context.ArticleClassifiedEventRecords.Add(new ArticleClassifiedEventRecord
+        {
+            Source = articleClassifiedEvent.Source,
+            Timestamp = articleClassifiedEvent.Timestamp,
+            Polarity = articleClassifiedEvent.Polarity,
+            PolarityVersion = articleClassifiedEvent.PolarityVersion,
+        });
+        await context.SaveChangesAsync(cancellationToken);
+    }
 }

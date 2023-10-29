@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using AJE.Domain.Ai;
 using AJE.Domain.Entities;
+using AJE.Domain.Events;
 using AJE.Domain.Queries;
 using AJE.Infra.Ai;
 using Microsoft.Extensions.Logging;
@@ -91,7 +92,8 @@ public class GetArticlePolarityCommandHandlerTests : IClassFixture<HttpClientFix
             new ArticleContextCreator(new MarkDownSimplifier()),
             new PolarityChatML(),
             new LlamaAiModel(new Mock<ILogger<LlamaAiModel>>().Object, configuration, _fixture.HttpClientFactory),
-            new AiLogger(configuration));
+            new AiLogger(configuration),
+            new Mock<IEventSaver>().Object);
         var command = new GetArticlePolarityQuery { Article = article };
         var response = await handler.Handle(command, CancellationToken.None);
         Assert.NotNull(response);

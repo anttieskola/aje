@@ -1,6 +1,7 @@
 ﻿using AJE.Domain.Ai;
 using AJE.Domain.Entities;
 using AJE.Domain.Enums;
+using AJE.Domain.Events;
 using AJE.Domain.Queries;
 
 namespace AJE.Test.Unit.Domain.Queries;
@@ -23,7 +24,7 @@ public class GetArticlePolarityQueryHandlerTests
         mockAiModel.Setup(x => x.CompletionAsync(It.IsAny<CompletionRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(completionResponse);
 
         var command = new GetArticlePolarityQuery { Article = new Article { Source = "source" } };
-        var handler = new GetArticlePolarityQueryHandler(mockContextCreator.Object, mockPolarity.Object, mockAiModel.Object, new Mock<IAiLogger>().Object);
+        var handler = new GetArticlePolarityQueryHandler(mockContextCreator.Object, mockPolarity.Object, mockAiModel.Object, new Mock<IAiLogger>().Object, new Mock<IEventSaver>().Object);
 
         // act
         var result = handler.Handle(command, CancellationToken.None).Result;

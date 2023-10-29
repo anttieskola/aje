@@ -17,16 +17,20 @@ public class GetArticlePolarityQueryHandler : IRequestHandler<GetArticlePolarity
     private readonly IAiModel _aiModel;
     private readonly IAiLogger _aiLogger;
 
+    private readonly IEventSaver _eventSaver;
+
     public GetArticlePolarityQueryHandler(
         IContextCreator<Article> contextCreator,
         IPolarity polarity,
         IAiModel aiModel,
-        IAiLogger aiLogger)
+        IAiLogger aiLogger,
+        IEventSaver eventSaver)
     {
         _contextCreator = contextCreator;
         _polarity = polarity;
         _aiModel = aiModel;
         _aiLogger = aiLogger;
+        _eventSaver = eventSaver;
     }
 
     public async Task<ArticleClassifiedEvent> Handle(GetArticlePolarityQuery command, CancellationToken cancellationToken)
@@ -51,12 +55,15 @@ public class GetArticlePolarityQueryHandler : IRequestHandler<GetArticlePolarity
             await _aiLogger.LogAsync(fileNamePrefix, request, response);
         }
 
-        return new ArticleClassifiedEvent
+        // save event
+        var acevent = new ArticleClassifiedEvent
         {
             Timestamp = DateTimeOffset.UtcNow,
             Source = command.Article.Source,
             Polarity = polarity,
             PolarityVersion = GetArticlePolarityQuery.CURRENT_POLARITY_VERSION,
         };
+        await _eventSaver.SaveAsync(acevent, cancellationToken);
+        return acevent;
     }
 }
