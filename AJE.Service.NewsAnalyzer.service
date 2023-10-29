@@ -1,0 +1,35 @@
+# /etc/systemd/system/AJE.Service.News.service
+
+# install
+# sudo systemctl daemon-reload
+# sudo systemctl enable AJE.Service.NewsAnalyzer.service
+# sudo systemctl start AJE.Service.NewsAnalyzer.service
+
+# removal
+# sudo systemctl stop AJE.Service.NewsAnalyzer.service
+# sudo systemctl disable AJE.Service.NewsAnalyzer.service
+# remove the service file
+# reload daemon
+
+# full log you can see with
+# journalctl -u AJE.Service.NewsAnalyzer
+
+[Unit]
+Description=AJE.Service.News
+After=network.target
+
+[Service]
+Type=simple
+Restart=always
+# Note working directory is a must
+# otherwiser process can't find resources -> odd errors
+WorkingDirectory=/usr/local/bin/AJE.Service.NewsAnalyzer
+ExecStart=/usr/local/bin/AJE.Service.NewsAnalyzer/AJE.Service.NewsAnalyzer
+User=antti
+
+SyslogIdentifier=AJE.Service.NewsAnalyzer
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target
