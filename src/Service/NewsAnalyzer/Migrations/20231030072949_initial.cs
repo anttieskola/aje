@@ -7,13 +7,13 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AJE.Service.NewsAnalyzer.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "ArticleClassifiedEventRecords",
+                name: "events",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -25,7 +25,7 @@ namespace AJE.Service.NewsAnalyzer.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ArticleClassifiedEventRecords", x => x.Id);
+                    table.PrimaryKey("PK_events", x => x.Id);
                 });
         }
 
@@ -33,7 +33,7 @@ namespace AJE.Service.NewsAnalyzer.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "ArticleClassifiedEventRecords");
+                name: "events");
         }
     }
 }

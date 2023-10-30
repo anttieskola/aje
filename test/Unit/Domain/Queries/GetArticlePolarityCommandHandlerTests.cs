@@ -24,7 +24,7 @@ public class GetArticlePolarityQueryHandlerTests
         mockAiModel.Setup(x => x.CompletionAsync(It.IsAny<CompletionRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(completionResponse);
 
         var command = new GetArticlePolarityQuery { Article = new Article { Source = "source" } };
-        var handler = new GetArticlePolarityQueryHandler(mockContextCreator.Object, mockPolarity.Object, mockAiModel.Object, new Mock<IAiLogger>().Object, new Mock<IEventSaver>().Object);
+        var handler = new GetArticlePolarityQueryHandler(mockContextCreator.Object, mockPolarity.Object, mockAiModel.Object, new Mock<IAiLogger>().Object);
 
         // act
         var result = handler.Handle(command, CancellationToken.None).Result;

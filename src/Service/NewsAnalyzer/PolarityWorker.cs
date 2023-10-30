@@ -3,13 +3,16 @@ namespace AJE.Service.NewsAnalyzer;
 public class PolarityWorker : BackgroundService
 {
     private readonly ILogger<PolarityWorker> _logger;
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly ISender _sender;
 
     public PolarityWorker(
         ILogger<PolarityWorker> logger,
+        IServiceScopeFactory scopeFactory,
         ISender sender)
     {
         _logger = logger;
+        _scopeFactory = scopeFactory;
         _sender = sender;
     }
 
@@ -49,6 +52,10 @@ public class PolarityWorker : BackgroundService
             var article = results.Items.First();
             var command = new GetArticlePolarityQuery { Article = article };
             var polarityEvent = await _sender.Send(command, _cancellationToken);
+
+            var scope = _scopeFactory.CreateScope();
+            var eventSaver = scope.ServiceProvider.GetRequiredService<IEventSaver>();
+            await eventSaver.SaveAsync(polarityEvent, _cancellationToken);
 
             // update article with new polarity
             article.Polarity = polarityEvent.Polarity;

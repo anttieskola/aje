@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AJE.Service.NewsAnalyzer.Migrations
 {
     [DbContext(typeof(NewsAnalyzerContext))]
-    [Migration("20231029205030_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20231030072949_initial")]
+    partial class initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -53,7 +53,7 @@ namespace AJE.Service.NewsAnalyzer.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ArticleClassifiedEventRecords");
+                    b.ToTable("events");
                 });
 #pragma warning restore 612, 618
         }

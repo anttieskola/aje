@@ -50,7 +50,7 @@ namespace AJE.Service.NewsAnalyzer.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ArticleClassifiedEventRecords");
+                    b.ToTable("events");
                 });
 #pragma warning restore 612, 618
         }
