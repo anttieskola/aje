@@ -19,7 +19,7 @@
 <label for="polarity">Filter by sentiment polarity</label>
 <select name="polarity" @onchange="Polarity">
     <option value="">-</option>
-    <option value="Positive">Positive</option>
+    <option value="Positive" selected>Positive</option>
     <option value="Neutral">Neutral</option>
     <option value="Negative">Negative</option>
     <option value="Unknown">Unknown</option>
@@ -91,7 +91,7 @@
         await InvokeAsync(() => Fetch());
     }
 
-    private string? _polarity;
+    private string? _polarity = "Positive";
 
     private async Task Polarity(ChangeEventArgs a)
     {

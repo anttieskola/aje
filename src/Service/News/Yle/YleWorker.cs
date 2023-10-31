@@ -56,8 +56,7 @@ public class YleWorker : BackgroundService
                 if (TestHtmlParse(content))
                 {
                     // add
-                    var article = HtmlParser.Parse(content);
-                    article.Source = link;
+                    var article = HtmlParser.Parse(content, link);
                     await _sender.Send(new AddArticleCommand { Article = article }, ct);
                 }
                 else
@@ -71,8 +70,7 @@ public class YleWorker : BackgroundService
                         await File.WriteAllTextAsync(Path.Combine(_configuration.DumpFolder, CreateHTMLFileName(link)), content, ct);
 
                         // add
-                        var article = HtmlParser.Parse(content);
-                        article.Source = link;
+                        var article = HtmlParser.Parse(content, link);
                         await _sender.Send(new AddArticleCommand { Article = article }, ct);
                     }
                     else
@@ -117,8 +115,7 @@ public class YleWorker : BackgroundService
                 // TODO: Feature that detects the error page and works around it
                 var content = await Request(new Uri(link), ct);
                 await File.WriteAllTextAsync(Path.Combine(_configuration.DumpFolder, CreateHTMLFileName(link)), content, ct);
-                var article = HtmlParser.Parse(content);
-                article.Source = link;
+                var article = HtmlParser.Parse(content, link);
                 await _sender.Send(new AddArticleCommand { Article = article }, ct);
             }
         }
@@ -132,7 +129,7 @@ public class YleWorker : BackgroundService
     {
         try
         {
-            HtmlParser.Parse(content);
+            HtmlParser.Parse(content, string.Empty);
             return true;
         }
         catch (ParsingException)

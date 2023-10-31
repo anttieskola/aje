@@ -1,6 +1,5 @@
 ﻿using AJE.Domain.Commands;
 using AJE.Domain.Entities;
-using AJE.Domain.Enums;
 using AJE.Domain.Events;
 using AJE.Domain.Queries;
 using AJE.Infra.Redis.Indexes;
@@ -13,11 +12,10 @@ namespace AJE.Test.Integration.Application;
 public class ArticleTests : IClassFixture<RedisFixture>
 {
     private readonly RedisFixture _redisFixture;
-    private readonly IRedisIndex _index;
+    private readonly IRedisIndex _index = new ArticleIndex();
     public ArticleTests(RedisFixture fixture)
     {
         _redisFixture = fixture;
-        _index = new ArticleIndex();
     }
 
     private readonly Guid _idOk = new("00000000-0000-0000-0000-000000000001");
@@ -30,33 +28,7 @@ public class ArticleTests : IClassFixture<RedisFixture>
         await _redisFixture.Database.KeyDeleteAsync(_index.RedisId(_idOk.ToString()));
         var source = "https://www.anttieskola.com";
         var publishHandler = new AddArticleCommandHandler(_redisFixture.ArticleRepository, new Mock<IArticleEventHandler>().Object);
-        var article = new Article
-        {
-            Id = _idOk,
-            Category = Category.BOGUS,
-            Title = "test",
-            Modified = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
-            Published = true,
-            Source = source,
-            Language = "en",
-            Content = new EquatableList<MarkdownElement>
-            {
-                new MarkdownHeaderElement{
-                    Level = 1,
-                    Text = "This is header 1"
-                },
-                new MarkdownTextElement{
-                    Text = "This is a paragraph"
-                },
-                new MarkdownHeaderElement{
-                    Level = 2,
-                    Text = "This is header 2"
-                },
-                new MarkdownTextElement{
-                    Text = "This is another paragraph"
-                },
-            }
-        };
+        var article = TestArticle.Article_01(_idOk, source);
 
         // act: publish article
         var publishEvent = await publishHandler.Handle(new AddArticleCommand { Article = article }, CancellationToken.None);

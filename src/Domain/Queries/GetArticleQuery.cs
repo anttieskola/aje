@@ -2,7 +2,8 @@
 
 public record GetArticleQuery : IRequest<Article>
 {
-    public required Guid Id { get; init; }
+    public Guid? Id { get; init; }
+    public string? Source { get; init; }
 }
 
 public class GetArticleQueryHandler : IRequestHandler<GetArticleQuery, Article>
@@ -16,6 +17,11 @@ public class GetArticleQueryHandler : IRequestHandler<GetArticleQuery, Article>
 
     public async Task<Article> Handle(GetArticleQuery request, CancellationToken cancellationToken)
     {
-        return await _repository.GetAsync(request.Id);
+        if (request.Id.HasValue)
+            return await _repository.GetAsync(request.Id.Value);
+        else if (!string.IsNullOrEmpty(request.Source))
+            return await _repository.GetBySourceAsync(request.Source);
+        else
+            throw new ArgumentNullException($"{nameof(request.Id)} or {nameof(request.Source)} must be provided");
     }
 }

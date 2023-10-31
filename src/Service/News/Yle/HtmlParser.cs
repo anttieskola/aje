@@ -2,11 +2,21 @@
 {
     public static class HtmlParser
     {
-        public static Article Parse(string html)
+        public static Article Parse(string html, string source)
         {
             var js = ParseJavaScript(html);
             var state = ParseStateString(js);
-            return ParseJson(state);
+            var article = ParseJson(state);
+            article.Id = CreateId(source);
+            article.Source = source;
+            return article;
+        }
+
+        public static Guid CreateId(string source)
+        {
+            var data = MD5.HashData(Encoding.UTF8.GetBytes(source));
+            var guid = new Guid(data);
+            return guid;
         }
 
         private static string ParseJavaScript(string content)
@@ -125,7 +135,6 @@
             }
             return new Article
             {
-                Id = Guid.NewGuid(),
                 Category = Category.NEWS,
                 Polarity = Polarity.Unknown,
                 PolarityVersion = 0,

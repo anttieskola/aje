@@ -6,6 +6,29 @@ namespace AJE.Test.Unit.Services.News.Yle;
 
 public class HtmlParserTests
 {
+    [Fact]
+    public void CreateId()
+    {
+        // few samples
+        Assert.Equal(new Guid("330c936a-80bc-150d-0839-88ffd3895c4a"), HtmlParser.CreateId("https://yle.fi/a/74-20038161"));
+        Assert.Equal(new Guid("72b10cc1-e7ee-59bc-a581-140e057a9d46"), HtmlParser.CreateId("https://yle.fi/a/74-20056936"));
+        Assert.Equal(new Guid("5db98199-c8aa-de84-3cac-ae64cf01c0d7"), HtmlParser.CreateId("https://yle.fi/a/74-20053559"));
+        Assert.Equal(new Guid("c29b0da0-8b2b-96c3-51dd-e47b23b57361"), HtmlParser.CreateId("https://yle.fi/a/74-20053663"));
+        Assert.Equal(new Guid("54bafe43-f664-4867-b8f6-385b83a5a7a6"), HtmlParser.CreateId("https://yle.fi/a/74-20053070"));
+
+        // test
+        var url1 = "https://yle.fi/a/74-20052790";
+        var id1 = HtmlParser.CreateId(url1);
+
+        var url2 = "https://yle.fi/a/3-20052790";
+        var id2 = HtmlParser.CreateId(url2);
+
+        Assert.NotEqual(id1, id2);
+
+        var id3 = HtmlParser.CreateId(url1);
+        Assert.Equal(id1, id3);
+    }
+
     private const string _htmlNoScript = @"
 <!DOCTYPE html>
 <html>
@@ -18,7 +41,7 @@ public class HtmlParserTests
     [Fact]
     public void HtmlEmpty()
     {
-        var expection = Assert.Throws<ParsingException>(() => HtmlParser.Parse(_htmlNoScript));
+        var expection = Assert.Throws<ParsingException>(() => HtmlParser.Parse(_htmlNoScript, string.Empty));
         Assert.Equal("unable to find last script tag", expection.Message);
     }
 
@@ -35,7 +58,7 @@ public class HtmlParserTests
     [Fact]
     public void NoState()
     {
-        var expection = Assert.Throws<ParsingException>(() => HtmlParser.Parse(_htmlNoState));
+        var expection = Assert.Throws<ParsingException>(() => HtmlParser.Parse(_htmlNoState, string.Empty));
         Assert.Equal("unable to find initial state", expection.Message);
     }
 
@@ -53,7 +76,7 @@ public class HtmlParserTests
     [Fact]
     public void NoArticle()
     {
-        var expection = Assert.Throws<ParsingException>(() => HtmlParser.Parse(_htmlNoArticle));
+        var expection = Assert.Throws<ParsingException>(() => HtmlParser.Parse(_htmlNoArticle, string.Empty));
         Assert.Equal("unable to find article", expection.Message);
     }
 
@@ -76,7 +99,7 @@ public class HtmlParserTests
     [Fact]
     public void NoDate()
     {
-        var expection = Assert.Throws<ParsingException>(() => HtmlParser.Parse(_htmlNoDate));
+        var expection = Assert.Throws<ParsingException>(() => HtmlParser.Parse(_htmlNoDate, string.Empty));
         Assert.Equal("no date", expection.Message);
     }
 
@@ -100,7 +123,7 @@ public class HtmlParserTests
     [Fact]
     public void NoTitle()
     {
-        var expection = Assert.Throws<ParsingException>(() => HtmlParser.Parse(_htmlNoTitle));
+        var expection = Assert.Throws<ParsingException>(() => HtmlParser.Parse(_htmlNoTitle, string.Empty));
         Assert.Equal("no title", expection.Message);
     }
 
@@ -125,7 +148,7 @@ public class HtmlParserTests
     [Fact]
     public void NoLanguage()
     {
-        var expection = Assert.Throws<ParsingException>(() => HtmlParser.Parse(_htmlNoLanguage));
+        var expection = Assert.Throws<ParsingException>(() => HtmlParser.Parse(_htmlNoLanguage, string.Empty));
         Assert.Equal("no language", expection.Message);
     }
 
@@ -151,7 +174,7 @@ public class HtmlParserTests
     [Fact]
     public void NoContent()
     {
-        var expection = Assert.Throws<ParsingException>(() => HtmlParser.Parse(_htmlNoContent));
+        var expection = Assert.Throws<ParsingException>(() => HtmlParser.Parse(_htmlNoContent, string.Empty));
         Assert.Equal("no content array", expection.Message);
     }
 
@@ -178,7 +201,7 @@ public class HtmlParserTests
     [Fact]
     public void EmptyContentArray()
     {
-        var expection = Assert.Throws<ParsingException>(() => HtmlParser.Parse(_htmlEmptyContentArray));
+        var expection = Assert.Throws<ParsingException>(() => HtmlParser.Parse(_htmlEmptyContentArray, string.Empty));
         Assert.Equal("empty content array", expection.Message);
     }
 
@@ -223,7 +246,7 @@ public class HtmlParserTests
     [Fact]
     public void Ok()
     {
-        var article = HtmlParser.Parse(_htmlOk);
+        var article = HtmlParser.Parse(_htmlOk, string.Empty);
         Assert.NotNull(article);
         Assert.Equal(new DateTimeOffset(1980, 9, 12, 18, 0, 0, TimeSpan.FromHours(3)).UtcTicks, article.Modified);
         Assert.Equal("Article title", article.Title);
@@ -275,7 +298,7 @@ public class HtmlParserTests
     [Fact]
     public void LiveFeed()
     {
-        var article = HtmlParser.Parse(_htmlLiveFeed);
+        var article = HtmlParser.Parse(_htmlLiveFeed, string.Empty);
         Assert.NotNull(article);
         Assert.Equal("Article title", article.Title);
         Assert.NotEmpty(article.Content);

@@ -25,6 +25,7 @@ public class SentimentPolarityWorker : BackgroundService
         _cancellationToken = cancellationToken;
 
         // reload data
+        await ReloadAsync();
 
         // analyze/update articles
         while (!_cancellationToken.IsCancellationRequested)
@@ -35,7 +36,43 @@ public class SentimentPolarityWorker : BackgroundService
         }
     }
 
-    // reloading data from database to Redis
+    /// <summary>
+    /// Utility function to fix article id's because earlier all articles got random id
+    /// and now we create id's based on source so they will be identical when source is same
+    /// Not used atm, but kept for a while in code just in case.
+    /// TODO: remove this after it been in source control for atleast 1 commit
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    private async Task FixGuids()
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<NewsAnalyzerContext>();
+        var rows = context.SentimentPolarities.ToList();
+        foreach (var row in rows)
+        {
+            if (_cancellationToken.IsCancellationRequested)
+                break;
+
+            var article = await _sender.Send(new GetArticleQuery { Source = row.Source }, _cancellationToken) ?? throw new Exception($"Article not found for source {row.Source}");
+            if (article.Id == row.Id)
+                continue;
+
+            var rowWithCorrectId = new ArticleSentimentPolarityRow
+            {
+                Id = article.Id,
+                Timestamp = row.Timestamp,
+                Source = row.Source,
+                Polarity = row.Polarity,
+                PolarityVersion = row.PolarityVersion
+            };
+            context.SentimentPolarities.Remove(row);
+            context.SentimentPolarities.Add(rowWithCorrectId);
+            await context.SaveChangesAsync(_cancellationToken);
+        }
+    }
+
+    // reloading analysis data from db to Redis
     private async Task ReloadAsync()
     {
         using var scope = _scopeFactory.CreateScope();
@@ -47,11 +84,19 @@ public class SentimentPolarityWorker : BackgroundService
 
         await foreach (var row in rows)
         {
+            if (_cancellationToken.IsCancellationRequested)
+                break;
+
             // update article with saved polarity if they are missing
             var current = await _sender.Send(new GetArticleQuery { Id = row.Id }, _cancellationToken);
             if (current != null)
             {
-
+                if (current.PolarityVersion < row.PolarityVersion)
+                {
+                    current.Polarity = row.Polarity;
+                    current.PolarityVersion = row.PolarityVersion;
+                    await _sender.Send(new UpdateArticleCommand { Article = current }, _cancellationToken);
+                }
             }
         }
     }
