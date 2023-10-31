@@ -13,8 +13,9 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddDomain();
         services.AddAi(config);
         services.AddRedis(config);
-        services.AddHostedService<PolarityWorker>();
-        services.AddScoped<IEventSaver, EventSaver>();
+        services.AddHostedService<OneTimeSaveWorker>();
+        //services.AddHostedService<PolarityWorker>();
+        //services.AddScoped<IEventSaver, EventSaver>();
     })
     .ConfigureLogging(logging =>
     {

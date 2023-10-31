@@ -60,8 +60,9 @@
     {
         if (message.HasValue)
         {
-            var msg = JsonSerializer.Deserialize<ArticleEvent>(message.ToString());
-            if (msg != null && msg.Type == ArticleEventType.Added)
+            // todo: test this works (as removed type from event fields)
+            var msg = JsonSerializer.Deserialize<ArticleAddedEvent>(message.ToString());
+            if (msg != null)
             {
                 InvokeAsync(async () =>
                 {

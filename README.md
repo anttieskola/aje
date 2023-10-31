@@ -167,8 +167,8 @@ var resOk = await db.ExecuteAsync("FT.SEARCH", arguments.ToArray());
 - When we add fields to model's/indexe's redis data has to be updated or reloaded even if json has default value
 but the field is missing in redis data of key and query won't work
 - When querying index and ***even when defining return column*** and that column does not exists on object
-***it won't return missing columns at all*** so returned data size can change depending on what columns exists
-on object
+***it won't return missing columns at all*** so returned data size can change depending on what columns exists on object
+- When creating index, it is usable right away but using it before it is fully created will result in partial results
 
 ## Guid/Url type of columns in index
 So I had added stuff with bogus to redis and was trying to search does any article have source

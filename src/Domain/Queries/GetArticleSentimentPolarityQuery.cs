@@ -1,6 +1,6 @@
 ﻿namespace AJE.Domain.Queries;
 
-public record GetArticlePolarityQuery : IRequest<ArticleClassifiedEvent>
+public record GetArticleSentimentPolarityQuery : IRequest<ArticleSentimentPolarity>
 {
     /// <summary>
     /// Current of the polarity model & prompt settings
@@ -9,15 +9,14 @@ public record GetArticlePolarityQuery : IRequest<ArticleClassifiedEvent>
     public required Article Article { get; init; }
 }
 
-public class GetArticlePolarityQueryHandler : IRequestHandler<GetArticlePolarityQuery, ArticleClassifiedEvent>
+public class GetArticleSentimentPolarityQueryHandler : IRequestHandler<GetArticleSentimentPolarityQuery, ArticleSentimentPolarity>
 {
-
     private readonly IContextCreator<Article> _contextCreator;
     private readonly IPolarity _polarity;
     private readonly IAiModel _aiModel;
     private readonly IAiLogger _aiLogger;
 
-    public GetArticlePolarityQueryHandler(
+    public GetArticleSentimentPolarityQueryHandler(
         IContextCreator<Article> contextCreator,
         IPolarity polarity,
         IAiModel aiModel,
@@ -29,9 +28,9 @@ public class GetArticlePolarityQueryHandler : IRequestHandler<GetArticlePolarity
         _aiLogger = aiLogger;
     }
 
-    public async Task<ArticleClassifiedEvent> Handle(GetArticlePolarityQuery command, CancellationToken cancellationToken)
+    public async Task<ArticleSentimentPolarity> Handle(GetArticleSentimentPolarityQuery query, CancellationToken cancellationToken)
     {
-        var context = _contextCreator.Create(command.Article);
+        var context = _contextCreator.Create(query.Article);
         var prompt = _polarity.Create(context);
 
         // update version if prompt changes
@@ -47,18 +46,17 @@ public class GetArticlePolarityQueryHandler : IRequestHandler<GetArticlePolarity
         if (polarity == Polarity.Unknown)
         {
             // TODO: Only works for YLE's articles
-            var fileNamePrefix = command.Article.Source.Replace("https://yle.fi/a/", string.Empty);
+            var fileNamePrefix = query.Article.Source.Replace("https://yle.fi/a/", string.Empty);
             await _aiLogger.LogAsync(fileNamePrefix, request, response);
         }
 
-        // save event
-        var acevent = new ArticleClassifiedEvent
+        return new ArticleSentimentPolarity
         {
+            Id = query.Article.Id,
             Timestamp = DateTimeOffset.UtcNow,
-            Source = command.Article.Source,
+            Source = query.Article.Source,
             Polarity = polarity,
-            PolarityVersion = GetArticlePolarityQuery.CURRENT_POLARITY_VERSION,
+            PolarityVersion = GetArticleSentimentPolarityQuery.CURRENT_POLARITY_VERSION,
         };
-        return acevent;
     }
 }

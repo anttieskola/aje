@@ -1,12 +1,15 @@
-﻿namespace AJE.Domain.Events;
+﻿namespace AJE.Domain.Entities;
 
-public record ArticleClassifiedEvent
+public record ArticleSentimentPolarity
 {
-    [JsonPropertyName("timestamp")]
-    public required DateTimeOffset Timestamp { get; init; }
+    [JsonPropertyName("id")]
+    public required Guid Id { get; init; }
 
     [JsonPropertyName("source")]
     public required string Source { get; init; }
+
+    [JsonPropertyName("timestamp")]
+    public required DateTimeOffset Timestamp { get; init; }
 
     [JsonPropertyName("polarity")]
     public required Polarity Polarity { get; init; }
@@ -14,3 +17,4 @@ public record ArticleClassifiedEvent
     [JsonPropertyName("polarityVersion")]
     public required int PolarityVersion { get; init; }
 }
+

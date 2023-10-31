@@ -22,14 +22,18 @@ namespace AJE.Service.NewsAnalyzer.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("AJE.Service.NewsAnalyzer.Infra.ArticleClassifiedEventRecord", b =>
+            modelBuilder.Entity("AJE.Service.NewsAnalyzer.Infra.ArticleSentimentPolarityRow", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("Serial")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .HasAnnotation("Relational:JsonPropertyName", "id");
+                        .HasAnnotation("Relational:JsonPropertyName", "serial");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Serial"));
+
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasAnnotation("Relational:JsonPropertyName", "id");
 
                     b.Property<int>("Polarity")
                         .HasColumnType("integer")
@@ -48,9 +52,9 @@ namespace AJE.Service.NewsAnalyzer.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasAnnotation("Relational:JsonPropertyName", "timestamp");
 
-                    b.HasKey("Id");
+                    b.HasKey("Serial");
 
-                    b.ToTable("events");
+                    b.ToTable("sentimentpolarities");
                 });
 #pragma warning restore 612, 618
         }
