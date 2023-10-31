@@ -33,8 +33,6 @@ public class SentimentPolarityWorker : BackgroundService
             // small throttle to give other components time with AI
             await Task.Delay(TimeSpan.FromSeconds(1), _cancellationToken);
         }
-
-        // TODO: Listen for new articles/updates
     }
 
     // reloading data from database to Redis
