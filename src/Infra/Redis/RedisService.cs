@@ -31,7 +31,26 @@ public class RedisService : IRedisService
         foreach (var index in _indexes)
         {
             if (indexes.Contains(index.Name))
-                await DeleteIndex(db, index);
+            {
+                var indexVersion = await db.StringGetAsync($"{index.Name}_VERSION");
+                if (!indexVersion.HasValue)
+                {
+                    await DeleteIndex(db, index);
+                }
+                else
+                {
+                    if (int.TryParse(indexVersion, out int version))
+                    {
+                        if (version == index.Version)
+                            continue;
+                        else
+                            await DeleteIndex(db, index);
+                    }
+                    else
+                        await DeleteIndex(db, index);
+                }
+
+            }
             await CreateIndex(db, index);
         }
     }
@@ -68,5 +87,8 @@ public class RedisService : IRedisService
         var result = await db.ExecuteAsync("FT.CREATE", arguments.ToArray());
         if (result.ToString() != "OK")
             throw new PlatformException($"Could not create index {index.Name}");
+
+        if (!await db.StringSetAsync($"{index.Name}_VERSION", index.Version))
+            throw new PlatformException($"Could not set index {index.Name} version");
     }
 }

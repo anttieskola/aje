@@ -3,6 +3,8 @@ namespace AJE.Infra.Redis.Indexes;
 
 public class ArticleIndex : IRedisIndex
 {
+    public int Version => 1;
+
     public string Name => "idx:article";
 
     public string Prefix => "article:";
