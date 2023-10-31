@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AJE.Service.NewsAnalyzer.Migrations
 {
     [DbContext(typeof(NewsAnalyzerContext))]
-    [Migration("20231031080631_initial")]
-    partial class initial
+    [Migration("20231031184320_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
