@@ -9,6 +9,7 @@ var redisConfiguration = config.GetRedisConfiguration();
 
 builder.Services.AddApplication();
 builder.Services.AddDomain();
+builder.Services.AddAi(config);
 builder.Services.AddRedis(config);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
@@ -18,7 +19,7 @@ builder.Services.AddSignalR()
     {
         // one redis multiple signal-r apps with separate prefixes
         // not required currently but good to know
-        options.Configuration.ChannelPrefix = new RedisChannel("AJE_", RedisChannel.PatternMode.Auto);
+        options.Configuration.ChannelPrefix = new RedisChannel("UIPUBLIC_", RedisChannel.PatternMode.Auto);
     });
 builder.Logging.AddSimpleConsole(option =>
 {

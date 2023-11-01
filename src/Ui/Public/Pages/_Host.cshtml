@@ -4,6 +4,7 @@
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -12,11 +13,13 @@
     <link rel="icon" type="image/png" href="favicon.png" />
     <link rel="stylesheet" href="css/app.css" />
     <link rel="stylesheet" href="css/bootstrap-icons.min.css" />
-    <link href="AJE.Web.Ui.styles.css" rel="stylesheet" />
+    <link href="AJE.Ui.Public.styles.css" rel="stylesheet" />
     <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
 </head>
+
 <body style="transition-property: background-color, left, top, height; transition-duration: 1s, 4s;">
     <component type="typeof(App)" render-mode="ServerPrerendered" />
     <script src="_framework/blazor.server.js"></script>
 </body>
+
 </html>
