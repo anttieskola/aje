@@ -1,0 +1,47 @@
+@page "/chat/{id:guid}"
+
+<PageTitle>Antai - Chat</PageTitle>
+
+@{
+    /* just testing layout currently */
+}
+<div class="container sm:flex flex-col md:flex-row">
+    <div class="container text-center mt-1">
+        <label for="id">Id</label>
+        <textarea id="id" readonly>56bcd5e1-a672-c448-452f-31569d74a263</textarea>
+    </div>
+    <div class="container text-center mt-1">
+        <label for="context">Context</label>
+        <progress id="context" max="100" value="45">45%</progress>
+    </div>
+    <div class="container text-center mt-1">
+        <NavLink href="/chat" aria-label="chat">
+            <button class="menuButton p-2" aria-label="home">
+                <div class="flex">
+                    <Icon Name="recycle" Padding="1" Size="20" />
+                </div>
+            </button>
+        </NavLink>
+    </div>
+</div>
+
+
+<div class="container m-1 p-1 rounded-lg rounded-br-none bg-slate-800">
+    <p>Hello</p>
+</div>
+
+<div class="container m-1 p-1 rounded-lg rounded-bl-none bg-slate-800">
+    <p>Hiya, how can I help you today</p>
+</div>
+
+<div class="container sm:flex flex-col md:flex-row">
+    <label for="message">Msg</label>
+    <input id="message" class="ml-1 w-full" type="text" placeholder="Type your message here" />
+    <input type="submit" class="ml-1" value="Send" />
+</div>
+
+@code {
+
+    [Parameter]
+    public Guid Id { get; set; }
+}

@@ -1,7 +1,14 @@
 ﻿@page "/"
 
-<PageTitle>Index</PageTitle>
+<PageTitle>Antai</PageTitle>
 
-<h1>Hello, world!</h1>
-
-Welcome to your new app.
+<div class="container m-auto flex justify-center items-center">
+    <NavLink href="/chat" aria-label="chat">
+        <button class="menuButton p-2" aria-label="home">
+            <div class="flex">
+                <Icon Name="chat-right-text" Size="48" />
+                <span class="ml-2 mt-2">Say hello to me!</span>
+            </div>
+        </button>
+    </NavLink>
+</div>

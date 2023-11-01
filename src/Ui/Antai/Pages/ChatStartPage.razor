@@ -1,0 +1,13 @@
+﻿@page "/chat"
+@inject NavigationManager NavigationManager
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        // temporary, delete
+        await Task.Delay(TimeSpan.FromSeconds(1));
+        // create new chat using fresh id
+        var id = Guid.NewGuid();
+        // navigate to created chat
+        NavigationManager.NavigateTo($"/chat/{id}");
+    }
+}

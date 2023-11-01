@@ -69,6 +69,16 @@
         @apply text-green-500;
     }
 
+    progress {
+        @apply bg-slate-800;
+        @apply text-green-500;
+    }
+
+    textarea {
+        @apply bg-slate-800;
+        @apply text-green-500;
+    }
+
     input {
         @apply bg-slate-800;
         @apply text-green-500;
