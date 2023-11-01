@@ -7,9 +7,10 @@ var config = new ConfigurationBuilder()
 
 var redisConfiguration = config.GetRedisConfiguration();
 
+builder.Services.AddSingleton<IAiModel, DummyAiModel>();
+builder.Services.AddSingleton<IAiLogger, DummyAiLogger>();
 builder.Services.AddApplication();
 builder.Services.AddDomain();
-builder.Services.AddAi(config);
 builder.Services.AddRedis(config);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
