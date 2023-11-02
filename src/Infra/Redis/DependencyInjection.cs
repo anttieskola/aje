@@ -12,6 +12,7 @@ public static class DependencyInjection
         services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConfiguration.Host));
         services.AddSingleton<IArticleRepository, ArticleRepository>();
         services.AddSingleton<IArticleEventHandler, ArticleEventHandler>();
+        services.AddSingleton<IAiChatRepository, AiChatRepository>();
         services.AddSingleton<IRedisService, RedisService>();
         return services;
     }

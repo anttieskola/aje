@@ -31,7 +31,7 @@ public class GetArticleSentimentPolarityQueryHandler : IRequestHandler<GetArticl
     public async Task<ArticleSentimentPolarity> Handle(GetArticleSentimentPolarityQuery query, CancellationToken cancellationToken)
     {
         var context = _contextCreator.Create(query.Article);
-        var prompt = _polarity.Create(context);
+        var prompt = _polarity.Context(context);
 
         // update version if prompt changes
         var request = new CompletionRequest

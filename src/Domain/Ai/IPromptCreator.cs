@@ -2,7 +2,8 @@
 
 public interface IPromptCreator
 {
-    string Create(string context);
-
+    string Context(string context);
+    string Chat(string message);
+    string Chat(string message, AiChatHistoryEntry[] history);
     string[] StopWords { get; }
 }

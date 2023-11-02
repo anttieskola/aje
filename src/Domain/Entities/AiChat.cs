@@ -1,20 +1,25 @@
 ﻿namespace AJE.Domain.Entities;
 
-public record AiChatHistory
+// so thinking
+// - save information of model used
+//    - nothing is stopping us to chat with multiple models
+//    - ...
+// - main purpose to save chat is to enable history in the context
+
+public record AiChatHistoryEntry
 {
-    public required Guid Id { get; init; }
-    public EquatableList<AiChatMessage> Messages { get; init; } = new();
+    [JsonPropertyName("input")]
+    public required string Input { get; init; }
+
+    [JsonPropertyName("output")]
+    public required string Output { get; init; }
 }
 
-public enum AiChatRole
+public record AiChat
 {
-    User = 1,
-    Bot = 2
-}
+    [JsonPropertyName("id")]
+    public Guid Id { get; init; }
 
-public record AiChatMessage
-{
-    public AiChatRole Role { get; init; }
-    public DateTimeOffset Timestamp { get; init; } = DateTimeOffset.UtcNow;
-    public required string Message { get; init; }
+    [JsonPropertyName("history")]
+    public EquatableList<AiChatHistoryEntry> History { get; init; } = EquatableList<AiChatHistoryEntry>.Empty;
 }

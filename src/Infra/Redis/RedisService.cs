@@ -20,7 +20,8 @@ public class RedisService : IRedisService
 
     private readonly IEnumerable<IRedisIndex> _indexes = new List<IRedisIndex>
     {
-         new ArticleIndex()
+         new ArticleIndex(),
+         new AiChatIndex(),
     };
 
     public async Task Initialize()

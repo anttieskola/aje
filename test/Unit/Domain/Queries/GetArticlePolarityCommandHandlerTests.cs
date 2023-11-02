@@ -15,7 +15,7 @@ public class GetArticleSentimentPolarityQueryHandlerTests
         mockContextCreator.Setup(x => x.Create(It.IsAny<Article>())).Returns("context");
 
         var mockPolarity = new Mock<IPolarity>();
-        mockPolarity.Setup(x => x.Create(It.IsAny<string>())).Returns("prompt");
+        mockPolarity.Setup(x => x.Context(It.IsAny<string>())).Returns("prompt");
         mockPolarity.Setup(x => x.Parse(It.IsAny<string>())).Returns(Polarity.Positive);
 
         var completionResponse = new CompletionResponse { };
