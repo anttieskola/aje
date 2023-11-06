@@ -1,4 +1,7 @@
-﻿@page "/article/{id:guid}"
+﻿@{
+    /* Purpose of page is to provide good UI for reading the article on PC and mobile*/
+}
+@page "/article/{id:guid}"
 @inject ISender Sender
 
 <PageTitle>Article - @Id </PageTitle>
@@ -11,7 +14,7 @@
     public Guid Id { get; set; }
 
     private Article? _article;
-    
+
     protected override async Task OnInitializedAsync()
     {
         await Load(Id);
