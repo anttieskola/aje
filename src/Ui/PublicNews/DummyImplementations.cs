@@ -1,4 +1,4 @@
-﻿namespace AJE.Ui.Public;
+﻿namespace AJE.Ui.PublicNews;
 
 public class DummyAiModel : IAiModel
 {
@@ -31,6 +31,28 @@ public class DummyAiModel : IAiModel
 public class DummyAiLogger : IAiLogger
 {
     public Task LogAsync(string fileNamePrefix, CompletionRequest request, CompletionResponse response)
+    {
+        throw new NotSupportedException();
+    }
+}
+
+public class DummyAiChatRepository : IAiChatRepository
+{
+    public Task AddAsync(AiChat aiChat)
+    {
+        throw new NotSupportedException();
+    }
+}
+
+public class DummyAiChatEventHandler : IAiChatEventHandler
+{
+    public Task SendAsync(AiChatEvent aiChatEvent)
+    {
+        throw new NotSupportedException();
+    }
+
+
+    public void Subscribe(Action<AiChatEvent> handler)
     {
         throw new NotSupportedException();
     }

@@ -35,3 +35,25 @@ public class DummyAiLogger : IAiLogger
         throw new NotSupportedException();
     }
 }
+
+public class DummyAiChatRepository : IAiChatRepository
+{
+    public Task AddAsync(AiChat aiChat)
+    {
+        throw new NotSupportedException();
+    }
+}
+
+public class DummyAiChatEventHandler : IAiChatEventHandler
+{
+    public Task SendAsync(AiChatEvent aiChatEvent)
+    {
+        throw new NotSupportedException();
+    }
+
+
+    public void Subscribe(Action<AiChatEvent> handler)
+    {
+        throw new NotSupportedException();
+    }
+}

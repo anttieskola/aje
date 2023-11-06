@@ -7,8 +7,12 @@ var config = new ConfigurationBuilder()
 
 var redisConfiguration = config.GetRedisConfiguration();
 
+// dummys
 builder.Services.AddSingleton<IAiModel, DummyAiModel>();
 builder.Services.AddSingleton<IAiLogger, DummyAiLogger>();
+builder.Services.AddSingleton<IAiChatRepository, DummyAiChatRepository>();
+builder.Services.AddSingleton<IAiChatEventHandler, DummyAiChatEventHandler>();
+
 builder.Services.AddApplication();
 builder.Services.AddDomain();
 builder.Services.AddRedis(config);
