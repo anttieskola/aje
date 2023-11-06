@@ -1,0 +1,30 @@
+﻿@if (Model == null)
+{
+    <p class="text-rose-600">null</p>
+}
+else
+{
+    @foreach (var content in Model.Content)
+    {
+        switch (content)
+        {
+            case MarkdownHeaderElement header:
+                <MarkDownHeader Element="@header" />
+                break;
+            case MarkdownTextElement text:
+                <MarkDownText Element="@text" />
+                break;
+            default:
+                <p class="text-rose-600">Unknown content type</p>
+                break;
+        }
+    }
+    <p class="italic text-center text-xs"><a href="@Model.Source">source</a></p>
+}
+
+@code {
+
+    [Parameter]
+    public Article? Model { get; set; }
+
+}

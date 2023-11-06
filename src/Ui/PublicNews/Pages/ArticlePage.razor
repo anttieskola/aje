@@ -1,0 +1,30 @@
+﻿@page "/article/{id:guid}"
+@inject ISender Sender
+
+<PageTitle>Article - @Id </PageTitle>
+
+<ArticleView Model="_article" />
+
+@code {
+
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private Article? _article;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await Load(Id);
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await Load(Id);
+    }
+
+    private async Task Load(Guid id)
+    {
+        _article = await Sender.Send(new GetArticleQuery { Id = id });
+        StateHasChanged();
+    }
+}

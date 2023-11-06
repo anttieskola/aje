@@ -1,0 +1,53 @@
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+
+<div class="fixed bottom-0 right-0 mb-1 mr-1">
+    <button type="button" @onclick="ToggleTheme" class="menuButton" aria-label="theme">
+        @if (_darkMode)
+        {
+            <Icon Name="sun-fill" Padding="@IconPadding" Size="@_iconSize" />
+        }
+        else
+        {
+            <Icon Name="moon-fill" Padding="@IconPadding" Size="@_iconSize" />
+        }
+    </button>
+</div>
+
+@code {
+    private bool _darkMode = false;
+    private IJSObjectReference? _js;
+    private static string[] _navLinks = new string[] { "articles", "storybook", "icons" };
+    private int IconPadding => 2;
+    private int _iconSize => 32;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _js = await JS.InvokeAsync<IJSObjectReference>("import", "./Shared/MenuRight.razor.js");
+            _darkMode = await _js.InvokeAsync<bool>("isDarkModeDefault");
+            if (_darkMode)
+            {
+                await _js.InvokeVoidAsync("toggleDarkMode");
+                StateHasChanged();
+            }
+        }
+    }
+
+    private async Task ToggleTheme()
+    {
+        _darkMode = !_darkMode;
+        if (_js != null)
+        {
+            await _js.InvokeVoidAsync("toggleDarkMode");
+            StateHasChanged();
+        }
+    }
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        if (_js is not null)
+        {
+            await _js.DisposeAsync();
+        }
+    }
+}

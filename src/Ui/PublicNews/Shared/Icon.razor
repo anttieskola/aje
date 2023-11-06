@@ -1,0 +1,34 @@
+﻿<i class="@_class" style="@_style" />
+
+@code {
+
+    [Parameter]
+    public string Name { get; set; } = string.Empty;
+
+    [Parameter]
+    public int Size { get; set; } = 32;
+
+    [Parameter]
+    public int Padding { get; set; } = 0;
+
+
+    private string _class
+    {
+        get
+        {
+            if (!string.IsNullOrEmpty(Name))
+            {
+                return $"bi-{Name}";
+            }
+            return "bi-alarm";
+        }
+    }
+
+    private string _style
+    {
+        get
+        {
+            return $"display:block; margin: auto; text-align: center; font-size: {Size}px; line-height:{Size}px";
+        }
+    }
+}

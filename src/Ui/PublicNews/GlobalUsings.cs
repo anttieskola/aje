@@ -1,0 +1,9 @@
+﻿global using AJE.Ui.Public;
+global using AJE.Application;
+global using AJE.Domain;
+global using AJE.Domain.Ai;
+global using AJE.Domain.Entities;
+global using AJE.Infra.Redis;
+global using StackExchange.Redis;
+global using MediatR;
+global using System.Text.Json;
