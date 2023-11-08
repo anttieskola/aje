@@ -47,6 +47,13 @@ app.UseStaticFiles(new StaticFileOptions
     FileProvider = new PhysicalFileProvider(
         Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"))
 });
+app.MapWhen(ctx => ctx.Request.Path.StartsWithSegments("/_framework/blazor.server.js"), app1 =>
+{
+    app1.UseStaticFiles(new StaticFileOptions()
+    {
+        RequestPath = "/news"
+    });
+});
 app.UseHttpsRedirection();
 app.UseRouting();
 app.MapBlazorHub();
