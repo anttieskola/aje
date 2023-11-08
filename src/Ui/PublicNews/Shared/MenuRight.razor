@@ -32,7 +32,7 @@
     {
         if (firstRender)
         {
-            _js = await JS.InvokeAsync<IJSObjectReference>("import", "./Shared/MenuRight.razor.js");
+            _js = await JS.InvokeAsync<IJSObjectReference>("import", "./news/Shared/MenuRight.razor.js");
             _darkMode = await _js.InvokeAsync<bool>("isDarkModeDefault");
             if (_darkMode)
             {
@@ -52,16 +52,20 @@
         }
     }
 
-    private async Task ToggleList()
+    private void ToggleList()
     {
         if (NavigationManager.Uri.Contains("articles") == true)
         {
-            NavigationManager.NavigateTo("/");
+            var relativeUrl = "/";
+            var absoluteUrl = NavigationManager.ToAbsoluteUri(relativeUrl).ToString();
+            NavigationManager.NavigateTo(absoluteUrl);
             icon = "list-ul";
         }
         else
         {
-            NavigationManager.NavigateTo("/articles");
+            var relativeUrl = "/articles";
+            var absoluteUrl = NavigationManager.ToAbsoluteUri(relativeUrl).ToString();
+            NavigationManager.NavigateTo(absoluteUrl);
             icon = "camera-reels";
         }
 
