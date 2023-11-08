@@ -41,13 +41,19 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Error");
     app.UseHsts();
 }
-
 app.UsePathBase("/news");
 app.UseHttpsRedirection();
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
         Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"))
+});
+app.MapWhen(ctx => ctx.Request.Path.StartsWithSegments("/_framework/blazor.server.js"), app1 =>
+{
+    app1.UseStaticFiles(new StaticFileOptions()
+    {
+        RequestPath = "/news"
+    });
 });
 app.UseRouting();
 app.MapBlazorHub();
