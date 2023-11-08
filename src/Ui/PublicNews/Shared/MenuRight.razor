@@ -1,20 +1,28 @@
 @implements IAsyncDisposable
 @inject IJSRuntime JS
+@inject NavigationManager NavigationManager
 
 <div class="fixed bottom-0 right-0 mb-1 mr-1">
-    <button type="button" @onclick="ToggleTheme" class="menuButton" aria-label="theme">
-        @if (_darkMode)
-        {
-            <Icon Name="sun-fill" Padding="@IconPadding" Size="@_iconSize" />
-        }
-        else
-        {
-            <Icon Name="moon-fill" Padding="@IconPadding" Size="@_iconSize" />
-        }
-    </button>
+    <div>
+        <button type="button" @onclick="ToggleList" class="menuButton" aria-label="swtich between list and stream">
+            <Icon Name="@icon" Padding=@IconPadding Size=@_iconSize />
+        </button>
+    </div>
+    <div>
+        <button type="button" @onclick="ToggleTheme" class="menuButton" aria-label="theme">
+            @if (_darkMode)
+            {
+                <Icon Name="sun-fill" Padding="@IconPadding" Size="@_iconSize" />
+            }
+            else
+            {
+                <Icon Name="moon-fill" Padding="@IconPadding" Size="@_iconSize" />
+            }
+        </button>
+    </div>
 </div>
-
 @code {
+    private string icon = "list-ul";
     private bool _darkMode = false;
     private IJSObjectReference? _js;
     private static string[] _navLinks = new string[] { "articles", "storybook", "icons" };
@@ -42,6 +50,21 @@
             await _js.InvokeVoidAsync("toggleDarkMode");
             StateHasChanged();
         }
+    }
+
+    private async Task ToggleList()
+    {
+        if (NavigationManager.Uri.Contains("articles") == true)
+        {
+            NavigationManager.NavigateTo("/");
+            icon = "list-ul";
+        }
+        else
+        {
+            NavigationManager.NavigateTo("/articles");
+            icon = "camera-reels";
+        }
+
     }
     async ValueTask IAsyncDisposable.DisposeAsync()
     {

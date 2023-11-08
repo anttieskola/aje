@@ -16,7 +16,7 @@
     /// Delay between articles in seconds
     /// </summary>
     [Parameter]
-    public int DelayInSeconds { get; set; } = 30;
+    public int DelayInSeconds { get; set; } = 20;
 
     private IRedisIndex _index = new ArticleIndex();
     private Article? _article;
