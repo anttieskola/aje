@@ -12,7 +12,7 @@ builder.Services.AddSingleton<IAiModel, DummyAiModel>();
 builder.Services.AddSingleton<IAiLogger, DummyAiLogger>();
 builder.Services.AddSingleton<IAiChatRepository, DummyAiChatRepository>();
 builder.Services.AddSingleton<IAiChatEventHandler, DummyAiChatEventHandler>();
-// real
+
 builder.Services.AddApplication();
 builder.Services.AddDomain();
 builder.Services.AddRedis(config);
@@ -24,13 +24,12 @@ builder.Services.AddSignalR()
     {
         // one redis multiple signal-r apps with separate prefixes
         // not required currently but good to know
-        options.Configuration.ChannelPrefix = new RedisChannel("UIPUBLIC_", RedisChannel.PatternMode.Auto);
+        options.Configuration.ChannelPrefix = new RedisChannel("UIPUBLICNEWS_", RedisChannel.PatternMode.Auto);
     });
 builder.Logging.AddSimpleConsole(option =>
 {
     option.SingleLine = true;
 });
-builder.Services.AddHostedService<ChatRelayService>();
 var app = builder.Build();
 
 await app.Services.InitializeRedis();
@@ -45,6 +44,5 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 app.MapBlazorHub();
-app.MapHub<LocalChatHub>("/hublocalchat");
 app.MapFallbackToPage("/_Host");
 app.Run();

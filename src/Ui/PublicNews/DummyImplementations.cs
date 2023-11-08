@@ -1,4 +1,4 @@
-﻿namespace AJE.Ui.Public;
+﻿namespace AJE.Ui.PublicNews;
 
 public class DummyAiModel : IAiModel
 {

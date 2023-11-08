@@ -24,6 +24,7 @@ public class SendAiChatMessageCommandHandler : IRequestHandler<SendAiChatMessage
 
     public async Task<AiChatEvent> Handle(SendAiChatMessageCommand command, CancellationToken cancellationToken)
     {
+        await Task.Delay(TimeSpan.FromMilliseconds(1));
         // create full context using chat history data from Redis thrue repository
         // create prompt using AnttiChatML
         throw new NotImplementedException();

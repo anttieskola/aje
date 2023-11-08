@@ -1,0 +1,89 @@
+﻿@inject IConnectionMultiplexer Connection
+@inject ISender Sender
+@implements IDisposable
+
+<ArticleView Model="_article" />
+
+@code {
+
+    /// <summary>
+    /// How many latest articles we rotate
+    /// </summary>
+    [Parameter]
+    public int LatestCount { get; set; } = 10;
+
+    /// <summary>
+    /// Delay between articles in seconds
+    /// </summary>
+    [Parameter]
+    public int DelayInSeconds { get; set; } = 20;
+
+    private IRedisIndex _index = new ArticleIndex();
+    private Article? _article;
+    private Queue<Guid> _queue = new Queue<Guid>();
+    private Timer _timer = default!;
+    protected override async Task OnInitializedAsync()
+    {
+        var pubsub = Connection.GetSubscriber();
+        // TODO: Magic string
+        await pubsub.SubscribeAsync(_index.Channel, Message);
+
+        await QueueLatest();
+
+        _timer = new Timer(TimeSpan.FromSeconds(DelayInSeconds)) { Enabled = false, AutoReset = true };
+        _timer.Elapsed += Trigger;
+
+        // start show if anything in queue
+        if (_queue.Count > 0)
+        {
+            await Load(_queue.Dequeue());
+            _timer.Start();
+        }
+    }
+
+    private async Task QueueLatest()
+    {
+        var headers = await Sender.Send(new GetArticleHeadersQuery { Offset = 0, PageSize = LatestCount });
+        foreach (var header in headers.Items)
+            _queue.Enqueue(header.Id);
+    }
+
+    private void Trigger(object? sender, ElapsedEventArgs e)
+    {
+        if (_queue.Count > 0)
+            InvokeAsync(() => Load(_queue.Dequeue()));
+        else
+            InvokeAsync(() => QueueLatest());
+    }
+
+    private void Message(RedisChannel channel, RedisValue message)
+    {
+        if (message.HasValue)
+        {
+            // todo: test this works (as removed type from event fields)
+            var msg = JsonSerializer.Deserialize<ArticleAddedEvent>(message.ToString());
+            if (msg != null)
+            {
+                InvokeAsync(async () =>
+                {
+                    _queue.Enqueue(msg.Id);
+
+                    // "edge case" when first ever (we can't start show if no articles)
+                    if (!_timer.Enabled)
+                    {
+                        await Load(_queue.Dequeue());
+                        _timer.Start();
+                    }
+                });
+            }
+        }
+    }
+
+    private async Task Load(Guid id)
+    {
+        _article = await Sender.Send(new GetArticleQuery { Id = id });
+        StateHasChanged();
+    }
+
+    void IDisposable.Dispose() => _timer?.Dispose();
+}
