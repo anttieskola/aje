@@ -1,61 +1,16 @@
-using Microsoft.Extensions.FileProviders;
+﻿namespace AJE.Ui.PublicNews;
 
-var builder = WebApplication.CreateBuilder(args);
-
-var config = new ConfigurationBuilder()
-    .SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile("appsettings.json", false, true)
-    .Build();
-
-var redisConfiguration = config.GetRedisConfiguration();
-
-// dummys
-builder.Services.AddSingleton<IAiModel, DummyAiModel>();
-builder.Services.AddSingleton<IAiLogger, DummyAiLogger>();
-builder.Services.AddSingleton<IAiChatRepository, DummyAiChatRepository>();
-builder.Services.AddSingleton<IAiChatEventHandler, DummyAiChatEventHandler>();
-
-builder.Services.AddApplication();
-builder.Services.AddDomain();
-builder.Services.AddRedis(config);
-builder.Services.AddRazorPages();
-builder.Services.AddServerSideBlazor();
-builder.Services.AddMemoryCache();
-builder.Services.AddSignalR()
-    .AddStackExchangeRedis(redisConfiguration.Host, options =>
+public class Program
+{
+    public static void Main(string[] args)
     {
-        // one redis multiple signal-r apps with separate prefixes
-        // not required currently but good to know
-        options.Configuration.ChannelPrefix = new RedisChannel("UIPUBLICNEWS_", RedisChannel.PatternMode.Auto);
-    });
-builder.Logging.AddSimpleConsole(option =>
-{
-    option.SingleLine = true;
-});
-var app = builder.Build();
+        CreateHostBuilder(args).Build().Run();
+    }
 
-await app.Services.InitializeRedis();
-
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Error");
-    app.UseHsts();
+    public static IHostBuilder CreateHostBuilder(string[] args) =>
+        Host.CreateDefaultBuilder(args)
+            .ConfigureWebHostDefaults(webBuilder =>
+            {
+                webBuilder.UseStartup<Startup>();
+            });
 }
-app.UsePathBase("/news");
-app.UseStaticFiles(new StaticFileOptions
-{
-    FileProvider = new PhysicalFileProvider(
-        Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"))
-});
-app.MapWhen(ctx => ctx.Request.Path.StartsWithSegments("/_framework/blazor.server.js"), app1 =>
-{
-    app1.UseStaticFiles(new StaticFileOptions()
-    {
-        RequestPath = "/news"
-    });
-});
-app.UseHttpsRedirection();
-app.UseRouting();
-app.MapBlazorHub();
-app.MapFallbackToPage("/_Host");
-app.Run();

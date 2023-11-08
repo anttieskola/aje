@@ -94,16 +94,19 @@
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
             "program": "${workspaceFolder}/src/Ui/PublicNews/bin/Debug/net7.0/AJE.Ui.PublicNews.dll",
-            "args": [],
+            "args": [
+                "--basepath=/news"
+            ],
             "cwd": "${workspaceFolder}/src/Ui/PublicNews",
             "stopAtEntry": false,
             // Enable launching a web browser when ASP.NET Core starts. For more information: https://aka.ms/VSCode-CS-LaunchJson-WebBrowser
             "serverReadyAction": {
                 "action": "openExternally",
-                "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+                "pattern": "\\bNow listening on:\\s+(https?://\\S+)",
             },
             "env": {
-                "ASPNETCORE_ENVIRONMENT": "Development"
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "ASPNETCORE_URLS": "http://localhost:5010",
             },
             "sourceFileMap": {
                 "/Views": "${workspaceFolder}/Views"
