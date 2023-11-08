@@ -1,0 +1,36 @@
+# /etc/systemd/system/AJE.Ui.PublicNews.service
+
+# install
+# sudo systemctl daemon-reload
+# sudo systemctl enable AJE.Ui.PublicNews.service
+# sudo systemctl start AJE.Ui.PublicNews.service
+
+# removal
+# sudo systemctl stop AJE.Ui.PublicNews.service
+# sudo systemctl disable AJE.Ui.PublicNews.service
+# remove the service file
+# reload daemon
+
+# full log you can see with
+# journalctl -u AJE.Ui.PublicNews.service
+
+[Unit]
+Description=AJE.Ui.PublicNews
+After=network.target
+
+[Service]
+Type=simple   
+Restart=always
+# Note working directory is a must
+# otherwiser process can't find resources -> odd errors
+WorkingDirectory=/usr/local/bin/AJE.Ui.PublicNews
+ExecStart=/usr/local/bin/AJE.Ui.PublicNews/AJE.Ui.PublicNews
+User=antti
+
+SyslogIdentifier=AJE.Ui.PublicNews
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target
+
