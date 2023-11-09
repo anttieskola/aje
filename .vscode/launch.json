@@ -53,7 +53,8 @@
                 "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
             },
             "env": {
-                "ASPNETCORE_ENVIRONMENT": "Development"
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "ASPNETCORE_URLS": "http://localhost:5501",
             },
             "sourceFileMap": {
                 "/Views": "${workspaceFolder}/Views"
@@ -78,7 +79,8 @@
                 "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
             },
             "env": {
-                "ASPNETCORE_ENVIRONMENT": "Development"
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "ASPNETCORE_URLS": "http://localhost:5502",
             },
             "sourceFileMap": {
                 "/Views": "${workspaceFolder}/Views"
@@ -88,14 +90,14 @@
             // Use IntelliSense to find out which attributes exist for C# debugging
             // Use hover for the description of the existing attributes
             // For further information visit https://github.com/dotnet/vscode-csharp/blob/main/debugger-launchjson.md.
-            "name": "Ui.PublicNews",
+            "name": "Ui.News",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/src/Ui/PublicNews/bin/Debug/net7.0/AJE.Ui.PublicNews.dll",
+            "program": "${workspaceFolder}/src/Ui/News/bin/Debug/net7.0/AJE.Ui.News.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/src/Ui/PublicNews",
+            "cwd": "${workspaceFolder}/src/Ui/News",
             "stopAtEntry": false,
             // Enable launching a web browser when ASP.NET Core starts. For more information: https://aka.ms/VSCode-CS-LaunchJson-WebBrowser
             "serverReadyAction": {
@@ -104,7 +106,7 @@
             },
             "env": {
                 "ASPNETCORE_ENVIRONMENT": "Development",
-                "ASPNETCORE_URLS": "http://localhost:5010",
+                "ASPNETCORE_URLS": "http://localhost:5503",
             },
             "sourceFileMap": {
                 "/Views": "${workspaceFolder}/Views"
