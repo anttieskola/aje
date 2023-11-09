@@ -1,0 +1,80 @@
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+@inject NavigationManager NavigationManager
+
+<div class="fixed bottom-0 right-0 mb-1 mr-1">
+    <div>
+        <button type="button" @onclick="ToggleList" class="menuButton" aria-label="swtich between list and stream">
+            <Icon Name="@icon" Padding=@IconPadding Size=@_iconSize />
+        </button>
+    </div>
+    <div>
+        <button type="button" @onclick="ToggleTheme" class="menuButton" aria-label="theme">
+            @if (_darkMode)
+            {
+                <Icon Name="sun-fill" Padding="@IconPadding" Size="@_iconSize" />
+            }
+            else
+            {
+                <Icon Name="moon-fill" Padding="@IconPadding" Size="@_iconSize" />
+            }
+        </button>
+    </div>
+</div>
+@code {
+    private string icon = "list-ul";
+    private bool _darkMode = false;
+    private IJSObjectReference? _js;
+    private static string[] _navLinks = new string[] { "articles", "storybook", "icons" };
+    private int IconPadding => 2;
+    private int _iconSize => 32;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _js = await JS.InvokeAsync<IJSObjectReference>("import", "./Shared/MenuRight.razor.js");
+            _darkMode = await _js.InvokeAsync<bool>("isDarkModeDefault");
+            if (_darkMode)
+            {
+                await _js.InvokeVoidAsync("toggleDarkMode");
+                StateHasChanged();
+            }
+        }
+    }
+
+    private async Task ToggleTheme()
+    {
+        _darkMode = !_darkMode;
+        if (_js != null)
+        {
+            await _js.InvokeVoidAsync("toggleDarkMode");
+            StateHasChanged();
+        }
+    }
+
+    private void ToggleList()
+    {
+        if (NavigationManager.Uri.Contains("articles") == true)
+        {
+            var relativeUrl = "/";
+            var absoluteUrl = NavigationManager.ToAbsoluteUri(relativeUrl).ToString();
+            NavigationManager.NavigateTo(absoluteUrl);
+            icon = "list-ul";
+        }
+        else
+        {
+            var relativeUrl = "/articles";
+            var absoluteUrl = NavigationManager.ToAbsoluteUri(relativeUrl).ToString();
+            NavigationManager.NavigateTo(absoluteUrl);
+            icon = "camera-reels";
+        }
+
+    }
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        if (_js is not null)
+        {
+            await _js.DisposeAsync();
+        }
+    }
+}

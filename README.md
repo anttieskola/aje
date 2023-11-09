@@ -39,6 +39,12 @@ template from which I have copied most of structure for this project.
 Using Command/Query separation pattern with [MediatR](https://github.com/jbogard/MediatR).
 Even my domain has dependency on MediatR as it is essential for the architecture.
 
+MediatR has serious flaw that it is impossible to select which handlers you want to register
+this has lead me to write dummies into web application that I don't want any direct use to
+my GPU's. I might have to fork/modify MediaRT to support selecting specific handlers a good
+idea I found on forums is to use attributes. Current author is not interested at all to allow
+any kind of shenanigans like this. He will reject any propositions.
+
 ## Libraries
 - Domain the "holy grail"
 	- This has dependency on MediaRt & Dependency injection to be able to use the command &
@@ -59,11 +65,12 @@ happens using events send in Redis channels.
 
 List of current components and used software
 - Microservices
-	- [News](./doc/News.md) Downloads news from internet, convert and store them into Redis
+	- [NewsDownloader](./doc/News.md) Downloads news from internet, convert and store them into Redis
 	- [NewsAnalyzer](./doc/NewsAnalyzer.md) Classifies news articles with large language models
 - [Ui.Public](./doc/UiPublic.md) User interface for the application
 	- Using server rendered blazor as I want to learn to use it better and I think it is
 	fits my needs best
+- [Ui.News](./doc/todo.md) Currently optimized for news reading, development in progress
 - Utilities (under Tests currently)
 	- MChatter: Chat application with large language model
 	- Populator: Utility to fill Redis with bogus data
@@ -84,8 +91,9 @@ List of current components and used software
 	- [My servers setup](https://github.com/anttieskola/setup)
 
 ## Deployment locations
-- Web.Ui published on server into path `/usr/local/bin/AJE.Ui.Public/`
-- News published on server into path `/usr/local/bin/AJE.Service.News/`
+- Ui.Public published on server into path `/usr/local/bin/AJE.Ui.Public/`
+- Ui.News published on server into path `/usr/local/bin/AJE.Ui.News/`
+- News published on server into path `/usr/local/bin/AJE.Service.NewsDownloader/`
 - NewsAnalyzer published on server into path `/usr/local/bin/AJE.Service.NewsAnalyzer/`
 - Llama.cpp is installed manually on server into path `/usr/local/bin/Llama/`
 - Redis is installed manually on server into path `/usr/local/bin/Redis/`
@@ -108,33 +116,14 @@ Could someday learn to create docker containers and make one for each component.
 	- Running as my normal user for now
 
 ## Nginx configuration
-- Asp.net process is running in the default port 5000
-	- Change to some specific?
-- Here is the nginx proxy configuration
-	- It is running in root path, if path changed need to fix in code too as resource paths will not work
-- These settings are important as blazor runs using websockets
-	- Works only partially without
+- [Documentation](./doc/nginx.md)
+- Asp.net process is running in ports
+	- Ui.Public 5001
+	- Ui.News 5002
 - [WebSocket documentation](https://www.nginx.com/blog/websocket-nginx/)
+- TODO: Need separate certificate for news.anttieskola.com
+- TODO: How to configure server to support both sites
 
-Configuration (sniplet just is the ssl configuration)
-```
-server {
-        listen 443 ssl default_server;
-        listen [::]:443 ssl default_server;
-        include snippets/anttieskola.conf;
-        root /var/www/html;
-        index index.html;
-        server_name _;
-        location / {
-                proxy_pass http://127.0.0.1:5000;
-                proxy_http_version 1.1;
-                proxy_set_header Upgrade $http_upgrade;
-                proxy_set_header Connection "Upgrade";
-                proxy_set_header Host $host;
-        }
-		...
-}
-```
 # Links
 - [this repository](https://github.com/anttieskola/aje)
 - [redis commands](https://redis.io/commands/)
@@ -238,6 +227,9 @@ FT.CREATE idxArticle ON JSON PREFIX 1 article: SCORE 1.0 SCHEMA $.id AS id TEXT 
 ```
 
 # Random things learned along the way
+- It really is impossible to run any blazor application in subfolder/virtual folder
+	- Issue is that I found now way to configure the dll's generated blazor.server.js to be found
+	- I exhausted myself using AI and internet for around 10 hours to find a solution
 - dotnet... i wanted to use 8 but not ready so 7 it is
 	- Experienced issues with 8.0 preview
 	- Using .net 7.0, because tried two hours to run [sample codes](https://github.com/dotnet/blazor-samples.git)

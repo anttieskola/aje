@@ -1,0 +1,35 @@
+# /etc/systemd/system/AJE.Service.NewsDownloader.service
+
+# install
+# sudo systemctl daemon-reload
+# sudo systemctl enable AJE.Service.NewsDownloader.service
+# sudo systemctl start AJE.Service.NewsDownloader.service
+
+# removal
+# sudo systemctl stop AJE.Service.NewsDownloader.service
+# sudo systemctl disable AJE.Service.NewsDownloader.service
+# remove the service file
+# reload daemon
+
+# full log you can see with
+# journalctl -u AJE.Service.NewsDownloader
+
+[Unit]
+Description=AJE.Service.NewsDownloader
+After=network.target
+
+[Service]
+Type=simple
+Restart=always
+# Note working directory is a must
+# otherwiser process can't find resources -> odd errors
+WorkingDirectory=/usr/local/bin/AJE.Service.NewsDownloader
+ExecStart=/usr/local/bin/AJE.Service.NewsDownloader/AJE.Service.NewsDownloader
+User=antti
+
+SyslogIdentifier=AJE.Service.NewsDownloader
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target
