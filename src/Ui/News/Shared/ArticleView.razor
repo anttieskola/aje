@@ -30,7 +30,19 @@ else
         }
     }
     <p class="italic text-center text-xs mt-2"><a href="@Model.Source">source</a></p>
+
+    <div class="flex flex-col items-center justify-center mt-1">
+        <nav>
+            <button type="button" class="submitButton" aria-label="go back">
+                <NavLink href="/">
+                    <Icon Name="arrow-90deg-left" Size="24" Padding="0" />
+                </NavLink>
+            </button>
+        </nav>
+    </div>
 }
+
+
 
 @code {
 

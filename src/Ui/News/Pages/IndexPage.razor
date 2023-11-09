@@ -52,17 +52,17 @@
     </tbody>
 </table>
 
-<div class="flex flex-col sm:flex-row items-center justify-center">
+<div class="flex items-center justify-center">
     <div class="mt-2">
         @if (_isPreviousEnabled)
         {
-            <button aria-label="previous" class="w-32 min-w-32 submitButton" @onclick="Previous">
+            <button aria-label="previous" class="w-16 min-w-16 submitButton" @onclick="Previous">
                 <Icon Name="arrow-left-square" Size="28" />
             </button>
         }
         else
         {
-            <button aria-label="previous" class="w-32 min-w-32 submitButton" disabled @onclick="Previous">
+            <button aria-label="previous" class="w-16 min-w-16 submitButton" disabled @onclick="Previous">
                 <Icon Name="arrow-left-square" Size="28" />
             </button>
 
@@ -71,13 +71,13 @@
     <div class="mt-2">
         @if (_isNextEnabled)
         {
-            <button aria-label="next" class="w-32 min-w-32 submitButton" @onclick="Next">
+            <button aria-label="next" class="w-16 min-w-16 submitButton" @onclick="Next">
                 <Icon Name="arrow-right-square" Size="28" />
             </button>
         }
         else
         {
-            <button aria-label="next" class="w-32 min-w-32 submitButton" disabled @onclick="Next">
+            <button aria-label="next" class="w-16 min-w-16 submitButton" disabled @onclick="Next">
                 <Icon Name="arrow-right-square" Size="28" />
             </button>
         }
@@ -128,7 +128,7 @@
 
     private PaginatedList<ArticleHeader> _headers = new PaginatedList<ArticleHeader>(new List<ArticleHeader>(), 0, 0);
 
-    private int _pageSize = 10;
+    private int _pageSize = 9;
 
     private bool _isPreviousEnabled
     {
