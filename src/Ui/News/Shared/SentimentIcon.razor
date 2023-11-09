@@ -1,13 +1,16 @@
 ﻿@switch (Polarity)
 {
-    case Polarity.Positive:
-        <Icon Name="emoji-smile-fill" Size="@IconSize" Padding="@IconPadding" />
+    case Polarity.Unknown:
+        <Icon Name="emoji-dizzy-fill" Size="@IconSize" Padding="@IconPadding" />
         break;
     case Polarity.Negative:
         <Icon Name="emoji-frown-fill" Size="@IconSize" Padding="@IconPadding" />
         break;
-    case Polarity.Unknown:
-        <Icon Name="emoji-dizzy-fill" Size="@IconSize" Padding="@IconPadding" />
+    case Polarity.Neutral:
+        <Icon Name="emoji-neutral-fill" Size="@IconSize" Padding="@IconPadding" />
+        break;
+    case Polarity.Positive:
+        <Icon Name="emoji-smile-fill" Size="@IconSize" Padding="@IconPadding" />
         break;
     default:
         <p>Error</p>

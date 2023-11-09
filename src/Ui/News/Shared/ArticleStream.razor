@@ -2,23 +2,26 @@
 @inject ISender Sender
 @implements IDisposable
 
-<div class="flex flex-col items-center justify-center">
-    <div>
-        <label for="updateFrequence">Delay</label>
-        <select name="updateFrequence" @onchange="UpdateFrequence">
-            <option value="10">10 sec</option>
-            <option value="20" selected>20 sec</option>
-            <option value="30">30 sec</option>
-            <option value="60">60 sec</option>
-        </select>
-    </div>
-    <div>
-        @if (_article != null)
-        {
-            <SentimentIcon Polarity="@_article.Polarity" IconSize="20" IconPadding="0" />
-        }
-    </div>
-</div>
+<table class="table-auto">
+    <tr>
+        <td>
+            @if (_article != null && _article.Polarity != Polarity.Unknown)
+            {
+                <SentimentIcon Polarity="@_article.Polarity" IconSize="20" IconPadding="0" />
+            }
+        </td>
+        <td>
+            <label for="updateFrequence">Delay</label>
+            <select name="updateFrequence" @onchange="UpdateFrequence">
+                <option value="10">10 sec</option>
+                <option value="20" selected>20 sec</option>
+                <option value="30">30 sec</option>
+                <option value="60">60 sec</option>
+                <option value="120">120 sec</option>
+            </select>
+        </td>
+    </tr>
+</table>
 
 <ArticleView Model="_article" />
 
