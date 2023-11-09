@@ -8,7 +8,7 @@
             <Icon Name="@icon" Padding=@IconPadding Size=@_iconSize />
         </button>
     </div>
-    <div>
+    <div class="mt-1">
         <button type="button" @onclick="ToggleTheme" class="menuButton" aria-label="theme">
             @if (_darkMode)
             {
@@ -22,7 +22,7 @@
     </div>
 </div>
 @code {
-    private string icon = "list-ul";
+    private string icon = "camera-reels";
     private bool _darkMode = false;
     private IJSObjectReference? _js;
     private static string[] _navLinks = new string[] { "articles", "storybook", "icons" };
@@ -54,19 +54,19 @@
 
     private void ToggleList()
     {
-        if (NavigationManager.Uri.Contains("articles") == true)
+        if (NavigationManager.Uri.Contains("stream") == true)
         {
             var relativeUrl = "/";
             var absoluteUrl = NavigationManager.ToAbsoluteUri(relativeUrl).ToString();
             NavigationManager.NavigateTo(absoluteUrl);
-            icon = "list-ul";
+            icon = "camera-reels";
         }
         else
         {
-            var relativeUrl = "/articles";
+            var relativeUrl = "/stream";
             var absoluteUrl = NavigationManager.ToAbsoluteUri(relativeUrl).ToString();
             NavigationManager.NavigateTo(absoluteUrl);
-            icon = "camera-reels";
+            icon = "list-ul";
         }
 
     }

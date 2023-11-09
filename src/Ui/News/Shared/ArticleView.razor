@@ -1,4 +1,14 @@
-﻿@if (Model == null)
+﻿<div class="flex flex-col h-[34px] items-center justify-center">
+    <nav>
+        <button type="button" class="submitButton" aria-label="go back">
+            <NavLink href="/">
+                <Icon Name="arrow-90deg-left" Size="24" Padding="0" />
+            </NavLink>
+        </button>
+    </nav>
+</div>
+
+@if (Model == null)
 {
     <p class="text-rose-600">null</p>
 }
@@ -19,7 +29,7 @@ else
                 break;
         }
     }
-    <p class="italic text-center text-xs"><a href="@Model.Source">source</a></p>
+    <p class="italic text-center text-xs mt-2"><a href="@Model.Source">source</a></p>
 }
 
 @code {

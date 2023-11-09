@@ -2,6 +2,24 @@
 @inject ISender Sender
 @implements IDisposable
 
+<div class="flex flex-col items-center justify-center">
+    <div>
+        <label for="updateFrequence">Delay</label>
+        <select name="updateFrequence" @onchange="UpdateFrequence">
+            <option value="10">10 sec</option>
+            <option value="20" selected>20 sec</option>
+            <option value="30">30 sec</option>
+            <option value="60">60 sec</option>
+        </select>
+    </div>
+    <div>
+        @if (_article != null)
+        {
+            <SentimentIcon Polarity="@_article.Polarity" IconSize="20" IconPadding="0" />
+        }
+    </div>
+</div>
+
 <ArticleView Model="_article" />
 
 @code {
@@ -37,6 +55,20 @@
         if (_queue.Count > 0)
         {
             await Load(_queue.Dequeue());
+            _timer.Start();
+        }
+    }
+
+    private void UpdateFrequence(ChangeEventArgs e)
+    {
+        if (e.Value != null && int.TryParse(e.Value.ToString(), out var seconds))
+        {
+            DelayInSeconds = seconds;
+            _timer.Stop();
+            _timer.Dispose();
+            _timer.Elapsed -= Trigger;
+            _timer = new Timer(TimeSpan.FromSeconds(DelayInSeconds)) { Enabled = false, AutoReset = true };
+            _timer.Elapsed += Trigger;
             _timer.Start();
         }
     }

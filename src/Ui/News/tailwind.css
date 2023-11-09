@@ -124,19 +124,10 @@
     }
 
     .submitButton:disabled {
+        @apply border-2 rounded;
         @apply border-gray-500;
         @apply bg-gray-500;
         @apply text-white;
         @apply cursor-not-allowed;
-    }
-
-    .background-img-amp {
-        background-image: url("../img/amp.jpeg");
-        background-repeat: no-repeat;
-        background-size: cover;
-    }
-
-    .background-img-chip {
-        background-image: url("../img/chip.jpeg");
     }
 }
