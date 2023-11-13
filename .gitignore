@@ -117,3 +117,6 @@ FakesAssemblies/
 
 # llama.cpp source
 llama.cpp/*
+
+# sonarqube
+.sonarqube/*

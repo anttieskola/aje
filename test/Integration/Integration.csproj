@@ -31,7 +31,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Application\Application.csproj" />
-    <ProjectReference Include="..\..\src\Service\News\News.csproj" />
+    <ProjectReference Include="..\..\src\Service\NewsDownloader\NewsDownloader.csproj" />
     <ProjectReference Include="..\..\src\Infra\Ai\Ai.csproj" />
     <ProjectReference Include="..\..\src\Infra\Redis\Redis.csproj" />
   </ItemGroup>

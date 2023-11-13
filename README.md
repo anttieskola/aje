@@ -57,6 +57,9 @@ features are placed currently in the component that is kinda wrong way and shoul
 	- Redis our shared data storage and messaging
 - Each component should have their own infrastructure library when they need (database as an example)
 
+## Sonarqube
+- See [sonarqube.md](./doc/sonarqube.md)
+
 # Components
 Each component is true microservice so they work on their own. What they do share is
 Redis so that data is shared between them, but note that ***Redis data is not permanent*** and

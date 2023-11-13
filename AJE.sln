@@ -29,6 +29,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Doc", "Doc", "{F958B4A7-C55
 		doc\postgresql.md = doc\postgresql.md
 		doc\todo.md = doc\todo.md
 		doc\nginx.md = doc\nginx.md
+		doc\sonarqube.md = doc\sonarqube.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Ui", "Ui", "{8ABB8C8E-04A6-48BD-815B-0DA9D4DA8E56}"
