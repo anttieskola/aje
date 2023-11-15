@@ -1,4 +1,5 @@
-﻿class Program
+﻿namespace AJE.Util.MChatter;
+class Program
 {
     static async Task Main(string[] args)
     {
@@ -28,7 +29,7 @@
         }
         catch (OperationCanceledException e)
         {
-            Console.WriteLine("oh noes {}", e.Message);
+            Console.WriteLine("oh noes {0}", e.Message);
         }
     }
 }

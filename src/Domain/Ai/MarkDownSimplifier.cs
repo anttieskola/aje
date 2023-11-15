@@ -8,6 +8,9 @@ public class MarkDownSimplifier : ISimplifier
         bool inLink = false;
         bool inCodeBlock = false;
 
+        // sonarcube does not work with string arrays perfectly (raises false-positives)
+        // see https://github.com/SonarSource/sonar-dotnet/issues?q=is%3Aissue+S2583
+#pragma warning disable S2583
         for (var i = 0; i < content.Length; i++)
         {
             char current = content[i];
@@ -44,6 +47,7 @@ public class MarkDownSimplifier : ISimplifier
                 sb.Append(current);
             }
         }
+#pragma warning restore S2583
         return sb.ToString().Trim();
     }
 

@@ -1,9 +1,9 @@
 namespace AJE.Ui.Public;
 
-  public static class Icondef
+public static class Icondef
+{
+  public static readonly string[] List = new string[]
   {
-    public static readonly List<string> List = new()
-    {
 "0-circle-fill",
 "0-circle",
 "0-square-fill",
@@ -2054,5 +2054,5 @@ namespace AJE.Ui.Public;
 "youtube",
 "zoom-in",
 "zoom-out"
-    };
-  }
+  };
+}
