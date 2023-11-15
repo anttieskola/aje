@@ -120,3 +120,6 @@ llama.cpp/*
 
 # sonarqube
 .sonarqube/*
+
+# code coverage
+coverage.xml

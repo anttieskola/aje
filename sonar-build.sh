@@ -5,10 +5,13 @@ rm -rf .sonarqube
 dotnet clean
 
 # prepare
-dotnet-sonarscanner begin /key:AJE /name:AJE /d:sonar.host.url=http://localhost:9999 /d:sonar.login=admin /d:sonar.password=sonar
+dotnet-sonarscanner begin /key:AJE /name:AJE /d:sonar.host.url=http://localhost:9999 /d:sonar.login=admin /d:sonar.password=sonar /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml
 
 # build
-dotnet build
+dotnet build --no-incremental
+
+# test with coverage
+dotnet-coverage collect "dotnet test" -f xml -o "coverage.xml"
 
 # analyze
 dotnet-sonarscanner end /d:sonar.login=admin /d:sonar.password=sonar

@@ -1,3 +1,12 @@
+# Pre-requisites
+```bash
+# Scanner
+dotnet tool install --global dotnet-sonarscanner
+
+# Code coverage
+dotnet tool install --global dotnet-coverage
+```
+
 # Startup
 - [Installation / personal copy](https://github.com/anttieskola/sonarqube/blob/main/README.md)
 - Run `sonar.sh start`
