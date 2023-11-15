@@ -48,16 +48,16 @@ public class AiChatRepository : IAiChatRepository
         return await GetAsync(chatId);
     }
 
-    public async Task<AiChat> GetAsync(Guid id)
+    public async Task<AiChat> GetAsync(Guid chatId)
     {
         var db = _connection.GetDatabase();
-        var redisId = _index.RedisId(id.ToString());
+        var redisId = _index.RedisId(chatId.ToString());
         if (!await db.KeyExistsAsync(redisId))
             throw new KeyNotFoundException(redisId);
 
         var result = await db.ExecuteAsync("JSON.GET", redisId);
         if (result.IsNull)
-            throw new KeyNotFoundException($"AiChat with id:{id} not found");
+            throw new KeyNotFoundException($"AiChat with id:{chatId} not found");
         var json = result.ToString() ?? throw new DataException($"invalid value in key {redisId}");
         var chat = JsonSerializer.Deserialize<AiChat>(json);
         return chat ?? throw new DataException($"invalid value in key {redisId}");

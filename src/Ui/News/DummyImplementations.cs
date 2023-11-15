@@ -43,12 +43,12 @@ public class DummyAiChatRepository : IAiChatRepository
         throw new NotImplementedException();
     }
 
-    public Task<AiChat> AddHistoryEntry(Guid id, AiChatInteractionEntry entry)
+    public Task<AiChat> AddHistoryEntry(Guid chatId, AiChatInteractionEntry entry)
     {
         throw new NotImplementedException();
     }
 
-    public Task<AiChat> GetAsync(Guid id)
+    public Task<AiChat> GetAsync(Guid chatId)
     {
         throw new NotImplementedException();
     }
