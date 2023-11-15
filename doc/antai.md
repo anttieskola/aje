@@ -1,3 +1,12 @@
+# UI
+- Skeleton done for chat with me feature
+- Backend done but no integration yeat
+
+# Backend
+- Need to update system instructions to reflect freshly created CV's and applications
+- Need to add tokenizer api into use and token calculation to track history size and calculate limits
+- There is now available 4060 GTX with 16GB RAM [Verkkokauppa](https://www.verkkokauppa.com/fi/product/886417/MSI-GeForce-RTX-4060-Ti-VENTUS-3X-16G-OC-naytonohjain) this would allow larger context size
+    - Could always use heavier quantization to reduce memory usage
 
 # Experience
 You worked at Alfame Systems from April 2015 until April 2023

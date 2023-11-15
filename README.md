@@ -22,14 +22,19 @@ After I learn to create good enough instructions I want to learn to fine-tune mo
 and start creating a data-set to use in fine-tuning these awesome open source models.
 
 ## Current todo list
-- Improve UI for news browsing
-- Improve the AI instructions for news classification and could try more different models
-	- Maybe use multiple sets of instructions for different classifications?
+- Sonarqube analysis fixes should be done
+- Chat with me feature (Antai)
+	- UI skeleton is done (no integration to backend yeat)
+	- Backend working in integration tests
+	- Should add service to listen to chat events to save them into database?
+		- Events contain all information
+		- Chats are saved into Redis atm
 - Statistic from the news, I want to see graph showing me for many positive news articles
 are released daily. Vision to see history graph and some way to dig thru the graph aswell
-into actual articles.
-- Chat with me feature using large set of instructions and good model like Mistral that I
-currently use
+into actual articles
+- Create Eduskunta RSS feed downloader and analyzer
+- Buy subscriptions to Helsinki Sanomat, Kaleva, Kauppalehti, YCombinator... any that
+  provide RSS feeds or similar ways to track new articles
 
 # Code architecture
 All is done using clean architecture / "domain based" programming. Most of all I want to
@@ -56,10 +61,6 @@ features are placed currently in the component that is kinda wrong way and shoul
 	- AI api to llama server running models
 	- Redis our shared data storage and messaging
 - Each component should have their own infrastructure library when they need (database as an example)
-
-## Sonarqube
-- See [sonarqube.md](./doc/sonarqube.md)
-
 # Components
 Each component is true microservice so they work on their own. What they do share is
 Redis so that data is shared between them, but note that ***Redis data is not permanent*** and
@@ -74,6 +75,7 @@ List of current components and used software
 	- Using server rendered blazor as I want to learn to use it better and I think it is
 	fits my needs best
 - [Ui.News](./doc/todo.md) Currently optimized for news reading, development in progress
+- [Ui.Antai](./doc/antai.md) UI for chat with me feature
 - Utilities (under Tests currently)
 	- MChatter: Chat application with large language model
 	- Populator: Utility to fill Redis with bogus data
@@ -88,6 +90,7 @@ List of current components and used software
 	- [RediSearch](https://github.com/RediSearch/RediSearch) Search/indexing
 - [Postgresql](https://www.postgresql.org/) for databases
 - [Tailwind](https://github.com/tailwindlabs/tailwindcss) for UI styling
+- [sonarqube.md](./doc/sonarqube.md) for code analysis
 - [Debian](https://www.debian.org/)
 	- Platform for everything
 	- Currently running version 12 (bookworm)
@@ -101,6 +104,9 @@ List of current components and used software
 - Llama.cpp is installed manually on server into path `/usr/local/bin/Llama/`
 - Redis is installed manually on server into path `/usr/local/bin/Redis/`
 	- Modules have own folders under `/usr/local/bin`
+- Sonarqube is installed manually on server into path `/usr/local/bin/sonarqube/`
+	- I made a [Github repo of this](https://github.com/anttieskola/sonarqube)
+	- Only run server locally and on-demand only
 - Postgresql is installed using their apt package repository
 
 Could someday learn to create docker containers and make one for each component.
