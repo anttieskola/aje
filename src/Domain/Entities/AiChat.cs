@@ -8,6 +8,9 @@
 
 public record AiChatHistoryEntry
 {
+    [JsonPropertyName("timestamp")]
+    public required DateTimeOffset Timestamp { get; init; }
+
     [JsonPropertyName("input")]
     public required string Input { get; init; }
 
@@ -15,10 +18,18 @@ public record AiChatHistoryEntry
     public required string Output { get; init; }
 }
 
+public record AiChatOptions
+{
+
+}
+
 public record AiChat
 {
     [JsonPropertyName("id")]
-    public Guid Id { get; init; }
+    public required Guid Id { get; init; }
+
+    [JsonPropertyName("timestamp")]
+    public required DateTimeOffset Timestamp { get; init; }
 
     [JsonPropertyName("history")]
     public EquatableList<AiChatHistoryEntry> History { get; init; } = EquatableList<AiChatHistoryEntry>.Empty;

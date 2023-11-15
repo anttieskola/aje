@@ -54,6 +54,17 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NewsDownloader", "src\Servi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "News", "src\Ui\News\News.csproj", "{47FE4290-B8C1-42BE-AC01-3FF32A1C7A4E}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{24D99744-2316-405C-9CB8-D22D75D183D9}"
+	ProjectSection(SolutionItems) = preProject
+		publish-AJE.Service.NewsAnalyzer.sh = publish-AJE.Service.NewsAnalyzer.sh
+		publish-AJE.Service.NewsDownloader.sh = publish-AJE.Service.NewsDownloader.sh
+		publish-AJE.Ui.News.sh = publish-AJE.Ui.News.sh
+		publish-AJE.Ui.Public.sh = publish-AJE.Ui.Public.sh
+		publish-Llama.sh = publish-Llama.sh
+		sonar-build.sh = sonar-build.sh
+		get-llama.sh = get-llama.sh
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

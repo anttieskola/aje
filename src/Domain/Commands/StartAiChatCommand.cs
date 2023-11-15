@@ -27,14 +27,15 @@ public class StartAiChatCommandHandler : IRequestHandler<StartAiChatCommand, AiC
 
     public async Task<AiChatEvent> Handle(StartAiChatCommand command, CancellationToken cancellationToken)
     {
-        var aiChat = new AiChat
+        var options = new AiChatOptions
         {
-            Id = Guid.NewGuid(),
+            // currently empty
+            // could contain, model info, system instructions, prompt creator...
         };
-        await _aiChatRepository.AddAsync(aiChat);
+        var chat = await _aiChatRepository.AddAsync(options);
         var e = new AiChatStartedEvent
         {
-            Id = aiChat.Id,
+            Id = chat.Id,
             Timestamp = DateTimeOffset.UtcNow,
         };
         await _aiChatEventHandler.SendAsync(e);

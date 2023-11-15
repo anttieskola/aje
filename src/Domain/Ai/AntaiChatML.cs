@@ -1,8 +1,13 @@
 ﻿namespace AJE.Domain.Ai;
 
-public class AntaiChatMLCreator : ChatMLCreator
+public interface IAntai : IPromptCreator
 {
-    public AntaiChatMLCreator()
+
+}
+
+public class AntaiChatML : ChatMLCreator, IAntai
+{
+    public AntaiChatML()
         : base("Antti Eskola", new string[]
     {
         "You are Antti Eskola, who was born September 12th in 1980 at Rovaniemi Finland",

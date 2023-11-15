@@ -38,9 +38,19 @@ public class DummyAiLogger : IAiLogger
 
 public class DummyAiChatRepository : IAiChatRepository
 {
-    public Task AddAsync(AiChat aiChat)
+    public Task<AiChat> AddAsync(AiChatOptions options)
     {
-        throw new NotSupportedException();
+        throw new NotImplementedException();
+    }
+
+    public Task<AiChat> AddHistoryEntry(Guid id, AiChatHistoryEntry entry)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<AiChat> GetAsync(Guid id)
+    {
+        throw new NotImplementedException();
     }
 }
 
@@ -48,12 +58,11 @@ public class DummyAiChatEventHandler : IAiChatEventHandler
 {
     public Task SendAsync(AiChatEvent aiChatEvent)
     {
-        throw new NotSupportedException();
+        throw new NotImplementedException();
     }
-
 
     public void Subscribe(Action<AiChatEvent> handler)
     {
-        throw new NotSupportedException();
+        throw new NotImplementedException();
     }
 }

@@ -1,6 +1,9 @@
-﻿namespace AJE.Domain.Data;
+﻿
+namespace AJE.Domain.Data;
 
 public interface IAiChatRepository
 {
-    Task AddAsync(AiChat aiChat);
+    Task<AiChat> AddAsync(AiChatOptions options);
+    Task<AiChat> GetAsync(Guid id);
+    Task<AiChat> AddHistoryEntry(Guid id, AiChatHistoryEntry entry);
 }

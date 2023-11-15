@@ -7,6 +7,7 @@ public static class DependencyInjection
         services.AddSingleton<IContextCreator<Article>, ArticleContextCreator>();
         services.AddSingleton<ISimplifier, MarkDownSimplifier>();
         services.AddSingleton<IPolarity, PolarityChatML>();
+        services.AddSingleton<IAntai, AntaiChatML>();
         services.AddMediatR(cfg =>
         {
             cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly());

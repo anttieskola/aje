@@ -100,7 +100,7 @@ public class LlamaAiModelTests : IClassFixture<HttpClientFixture>
     {
         var configuration = new LlamaConfiguration { Host = "http://localhost:8080", LogFolder = "/var/aje/ai" };
         var model = new LlamaAiModel(new Mock<ILogger<LlamaAiModel>>().Object, configuration, _fixture.HttpClientFactory);
-        var a = new AntaiChatMLCreator();
+        var a = new AntaiChatML();
         var tokenizeRequest = new TokenizeRequest
         {
             Content = a.Context(string.Empty),

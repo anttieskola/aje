@@ -53,11 +53,13 @@ public class ChatMLCreatorTests
         var history = new AiChatHistoryEntry[] {
             new()
             {
+                Timestamp = DateTimeOffset.UtcNow,
                 Input = "this is unit test",
                 Output = "yes you are right"
             },
             new()
             {
+                Timestamp = DateTimeOffset.UtcNow,
                 Input = "Are you always working correctly?",
                 Output = "for sure I am not"
             }
