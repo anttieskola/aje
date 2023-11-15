@@ -59,7 +59,7 @@ public class LlamaAiModel : IAiModel
         var httpResponse = await client.SendAsync(httpRequest, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
         using var stream = await httpResponse.Content.ReadAsStreamAsync(cancellationToken);
         using var reader = new StreamReader(stream);
-        using var writer = new StreamWriter(outputStream);
+        using var writer = new StreamWriter(outputStream, Encoding.UTF8, 1024, true);
         var sb = new StringBuilder();
         while (!reader.EndOfStream)
         {

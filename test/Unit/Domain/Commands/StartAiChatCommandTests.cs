@@ -12,14 +12,14 @@ public class StartAiChatCommandTests
     {
         var id = Guid.ParseExact("00000000-0000-0000-0000-000000000001", "D");
         var mockAiChatRepository = new Mock<IAiChatRepository>();
-        mockAiChatRepository.Setup(x => x.AddAsync(It.IsAny<AiChatOptions>())).ReturnsAsync(new AiChat { Id = id, Timestamp = DateTimeOffset.UtcNow });
+        mockAiChatRepository.Setup(x => x.AddAsync(It.IsAny<AiChatOptions>())).ReturnsAsync(new AiChat { ChatId = id, StartTimestamp = DateTimeOffset.UtcNow });
         var mockAiChatEventHandler = new Mock<IAiChatEventHandler>();
         var handler = new StartAiChatCommandHandler(mockAiChatRepository.Object, mockAiChatEventHandler.Object);
-        var result = await handler.Handle(new StartAiChatCommand(), CancellationToken.None);
+        var result = await handler.Handle(new StartAiChatCommand { Id = id }, CancellationToken.None);
         Assert.NotNull(result);
         Assert.True(result is AiChatStartedEvent);
-        Assert.NotEqual(Guid.Empty, result.Id);
-        Assert.Equal(id, result.Id);
+        Assert.NotEqual(Guid.Empty, result.ChatId);
+        Assert.Equal(id, result.ChatId);
         mockAiChatEventHandler.Verify(e => e.SendAsync(It.IsAny<AiChatStartedEvent>()), Times.Once);
     }
 }

@@ -86,7 +86,7 @@ public class GetArticlePolarityCommandHandlerTests : IClassFixture<HttpClientFix
     {
         var article = JsonSerializer.Deserialize<Article>(_article);
         Assert.NotNull(article);
-        var configuration = new LlamaConfiguration { Host = "http://localhost:8080", LogFolder = "/var/aje/ai" };
+        var configuration = new LlamaConfiguration { Host = "http://localhost:8080", LogFolder = "/tmp" };
         var handler = new GetArticleSentimentPolarityQueryHandler(
             new ArticleContextCreator(new MarkDownSimplifier()),
             new PolarityChatML(),

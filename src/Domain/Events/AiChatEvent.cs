@@ -1,25 +1,28 @@
 ﻿namespace AJE.Domain.Events;
 
-// How to define event structure if we want to simulate
-// multiple entities?
-
-[JsonDerivedType(typeof(AiChatStartedEvent), "started")]
-[JsonDerivedType(typeof(AiChatMessageEvent), "message")]
+[JsonDerivedType(typeof(AiChatStartedEvent), "start")]
+[JsonDerivedType(typeof(AiChatInteractionEvent), "interaction")]
 public record AiChatEvent
 {
-    [JsonPropertyName("id")]
-    public required Guid Id { get; init; }
+    [JsonPropertyName("chatId")]
+    public required Guid ChatId { get; init; }
 
-    [JsonPropertyName("timestamp")]
-    public required DateTimeOffset Timestamp { get; init; }
+    [JsonPropertyName("startTimestamp")]
+    public required DateTimeOffset StartTimestamp { get; init; }
 }
 
 public record AiChatStartedEvent : AiChatEvent
 {
 }
 
-public record AiChatMessageEvent : AiChatEvent
+public record AiChatInteractionEvent : AiChatEvent
 {
+    [JsonPropertyName("interactionId")]
+    public required Guid InteractionId { get; init; }
+
+    [JsonPropertyName("interactionTimestamp")]
+    public required DateTimeOffset InteractionTimestamp { get; init; }
+
     [JsonPropertyName("input")]
     public required string Input { get; init; }
 

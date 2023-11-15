@@ -32,12 +32,13 @@ public class GetArticleSentimentPolarityQueryHandler : IRequestHandler<GetArticl
     {
         var context = _contextCreator.Create(query.Article);
         var prompt = _polarity.Context(context);
-
+        // TODO: Token calculation using tokenizer API, to prevent hogging all GPU resources
         // update version if prompt changes
         var request = new CompletionRequest
         {
             Prompt = prompt,
             Temperature = 0.1,
+            Stop = _polarity.StopWords,
         };
         var response = await _aiModel.CompletionAsync(request, cancellationToken);
         var polarity = _polarity.Parse(response.Content);

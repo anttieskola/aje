@@ -50,16 +50,18 @@ public class ChatMLCreatorTests
     public void ChatWithHistory()
     {
         var test = new TestChatML();
-        var history = new AiChatHistoryEntry[] {
+        var history = new AiChatInteractionEntry[] {
             new()
             {
-                Timestamp = DateTimeOffset.UtcNow,
+                InteractionId = Guid.NewGuid(),
+                InteractionTimestamp = DateTimeOffset.UtcNow,
                 Input = "this is unit test",
                 Output = "yes you are right"
             },
             new()
             {
-                Timestamp = DateTimeOffset.UtcNow,
+                InteractionId = Guid.NewGuid(),
+                InteractionTimestamp = DateTimeOffset.UtcNow,
                 Input = "Are you always working correctly?",
                 Output = "for sure I am not"
             }

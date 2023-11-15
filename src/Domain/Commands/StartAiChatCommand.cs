@@ -1,15 +1,9 @@
 ﻿namespace AJE.Domain.Commands;
 
-/// <summary>
-/// Reserved for settings like
-/// - used model (nothing is stopping us from chatting with multiple models...)
-///    - maybe we are missing HW though
-/// - system instructions
-/// - prompt creator
-/// ...
-/// </summary>
+// could contain, model info, system instructions, prompt creator, temperature...
 public record StartAiChatCommand : IRequest<AiChatEvent>
 {
+    public required Guid Id { get; init; }
 }
 
 public class StartAiChatCommandHandler : IRequestHandler<StartAiChatCommand, AiChatEvent>
@@ -29,14 +23,13 @@ public class StartAiChatCommandHandler : IRequestHandler<StartAiChatCommand, AiC
     {
         var options = new AiChatOptions
         {
-            // currently empty
-            // could contain, model info, system instructions, prompt creator...
+            ChatId = command.Id,
         };
         var chat = await _aiChatRepository.AddAsync(options);
         var e = new AiChatStartedEvent
         {
-            Id = chat.Id,
-            Timestamp = DateTimeOffset.UtcNow,
+            ChatId = chat.ChatId,
+            StartTimestamp = DateTimeOffset.UtcNow,
         };
         await _aiChatEventHandler.SendAsync(e);
         return e;

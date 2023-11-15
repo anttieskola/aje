@@ -43,7 +43,7 @@ public class DummyAiChatRepository : IAiChatRepository
         throw new NotImplementedException();
     }
 
-    public Task<AiChat> AddHistoryEntry(Guid id, AiChatHistoryEntry entry)
+    public Task<AiChat> AddHistoryEntry(Guid id, AiChatInteractionEntry entry)
     {
         throw new NotImplementedException();
     }

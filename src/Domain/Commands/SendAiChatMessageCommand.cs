@@ -4,10 +4,8 @@ namespace AJE.Domain.Commands;
 
 public record SendAiChatMessageCommand : IRequest<AiChatEvent>
 {
-    public required Guid ChatId { get; init; }
-
+    public required Guid Id { get; init; }
     public required string Message { get; init; }
-
     public required Stream Output { get; init; }
 }
 
@@ -32,28 +30,35 @@ public class SendAiChatMessageCommandHandler : IRequestHandler<SendAiChatMessage
 
     public async Task<AiChatEvent> Handle(SendAiChatMessageCommand command, CancellationToken cancellationToken)
     {
-        var chat = await _aiChatRepository.GetAsync(command.ChatId)
-            ?? throw new KeyNotFoundException($"Chat with id {command.ChatId} not found");
-        var prompt = _antai.Chat(command.Message)
-            ?? throw new AiException($"Failed to chat with message {command.Message}");
+        var chat = await _aiChatRepository.GetAsync(command.Id)
+            ?? throw new KeyNotFoundException($"Chat with id {command.Id} not found");
+        var prompt = _antai.Chat(command.Message, chat.Interactions.ToArray())
+            ?? throw new AiException($"Failed to create context for Antai message:{command.Message}");
+        // TODO: Token calculation using tokenizer API, to prevent hogging all GPU resources
         var completionRequest = new CompletionRequest
         {
             Prompt = prompt,
+            Temperature = 1.2,
+            Stop = _antai.StopWords,
             Stream = true,
         };
         var response = await _aiModel.CompletionStreamAsync(completionRequest, command.Output, cancellationToken);
         // TODO: Timestamp from the model response?
-        var historyEntry = new AiChatHistoryEntry
+        // TODO: Take token calculation
+        var historyEntry = new AiChatInteractionEntry
         {
-            Timestamp = DateTimeOffset.UtcNow,
+            InteractionId = Guid.NewGuid(),
+            InteractionTimestamp = DateTimeOffset.UtcNow,
             Input = command.Message,
             Output = response.Content.Trim(),
         };
-        chat = await _aiChatRepository.AddHistoryEntry(chat.Id, historyEntry);
-        var chatEvent = new AiChatMessageEvent
+        chat = await _aiChatRepository.AddHistoryEntry(chat.ChatId, historyEntry);
+        var chatEvent = new AiChatInteractionEvent
         {
-            Id = chat.Id,
-            Timestamp = historyEntry.Timestamp,
+            ChatId = chat.ChatId,
+            StartTimestamp = chat.StartTimestamp,
+            InteractionId = historyEntry.InteractionId,
+            InteractionTimestamp = historyEntry.InteractionTimestamp,
             Input = historyEntry.Input,
             Output = historyEntry.Output,
         };

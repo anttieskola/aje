@@ -60,7 +60,7 @@ public abstract class ChatMLCreator : IPromptCreator
         return sb.ToString();
     }
 
-    public string Chat(string message, AiChatHistoryEntry[] history)
+    public string Chat(string message, AiChatInteractionEntry[] history)
     {
         var sb = new StringBuilder();
         sb.Append(_iStart);
