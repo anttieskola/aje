@@ -23,7 +23,6 @@ public class CompletionStream : IDisposable
         while (!reader.EndOfStream)
         {
             var line = await reader.ReadLineAsync(ct);
-            // line = line?.Replace("\n", string.Empty).Replace("\r", string.Empty);
             await writer.WriteLineAsync(line);
             if (!string.IsNullOrWhiteSpace(line))
             {
@@ -32,10 +31,9 @@ public class CompletionStream : IDisposable
                 {
 
                     var completion = JsonSerializer.Deserialize<CompletionResponse>(data);
-                    if (completion != null)
+                    if (completion != null && !completion.Stop)
                     {
-                        if (!completion.Stop)
-                            Console.Write(completion.Content);
+                        Console.Write(completion.Content);
                     }
                 }
                 catch (JsonException e)
@@ -93,14 +91,8 @@ public class CompletionStream : IDisposable
         // we gotta allow the < and > characters as llama.cpp won't decode
         // even if we define the characters as allowed it still does not work
         // only way is to use dangerous UnsafeRelaxedJsonEscaping
-        // fuck fuck fuck ... Global block list characters can't be allowed
+        // Global block list characters can't be allowed like: AllowCharacters('\u003C', '\u003E')
         // https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/character-encoding
-        // them so model won't take instructions correctly
-        // then again we should not allow them when input comes from article
-        // the model/llama.cpp server seems to return any characters
-        var encoderSettings = new TextEncoderSettings();
-        //encoderSettings.AllowRange(UnicodeRanges.BasicLatin);
-        //encoderSettings.AllowCharacters('\u003C', '\u003E');
         var options = new JsonSerializerOptions
         {
             Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,

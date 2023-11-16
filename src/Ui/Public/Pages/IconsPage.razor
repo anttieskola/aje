@@ -11,7 +11,8 @@
             <input id="color" class="w-40" type="color" @bind="_color" />
         </td>
         <td><label for="minSize">Min Size</label></td>
-        <td><input id="minSize" type="range" min="8" max="@_maxSize" step="1" @bind="_minSize" aria-label="icon min size selector" /></td>
+        <td><input id="minSize" type="range" min="8" max="@_maxSize" step="1" @bind="_minSize"
+                aria-label="icon min size selector" /></td>
         <td><label>@_minSize</label></td>
     </tr>
     <tr>
@@ -29,7 +30,8 @@
         <td><label>@_maxSize</label></td>
     </tr>
     <tr>
-        <td colspan="3"><input class="w-96 p-1" type="search" aria-label="search keyword" @bind="_search" @onkeydown="SearchEvent" /></td>
+        <td colspan="3"><input class="w-96 p-1" type="search" aria-label="search keyword" @bind="_search"
+                @onkeydown="SearchEvent" /></td>
         <td colspan="2">
             <button class="mt-1 min-w-full w-full max-w-lg submitButton" aria-label="search">
                 <Icon Name="search" Size="20" Padding="2" />
@@ -209,4 +211,3 @@
         StateHasChanged();
     }
 }
-

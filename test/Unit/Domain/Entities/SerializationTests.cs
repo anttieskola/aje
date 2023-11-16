@@ -16,7 +16,7 @@ public class SerializationTests
             Id = Guid.Parse("12300000-1200-1200-1200-000000000034"),
             Category = Category.BOGUS,
             Title = "AJE is born",
-            Modified = new DateTime(1980, 9, 12, 12, 00, 12).Ticks,
+            Modified = new DateTime(1980, 9, 12, 12, 00, 12, DateTimeKind.Utc).Ticks,
             Published = true,
             Source = "https://www.anttieskola.com",
             Language = "en",
@@ -50,23 +50,23 @@ public class SerializationTests
         Assert.Equal(original.Published, copy.Published);
         Assert.Equal(original.Source, copy.Source);
         Assert.Equal(original.Language, copy.Language);
-        Assert.Equal(original.Content.Count(), copy.Content.Count());
+        Assert.Equal(original.Content.Count, copy.Content.Count);
 
-        var h1 = copy.Content.ElementAt(0) as MarkdownHeaderElement;
+        var h1 = copy.Content[0] as MarkdownHeaderElement;
         Assert.NotNull(h1);
         Assert.Equal(1, h1.Level);
         Assert.Equal("This is header 1", h1.Text);
 
-        var p1 = copy.Content.ElementAt(1) as MarkdownTextElement;
+        var p1 = copy.Content[1] as MarkdownTextElement;
         Assert.NotNull(p1);
         Assert.Equal("This is a paragraph", p1.Text);
 
-        var h2 = copy.Content.ElementAt(2) as MarkdownHeaderElement;
+        var h2 = copy.Content[2] as MarkdownHeaderElement;
         Assert.NotNull(h2);
         Assert.Equal(2, h2.Level);
         Assert.Equal("This is header 2", h2.Text);
 
-        var p2 = copy.Content.ElementAt(3) as MarkdownTextElement;
+        var p2 = copy.Content[3] as MarkdownTextElement;
         Assert.NotNull(p2);
         Assert.Equal("This is another paragraph", p2.Text);
     }
@@ -75,7 +75,7 @@ public class SerializationTests
 
     #region completion
 
-    private string _completionResponse = @"
+    private readonly string _completionResponse = @"
 {
     ""content"": ""RESPONSE_CONTENT"",
     ""generation_settings"": {

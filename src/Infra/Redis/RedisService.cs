@@ -36,6 +36,7 @@ public class RedisService : IRedisService
                 var indexVersion = await db.StringGetAsync($"{index.Name}_VERSION");
                 if (!indexVersion.HasValue)
                 {
+                    _logger.LogInformation("Index {} has no version, deleting and recreating", index.Name);
                     await DeleteIndex(db, index);
                 }
                 else
@@ -45,10 +46,16 @@ public class RedisService : IRedisService
                         if (version == index.Version)
                             continue;
                         else
+                        {
                             await DeleteIndex(db, index);
+                            _logger.LogInformation("Index {} has version {}, deleting and recreating", index.Name, version);
+                        }
                     }
                     else
+                    {
                         await DeleteIndex(db, index);
+                        _logger.LogInformation("Index {} version can't be parsed, deleting and recreating", index.Name);
+                    }
                 }
 
             }

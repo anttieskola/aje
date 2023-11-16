@@ -2,7 +2,18 @@
 
 public class QueryBuilder
 {
-    public List<QueryCondition> Conditions = new();
+    private List<QueryCondition> _conditions = new();
+    public List<QueryCondition> Conditions
+    {
+        get
+        {
+            return _conditions;
+        }
+        private set
+        {
+            _conditions = value;
+        }
+    }
     public string Build()
     {
         if (Conditions.Count == 0)

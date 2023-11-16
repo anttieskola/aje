@@ -20,29 +20,29 @@ public class YleWorker : BackgroundService
 
     private readonly ConcurrentBag<string> _currentLinks = new();
 
-    protected override async Task ExecuteAsync(CancellationToken ct)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        await Reload(ct);
+        await Reload(stoppingToken);
 
-        while (!ct.IsCancellationRequested)
+        while (!stoppingToken.IsCancellationRequested)
         {
             // update current links
             foreach (var feed in _configuration.Feeds)
-                await ScanFeed(feed, ct);
+                await ScanFeed(feed, stoppingToken);
 
             _logger.LogInformation("Link count {}", _currentLinks.Count);
 
             // handle links
             foreach (var link in _currentLinks)
             {
-                await HandleLink(link, ct);
+                await HandleLink(link, stoppingToken);
             }
 
-            await Task.Delay(_refreshDelay, ct);
+            await Task.Delay(_refreshDelay, stoppingToken);
         }
     }
 
-    private async Task Reload(CancellationToken ct)
+    private async Task Reload(CancellationToken stoppingToken)
     {
         var files = Directory.GetFiles(_configuration.DumpFolder, "*.html");
         _logger.LogInformation("Found {} files in dump folder", files.Length);
@@ -50,28 +50,28 @@ public class YleWorker : BackgroundService
         foreach (var file in files)
         {
             var link = $"https://yle.fi/a/{Path.GetFileNameWithoutExtension(file)}";
-            if (!await _sender.Send(new ArticleExistsQuery { Source = link }, ct))
+            if (!await _sender.Send(new ArticleExistsQuery { Source = link }, stoppingToken))
             {
-                var content = await File.ReadAllTextAsync(file, ct);
+                var content = await File.ReadAllTextAsync(file, stoppingToken);
                 if (TestHtmlParse(content))
                 {
                     // add
                     var article = HtmlParser.Parse(content, link);
-                    await _sender.Send(new AddArticleCommand { Article = article }, ct);
+                    await _sender.Send(new AddArticleCommand { Article = article }, stoppingToken);
                 }
                 else
                 {
                     // file content is invalid, downloading again to see if we get valid article
-                    content = await Request(new Uri(link), ct);
+                    content = await Request(new Uri(link), stoppingToken);
                     if (TestHtmlParse(content))
                     {
                         // save valid article file
                         _logger.LogInformation("Article file {} fixed with valid content", file);
-                        await File.WriteAllTextAsync(Path.Combine(_configuration.DumpFolder, CreateHTMLFileName(link)), content, ct);
+                        await File.WriteAllTextAsync(Path.Combine(_configuration.DumpFolder, CreateHTMLFileName(link)), content, stoppingToken);
 
                         // add
                         var article = HtmlParser.Parse(content, link);
-                        await _sender.Send(new AddArticleCommand { Article = article }, ct);
+                        await _sender.Send(new AddArticleCommand { Article = article }, stoppingToken);
                     }
                     else
                     {
@@ -82,14 +82,14 @@ public class YleWorker : BackgroundService
         }
     }
 
-    private async Task ScanFeed(YleFeed feed, CancellationToken ct)
+    private async Task ScanFeed(YleFeed feed, CancellationToken stoppingToken)
     {
         try
         {
             using var client = new HttpClient();
-            var response = await client.GetAsync(feed.Url, ct);
-            var content = await response.Content.ReadAsStringAsync(ct);
-            await File.WriteAllTextAsync(Path.Combine(_configuration.DumpFolder, CreateRSSFileName(feed.Url)), content, ct);
+            var response = await client.GetAsync(feed.Url, stoppingToken);
+            var content = await response.Content.ReadAsStringAsync(stoppingToken);
+            await File.WriteAllTextAsync(Path.Combine(_configuration.DumpFolder, CreateRSSFileName(feed.Url)), content, stoppingToken);
             var links = RssParser.Parse(content);
             foreach (var link in links)
             {
@@ -138,23 +138,23 @@ public class YleWorker : BackgroundService
         }
     }
 
-    public static async Task<string> Request(Uri uri, CancellationToken ct)
+    public static async Task<string> Request(Uri uri, CancellationToken stoppingToken)
     {
         using var client = new HttpClient();
         var request = CreateRequest(uri);
-        var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct);
+        var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, stoppingToken);
         if (response.Content.Headers.ContentEncoding.Contains("gzip"))
         {
-            using var stream = await response.Content.ReadAsStreamAsync(ct);
+            using var stream = await response.Content.ReadAsStreamAsync(stoppingToken);
             using var gzipStream = new GZipStream(stream, CompressionMode.Decompress);
             using var decompressedStream = new MemoryStream();
-            await gzipStream.CopyToAsync(decompressedStream, ct);
+            await gzipStream.CopyToAsync(decompressedStream, stoppingToken);
             decompressedStream.Seek(0, SeekOrigin.Begin);
-            return await new StreamReader(decompressedStream).ReadToEndAsync(ct);
+            return await new StreamReader(decompressedStream).ReadToEndAsync(stoppingToken);
         }
         else
         {
-            return await response.Content.ReadAsStringAsync(ct);
+            return await response.Content.ReadAsStringAsync(stoppingToken);
         }
     }
 
@@ -178,13 +178,7 @@ public class YleWorker : BackgroundService
     public static string CreateRSSFileName(Uri uri)
     {
         var sb = new StringBuilder();
-        foreach (var c in uri.ToString())
-        {
-            if (char.IsAsciiLetterOrDigit(c))
-            {
-                sb.Append(c);
-            }
-        }
+        uri.ToString().Where(c => char.IsAsciiLetterOrDigit(c)).ToList().ForEach(c => sb.Append(c));
         sb.Append(".xml");
         return sb.ToString();
     }

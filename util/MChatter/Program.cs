@@ -1,5 +1,5 @@
 ﻿namespace AJE.Util.MChatter;
-class Program
+static class Program
 {
     static async Task Main(string[] args)
     {

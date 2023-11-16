@@ -14,6 +14,10 @@ public class SendChatMessageCommandHandler : IRequestHandler<SendChatMessageComm
         var msg = JsonSerializer.Serialize(request);
         var channel = new RedisChannel(ChatConstants.CHANNEL, RedisChannel.PatternMode.Auto);
         await sb.PublishAsync(channel, msg);
-        return new ChatMessageSendEvent();
+        return new ChatMessageSendEvent
+        {
+            User = request.User,
+            Message = request.Message
+        };
     }
 }
