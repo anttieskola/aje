@@ -61,22 +61,6 @@ public class ArticleRepository : IArticleRepository
         return article ?? throw new DataException($"invalid value in key {redisId}");
     }
 
-    public async Task<Article> GetBySourceAsync(string source)
-    {
-        var db = _connection.GetDatabase();
-        var arguments = new string[] { _index.Name, $"@source:{{{source.RedisEscape()}}}", "LIMIT", "0", "1" };
-        var result = await db.ExecuteAsync("FT.SEARCH", arguments);
-        var resultItems = (RedisResult[])result!;
-        if (resultItems.Length == 3)
-        {
-            var data = resultItems[2] ?? throw new DataException($"invalid value in key {resultItems[1]}");
-            var json = ((RedisResult[])data!)[1].ToString() ?? throw new DataException($"invalid value in key {resultItems[1]}");
-            var article = JsonSerializer.Deserialize<Article>(json);
-            return article ?? throw new DataException($"invalid value in key {resultItems[1]}");
-        }
-        throw new KeyNotFoundException($"Article with source {source} not found");
-    }
-
     public async Task<PaginatedList<Article>> GetAsync(GetArticlesQuery query)
     {
         var db = _connection.GetDatabase();
@@ -110,6 +94,22 @@ public class ArticleRepository : IArticleRepository
             list.Add(article);
         }
         return new PaginatedList<Article>(list, query.Offset, totalCount);
+    }
+
+    public async Task<Article> GetBySourceAsync(string source)
+    {
+        var db = _connection.GetDatabase();
+        var arguments = new string[] { _index.Name, $"@source:{{{source.RedisEscape()}}}", "LIMIT", "0", "1" };
+        var result = await db.ExecuteAsync("FT.SEARCH", arguments);
+        var resultItems = (RedisResult[])result!;
+        if (resultItems.Length == 3)
+        {
+            var data = resultItems[2] ?? throw new DataException($"invalid value in key {resultItems[1]}");
+            var json = ((RedisResult[])data!)[1].ToString() ?? throw new DataException($"invalid value in key {resultItems[1]}");
+            var article = JsonSerializer.Deserialize<Article>(json);
+            return article ?? throw new DataException($"invalid value in key {resultItems[1]}");
+        }
+        throw new KeyNotFoundException($"Article with source {source} not found");
     }
 
     public async Task<PaginatedList<ArticleHeader>> GetHeadersAsync(GetArticleHeadersQuery query)
