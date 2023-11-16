@@ -1,27 +1,51 @@
-﻿namespace AJE.Domain.Queries;
+﻿
+namespace AJE.Domain.Queries;
 
-public record GetArticleQuery : IRequest<Article>
+#region ById
+
+public record GetArticleByIdQuery : IRequest<Article>
 {
-    public Guid? Id { get; init; }
-    public string? Source { get; init; }
+    public required Guid Id { get; init; }
 }
 
-public class GetArticleQueryHandler : IRequestHandler<GetArticleQuery, Article>
+public class GetArticleByIdQueryHandler : IRequestHandler<GetArticleByIdQuery, Article>
 {
     private readonly IArticleRepository _repository;
 
-    public GetArticleQueryHandler(IArticleRepository repository)
+    public GetArticleByIdQueryHandler(IArticleRepository repository)
     {
         _repository = repository;
     }
 
-    public async Task<Article> Handle(GetArticleQuery request, CancellationToken cancellationToken)
+    public async Task<Article> Handle(GetArticleByIdQuery request, CancellationToken cancellationToken)
     {
-        if (request.Id.HasValue)
-            return await _repository.GetAsync(request.Id.Value);
-        else if (!string.IsNullOrEmpty(request.Source))
-            return await _repository.GetBySourceAsync(request.Source);
-        else
-            throw new ArgumentNullException($"{nameof(request.Id)} or {nameof(request.Source)} must be provided");
+        return await _repository.GetAsync(request.Id);
     }
 }
+
+#endregion ById
+
+#region BySource
+
+public record GetArticleBySourceQuery : IRequest<Article>
+{
+    public required string Source { get; init; }
+}
+
+public class GetArticleBySourceQueryHandler : IRequestHandler<GetArticleBySourceQuery, Article>
+{
+    private readonly IArticleRepository _repository;
+
+    public GetArticleBySourceQueryHandler(IArticleRepository repository)
+    {
+        _repository = repository;
+    }
+
+    public async Task<Article> Handle(GetArticleBySourceQuery request, CancellationToken cancellationToken)
+    {
+
+        return await _repository.GetBySourceAsync(request.Source);
+    }
+}
+
+#endregion BySource

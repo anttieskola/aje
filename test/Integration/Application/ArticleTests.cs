@@ -41,8 +41,8 @@ public class ArticleTests : IClassFixture<RedisFixture>
         Assert.True(exists);
 
         // act: get article
-        var articleHandler = new GetArticleQueryHandler(_redisFixture.ArticleRepository);
-        var copy = await articleHandler.Handle(new GetArticleQuery { Id = _idOk }, CancellationToken.None);
+        var articleHandler = new GetArticleByIdQueryHandler(_redisFixture.ArticleRepository);
+        var copy = await articleHandler.Handle(new GetArticleByIdQuery { Id = _idOk }, CancellationToken.None);
 
         // check article
         Assert.NotNull(copy);
@@ -53,26 +53,25 @@ public class ArticleTests : IClassFixture<RedisFixture>
         Assert.Equal(article.Published, copy.Published);
         Assert.Equal(article.Source, copy.Source);
         Assert.Equal(article.Language, copy.Language);
-        Assert.Equal(article.Content.Count(), copy.Content.Count());
-        {
-            var h1 = copy.Content.ElementAt(0) as MarkdownHeaderElement;
-            Assert.NotNull(h1);
-            Assert.Equal(1, h1.Level);
-            Assert.Equal("This is header 1", h1.Text);
+        Assert.Equal(article.Content.Count, copy.Content.Count);
 
-            var p1 = copy.Content.ElementAt(1) as MarkdownTextElement;
-            Assert.NotNull(p1);
-            Assert.Equal("This is a paragraph", p1.Text);
+        var h1 = copy.Content[0] as MarkdownHeaderElement;
+        Assert.NotNull(h1);
+        Assert.Equal(1, h1.Level);
+        Assert.Equal("This is header 1", h1.Text);
 
-            var h2 = copy.Content.ElementAt(2) as MarkdownHeaderElement;
-            Assert.NotNull(h2);
-            Assert.Equal(2, h2.Level);
-            Assert.Equal("This is header 2", h2.Text);
+        var p1 = copy.Content[1] as MarkdownTextElement;
+        Assert.NotNull(p1);
+        Assert.Equal("This is a paragraph", p1.Text);
 
-            var p2 = copy.Content.ElementAt(3) as MarkdownTextElement;
-            Assert.NotNull(p2);
-            Assert.Equal("This is another paragraph", p2.Text);
-        }
+        var h2 = copy.Content[2] as MarkdownHeaderElement;
+        Assert.NotNull(h2);
+        Assert.Equal(2, h2.Level);
+        Assert.Equal("This is header 2", h2.Text);
+
+        var p2 = copy.Content[3] as MarkdownTextElement;
+        Assert.NotNull(p2);
+        Assert.Equal("This is another paragraph", p2.Text);
 
         // act: get article headers (paged)
         var headersHandler = new GetArticleHeadersQueryHandler(_redisFixture.ArticleRepository);
@@ -95,13 +94,13 @@ public class ArticleTests : IClassFixture<RedisFixture>
     public async Task GetArticleQuery_Missing()
     {
         // arrange
-        var getHandler = new GetArticleQueryHandler(_redisFixture.ArticleRepository);
+        var getHandler = new GetArticleByIdQueryHandler(_redisFixture.ArticleRepository);
         await _redisFixture.Database.KeyDeleteAsync(_index.RedisId(_idMissing.ToString()));
 
         // act
         await Assert.ThrowsAsync<KeyNotFoundException>(async () =>
         {
-            await getHandler.Handle(new GetArticleQuery { Id = _idMissing }, CancellationToken.None);
+            await getHandler.Handle(new GetArticleByIdQuery { Id = _idMissing }, CancellationToken.None);
         });
     }
 }

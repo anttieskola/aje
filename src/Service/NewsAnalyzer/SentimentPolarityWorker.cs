@@ -20,9 +20,9 @@ public class SentimentPolarityWorker : BackgroundService
 
     public Category? NEWS { get; private set; }
 
-    protected override async Task ExecuteAsync(CancellationToken cancellationToken)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _cancellationToken = cancellationToken;
+        _cancellationToken = stoppingToken;
 
         // reload data
         await ReloadAsync();
@@ -33,42 +33,6 @@ public class SentimentPolarityWorker : BackgroundService
             await LoopAsync();
             // small throttle to give other components time with AI
             await Task.Delay(TimeSpan.FromSeconds(1), _cancellationToken);
-        }
-    }
-
-    /// <summary>
-    /// Utility function to fix article id's because earlier all articles got random id
-    /// and now we create id's based on source so they will be identical when source is same
-    /// Not used atm, but kept for a while in code just in case.
-    /// TODO: remove this after it been in source control for atleast 1 commit
-    /// </summary>
-    /// <returns></returns>
-    /// <exception cref="Exception"></exception>
-    private async Task FixGuids()
-    {
-        using var scope = _scopeFactory.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<NewsAnalyzerContext>();
-        var rows = context.SentimentPolarities.ToList();
-        foreach (var row in rows)
-        {
-            if (_cancellationToken.IsCancellationRequested)
-                break;
-
-            var article = await _sender.Send(new GetArticleQuery { Source = row.Source }, _cancellationToken) ?? throw new Exception($"Article not found for source {row.Source}");
-            if (article.Id == row.Id)
-                continue;
-
-            var rowWithCorrectId = new ArticleSentimentPolarityRow
-            {
-                Id = article.Id,
-                Timestamp = row.Timestamp,
-                Source = row.Source,
-                Polarity = row.Polarity,
-                PolarityVersion = row.PolarityVersion
-            };
-            context.SentimentPolarities.Remove(row);
-            context.SentimentPolarities.Add(rowWithCorrectId);
-            await context.SaveChangesAsync(_cancellationToken);
         }
     }
 
@@ -88,15 +52,12 @@ public class SentimentPolarityWorker : BackgroundService
                 break;
 
             // update article with saved polarity if they are missing
-            var current = await _sender.Send(new GetArticleQuery { Id = row.Id }, _cancellationToken);
-            if (current != null)
+            var current = await _sender.Send(new GetArticleByIdQuery { Id = row.Id }, _cancellationToken);
+            if (current != null && current.PolarityVersion < row.PolarityVersion)
             {
-                if (current.PolarityVersion < row.PolarityVersion)
-                {
-                    current.Polarity = row.Polarity;
-                    current.PolarityVersion = row.PolarityVersion;
-                    await _sender.Send(new UpdateArticleCommand { Article = current }, _cancellationToken);
-                }
+                current.Polarity = row.Polarity;
+                current.PolarityVersion = row.PolarityVersion;
+                await _sender.Send(new UpdateArticleCommand { Article = current }, _cancellationToken);
             }
         }
     }

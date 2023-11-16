@@ -12,4 +12,9 @@ public class ParsingException : Exception
         : base(message, innerException)
     {
     }
+
+    protected ParsingException(SerializationInfo info, StreamingContext context)
+        : base(info, context)
+    {
+    }
 }

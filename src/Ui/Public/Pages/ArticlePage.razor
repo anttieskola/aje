@@ -11,7 +11,7 @@
     public Guid Id { get; set; }
 
     private Article? _article;
-    
+
     protected override async Task OnInitializedAsync()
     {
         await Load(Id);
@@ -24,7 +24,7 @@
 
     private async Task Load(Guid id)
     {
-        _article = await Sender.Send(new GetArticleQuery { Id = id });
+        _article = await Sender.Send(new GetArticleByIdQuery { Id = id });
         StateHasChanged();
     }
 }

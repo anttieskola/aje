@@ -2,6 +2,8 @@
 
 public class MarkDownSimplifier : ISimplifier
 {
+    // TODO: Refactor to simplify cognitive complexity
+    // needs some major work to make sonarqube satisfied
     public string Simplify(string content)
     {
         var sb = new StringBuilder();

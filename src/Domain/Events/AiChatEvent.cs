@@ -11,9 +11,11 @@ public record AiChatEvent
     public required DateTimeOffset StartTimestamp { get; init; }
 }
 
+#pragma warning disable S2094
 public record AiChatStartedEvent : AiChatEvent
 {
 }
+#pragma warning restore S2094
 
 public record AiChatInteractionEvent : AiChatEvent
 {

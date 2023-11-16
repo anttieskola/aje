@@ -1,6 +1,6 @@
 ﻿namespace AJE.Domain.Ai;
 
-public interface IContextCreator<T>
+public interface IContextCreator<in T> where T : class
 {
     string Create(T from);
 }

@@ -4,7 +4,7 @@
 /// Collection type for used in records to allow for equality comparison
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class EquatableList<T> : List<T>, IEquatable<EquatableList<T>>
+public sealed class EquatableList<T> : List<T>, IEquatable<EquatableList<T>>
 {
     public static EquatableList<T> Empty => new();
 

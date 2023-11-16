@@ -5,14 +5,14 @@ public abstract class ChatMLCreator : IPromptCreator
     protected readonly string _entityName;
     protected readonly string[] _systemInstructions;
 
-    public ChatMLCreator(string entityName, string[] systemInstructions)
+    protected ChatMLCreator(string entityName, string[] systemInstructions)
     {
         _entityName = entityName;
         _systemInstructions = systemInstructions;
     }
 
-    private string _iStart = "<|im_start|>";
-    private string _iEnd = "<|im_end|>";
+    private readonly string _iStart = "<|im_start|>";
+    private readonly string _iEnd = "<|im_end|>";
 
     #region IPromptCreator
 
