@@ -1,6 +1,7 @@
 ﻿using AJE.Domain.Ai;
 using AJE.Domain.Commands;
 using AJE.Domain.Events;
+using AJE.Domain.Queries;
 using AJE.Infra.Ai;
 using AJE.Infra.Redis.Data;
 using AJE.Infra.Redis.Events;
@@ -13,23 +14,14 @@ namespace AJE.Test.Integration.Domain;
 /// Tests require redis running on localhost:6379
 /// Tests require llama.cpp running on localhost:8080
 /// </summary>
+// maybe this warning is bug as it only shows where where two fixtures are used?
+#pragma warning disable xUnit1033
 public class AiChatTests : IClassFixture<HttpClientFixture>, IClassFixture<RedisFixture>
 {
+#pragma warning restore xUnit1033
     private readonly HttpClientFixture _httpClientFixture;
     private readonly RedisFixture _redisFixture;
     private readonly IRedisIndex _index = new AiChatIndex();
-
-    AiChatTests(HttpClientFixture httpClientFixture)
-    {
-        _httpClientFixture = httpClientFixture;
-        _redisFixture = new RedisFixture();
-    }
-
-    AiChatTests(RedisFixture redisFixture)
-    {
-        _redisFixture = redisFixture;
-        _httpClientFixture = new HttpClientFixture();
-    }
 
     public AiChatTests(
         HttpClientFixture httpClientFixture,
@@ -54,6 +46,7 @@ public class AiChatTests : IClassFixture<HttpClientFixture>, IClassFixture<Redis
         var antai = new AntaiChatML();
         var startHandler = new StartAiChatCommandHandler(aiChatRepository, aiEventHandler);
         var sendHandler = new SendAiChatMessageCommandHandler(aiChatRepository, aiEventHandler, antai, aiModel);
+        var getHandler = new GetAiChatQueryHandler(aiChatRepository);
 
         // act: start chat
         var aiEvent = await startHandler.Handle(new StartAiChatCommand { Id = _idChat }, CancellationToken.None);
@@ -90,6 +83,12 @@ public class AiChatTests : IClassFixture<HttpClientFixture>, IClassFixture<Redis
             Assert.Contains("IntegrationTest", output);
             Assert.Contains("IntegrationTest", messageEvent.Output);
         }
+
+        // Get chat
+        var chat = await getHandler.Handle(new GetAiChatQuery { Id = _idChat }, CancellationToken.None);
+        Assert.NotNull(chat);
+        Assert.Equal(_idChat, chat.ChatId);
+        Assert.Equal(2, chat.Interactions.Count);
 
         // cleanup
         await _redisFixture.Database.KeyDeleteAsync(_index.RedisId(_idChat.ToString()));
