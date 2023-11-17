@@ -143,7 +143,12 @@ public class ArticleRepository : IArticleRepository
             var data = (RedisResult[])rows[i + 1]!;
             if (data.Length != 6)
             {
-                throw new DataException($"invalid data value in key {rows[i]}");
+                _logger.LogError("invalid data value in key:{}", rows[i]);
+                _logger.LogError("invalid data Length:{}", data.Length);
+                for (var e = 0; e < data.Length; e++)
+                    _logger.LogError("invalid data Index:{} Item:{}", e, data[e]);
+
+                throw new DataException($"invalid data value in key {rows[i]}"); // here it crashes
             }
             var id = (string)data[1]! ?? throw new DataException($"invalid data value in key {rows[i]}");
             var title = (string)data[3]! ?? throw new DataException($"invalid data value in key {rows[i]}");
