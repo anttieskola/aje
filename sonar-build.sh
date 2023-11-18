@@ -5,7 +5,7 @@ rm -rf .sonarqube
 dotnet clean
 
 # prepare
-dotnet-sonarscanner begin /key:AJE /name:AJE /d:sonar.host.url=http://localhost:9999 /d:sonar.login=admin /d:sonar.password=sonar /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml
+dotnet-sonarscanner begin /key:AJE /name:AJE /d:sonar.host.url=http://localhost:9999 /d:sonar.login=admin /d:sonar.password=sonar /d:sonar.exclusions=**/tailwind.config.js,**/tailwind.css,**/app.css /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml
 
 # build
 dotnet build --no-incremental
