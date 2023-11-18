@@ -18,8 +18,7 @@ public class GetAiChatQueryHandlerTests
             StartTimestamp = DateTime.UtcNow,
             Interactions = new EquatableList<AiChatInteractionEntry>
             {
-                new AiChatInteractionEntry
-                {
+                new() {
                     InteractionId = Guid.NewGuid(),
                     InteractionTimestamp = DateTime.UtcNow,
                     Input = "User",

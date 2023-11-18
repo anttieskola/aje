@@ -13,13 +13,13 @@
             "console": "externalTerminal"
         },
         {
-            "name": "News",
+            "name": "NewsDownloader",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/src/Service/News/bin/Debug/net7.0/AJE.Service.News",
+            "program": "${workspaceFolder}/src/Service/NewsDownloader/bin/Debug/net7.0/AJE.Service.NewsDownloader",
             "args": [],
-            "cwd": "${workspaceFolder}/src/Service/News",
+            "cwd": "${workspaceFolder}/src/Service/NewsDownloader",
             "stopAtEntry": false,
             "console": "internalConsole"
         },
@@ -50,7 +50,10 @@
             // Enable launching a web browser when ASP.NET Core starts. For more information: https://aka.ms/VSCode-CS-LaunchJson-WebBrowser
             "serverReadyAction": {
                 "action": "openExternally",
-                "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+                "pattern": "\\bNow listening on:\\s+(https?://\\S+)",
+                // save this format somewhere, it's useful as you can open to debug specific page
+                // i had to playaround quite abit to get this working
+                "uriFormat": "%s/chat/a5381321-9cc7-4847-9a69-4eeb94751831"
             },
             "env": {
                 "ASPNETCORE_ENVIRONMENT": "Development",

@@ -1,13 +1,29 @@
 ﻿@page "/chat"
 @inject NavigationManager NavigationManager
+@inject ISender Sender
+
+<PageTitle>Antai - Start</PageTitle>
+
+<p>@_message</p>
+
 @code {
+
+    private string _message = "Creating new chat...";
     protected override async Task OnInitializedAsync()
     {
-        // temporary, delete
-        await Task.Delay(TimeSpan.FromSeconds(1));
-        // create new chat using fresh id
-        var id = Guid.NewGuid();
-        // navigate to created chat
-        NavigationManager.NavigateTo($"/chat/{id}");
+        // using delays to present what is happening to the user
+        await Task.Delay(TimeSpan.FromMilliseconds(200));
+        var chat = await Sender.Send(new StartAiChatCommand { Id = Guid.NewGuid() });
+        if (chat != null)
+        {
+            _message = $"Chat created with id:{chat.ChatId}. Redirecting...";
+            StateHasChanged();
+            await Task.Delay(TimeSpan.FromMilliseconds(200));
+            NavigationManager.NavigateTo($"/chat/{chat.ChatId}");
+        }
+        else
+        {
+            _message = "Error creating chat";
+        }
     }
 }

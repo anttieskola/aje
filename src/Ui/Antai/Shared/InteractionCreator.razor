@@ -1,0 +1,119 @@
+﻿@inject IJSRuntime JS
+@inject ISender Sender
+@implements IAsyncDisposable
+
+@{
+    /* TODO: Remove just flow/debug/stuff */
+}
+<div class="container">
+    <h1>Debug</h1>
+    <p>input:@_input</p>
+    <p>inputError:@_inputError</p>
+    <p>inputDisabled:@_inputDisabled</p>
+</div>
+
+<div class="container w-1/2 m-1 p-2 rounded-lg rounded-bl-none bg-slate-800 ">
+    <div class="container">
+        @if (_inputError != null)
+        {
+            <div class="text-red-500">@_inputError</div>
+        }
+    </div>
+    <div class="flex">
+        @if (_inputDisabled)
+        {
+            <input id="input" class="ml-1 w-full" type="text" @bind="_input" @onkeydown="InputKeyDown" disabled />
+        }
+        else
+        {
+            <input id="input" class="ml-1 w-full" type="text" aria-label="input" placeholder="Type your message here"
+                @bind="_input" @onkeydown="InputKeyDown" />
+            <button class="submitButton" @onclick="InputSubmit" aria-label="submit">
+                <Icon Name="arrow-return-left" Padding="0" Size="20" />
+            </button>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public Guid ChatId { get; set; }
+
+    private string? _input;
+    private string? _inputError;
+    private bool _inputDisabled = false;
+    private Stream? _outputStream;
+    private IJSObjectReference? _js;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _js = await JS.InvokeAsync<IJSObjectReference>("import", "./Shared/InteractionCreator.razor.js");
+            await _js.InvokeVoidAsync("focusElement", "input");
+        }
+    }
+
+    private async Task InputSubmit()
+    {
+        if (string.IsNullOrWhiteSpace(_input))
+        {
+            _inputError = "Input cannot be empty";
+            return;
+        }
+        _inputError = null;
+        _inputDisabled = true;
+        StateHasChanged();
+
+        _outputStream = new MemoryStream();
+        //await Sender.Send(new SendAiChatMessageCommand { ChatId = ChatId, Message = _input, Output = _outputStream });
+    }
+
+    private async Task InputKeyDown(KeyboardEventArgs args)
+    {
+        if (args.Key == null
+        || args.CtrlKey
+        || args.Key == "Control"
+        || args.Key == "Shift"
+        || args.Key == "Alt")
+            return;
+
+        if (args.Key == "Enter")
+            await InputSubmit();
+
+        if (args.Key == "Backspace")
+        {
+            if (_input?.Length > 0)
+            {
+                _input = _input.Substring(0, _input.Length - 1);
+                StateHasChanged();
+            }
+        }
+        else if (args.Key == "Delete")
+        {
+            _input = "";
+            StateHasChanged();
+        }
+        else if (args.Key.Length == 1)
+        {
+            var c = args.Key[0];
+            if (char.IsLetterOrDigit(c))
+            {
+                _input += c;
+                StateHasChanged();
+            }
+        }
+    }
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        if (_outputStream is not null)
+        {
+            await _outputStream.DisposeAsync();
+        }
+
+        if (_js is not null)
+        {
+            await _js.DisposeAsync();
+        }
+    }
+}

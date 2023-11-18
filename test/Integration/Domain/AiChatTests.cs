@@ -56,7 +56,7 @@ public class AiChatTests : IClassFixture<HttpClientFixture>, IClassFixture<Redis
 
         using var outputOne = new MemoryStream();
         // act: say hello to AI
-        aiEvent = await sendHandler.Handle(new SendAiChatMessageCommand { Id = _idChat, Message = "Hello my name is IntegrationTest, how are you?", Output = outputOne }, CancellationToken.None);
+        aiEvent = await sendHandler.Handle(new SendAiChatMessageCommand { ChatId = _idChat, Message = "Hello my name is IntegrationTest, how are you?", Output = outputOne }, CancellationToken.None);
         var messageEvent = aiEvent as AiChatInteractionEvent;
         Assert.NotNull(messageEvent);
         Assert.Equal(_idChat, messageEvent.ChatId);
@@ -70,7 +70,7 @@ public class AiChatTests : IClassFixture<HttpClientFixture>, IClassFixture<Redis
 
         // act: ask AI what was my name again to test history context
         using var outputTwo = new MemoryStream();
-        aiEvent = await sendHandler.Handle(new SendAiChatMessageCommand { Id = _idChat, Message = "What was my name again?", Output = outputTwo }, CancellationToken.None);
+        aiEvent = await sendHandler.Handle(new SendAiChatMessageCommand { ChatId = _idChat, Message = "What was my name again?", Output = outputTwo }, CancellationToken.None);
         messageEvent = aiEvent as AiChatInteractionEvent;
         Assert.NotNull(messageEvent);
         Assert.Equal(_idChat, messageEvent.ChatId);

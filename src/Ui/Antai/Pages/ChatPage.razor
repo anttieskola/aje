@@ -1,47 +1,49 @@
-@page "/chat/{id:guid}"
+@page "/chat/{ChatId:guid}"
+@inject NavigationManager NavigationManager
+@inject ISender Sender
 
-<PageTitle>Antai - Chat</PageTitle>
+<PageTitle>Antai - Chat - @ChatId</PageTitle>
 
-@{
-    /* just testing layout currently */
+@if (_chat == null)
+{
+    <p>Loading...</p>
 }
-<div class="container sm:flex flex-col md:flex-row">
+else
+{
+    <div class="container sm:flex flex-col md:flex-row">
     <div class="container text-center mt-1">
         <label for="id">Id</label>
-        <textarea id="id" readonly>56bcd5e1-a672-c448-452f-31569d74a263</textarea>
+        <textarea id="id" readonly>@_chat.ChatId</textarea>
     </div>
     <div class="container text-center mt-1">
-        <label for="context">Context</label>
+        <label for="id">Startted</label>
+        <textarea id="id" readonly>@_chat.StartTimestamp</textarea>
+    </div>
+    <div class="container text-center mt-1">
+        <label for="context">Context (placeholder)</label>
         <progress id="context" max="100" value="45">45%</progress>
     </div>
-    <div class="container text-center mt-1">
-        <NavLink href="/chat" aria-label="chat">
-            <button class="menuButton p-2" aria-label="home">
-                <div class="flex">
-                    <Icon Name="recycle" Padding="1" Size="20" />
-                </div>
-            </button>
-        </NavLink>
-    </div>
 </div>
 
+    @foreach (var interaction in _chat.Interactions)
+    {
 
-<div class="container m-1 p-1 rounded-lg rounded-br-none bg-slate-800">
-    <p>Hello</p>
-</div>
+    }
 
-<div class="container m-1 p-1 rounded-lg rounded-bl-none bg-slate-800">
-    <p>Hiya, how can I help you today</p>
-</div>
+    <InteractionCreator ChatId="_chat.ChatId" />
+}
 
-<div class="container sm:flex flex-col md:flex-row">
-    <label for="message">Msg</label>
-    <input id="message" class="ml-1 w-full" type="text" placeholder="Type your message here" />
-    <input type="submit" class="ml-1" value="Send" />
-</div>
+<MenuChatRestart />
 
 @code {
 
     [Parameter]
-    public Guid Id { get; set; }
+    public Guid ChatId { get; set; }
+
+    private AiChat? _chat;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _chat = await Sender.Send(new GetAiChatQuery { Id = ChatId });
+    }
 }

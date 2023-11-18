@@ -46,7 +46,7 @@ public class SendAiChatMessageCommandTests
         // act
         var result = await handler.Handle(new SendAiChatMessageCommand
         {
-            Id = id,
+            ChatId = id,
             Message = "Hello",
             Output = ms,
         }, CancellationToken.None);

@@ -4,7 +4,7 @@ namespace AJE.Domain.Commands;
 
 public record SendAiChatMessageCommand : IRequest<AiChatEvent>
 {
-    public required Guid Id { get; init; }
+    public required Guid ChatId { get; init; }
     public required string Message { get; init; }
     public required Stream Output { get; init; }
 }
@@ -30,8 +30,8 @@ public class SendAiChatMessageCommandHandler : IRequestHandler<SendAiChatMessage
 
     public async Task<AiChatEvent> Handle(SendAiChatMessageCommand command, CancellationToken cancellationToken)
     {
-        var chat = await _aiChatRepository.GetAsync(command.Id)
-            ?? throw new KeyNotFoundException($"Chat with id {command.Id} not found");
+        var chat = await _aiChatRepository.GetAsync(command.ChatId)
+            ?? throw new KeyNotFoundException($"Chat with id {command.ChatId} not found");
         var prompt = _antai.Chat(command.Message, chat.Interactions.ToArray())
             ?? throw new AiException($"Failed to create context for Antai message:{command.Message}");
         // TODO: Token calculation using tokenizer API, to prevent hogging all GPU resources
