@@ -1,30 +1,31 @@
-﻿namespace AJE.Ui.News;
+﻿
+namespace AJE.Ui.News;
 
 public class DummyAiModel : IAiModel
 {
     public Task<CompletionResponse> CompletionAsync(CompletionRequest request, CancellationToken cancellationToken)
     {
-        throw new NotSupportedException();
+        throw new NotImplementedException();
     }
 
-    public Task<CompletionResponse> CompletionStreamAsync(CompletionRequest request, Stream outputStream, CancellationToken cancellationToken)
+    public Task<CompletionResponse> CompletionStreamAsync(CompletionRequest request, TokenCreatedCallback tokenCreatedCallback, CancellationToken cancellationToken)
     {
-        throw new NotSupportedException();
+        throw new NotImplementedException();
     }
 
     public Task<DeTokenizeResponse> DeTokenizeAsync(DeTokenizeRequest request, CancellationToken cancellationToken)
     {
-        throw new NotSupportedException();
+        throw new NotImplementedException();
     }
 
     public Task<EmbeddingResponse> EmbeddingAsync(EmbeddingRequest request, CancellationToken cancellationToken)
     {
-        throw new NotSupportedException();
+        throw new NotImplementedException();
     }
 
     public Task<TokenizeResponse> TokenizeAsync(TokenizeRequest request, CancellationToken cancellationToken)
     {
-        throw new NotSupportedException();
+        throw new NotImplementedException();
     }
 }
 

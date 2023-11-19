@@ -32,7 +32,7 @@ public class SendAiChatMessageCommandTests
         var mockAntai = new Mock<IAntai>();
         mockAntai.Setup(a => a.Chat(It.Is<string>(s => s == "Hello"), It.IsAny<AiChatInteractionEntry[]>())).Returns("<|im_start|>system\nYou are unittest<|im_end|><|im_start|>user\nHello");
         var mockAiModel = new Mock<IAiModel>();
-        mockAiModel.Setup(a => a.CompletionStreamAsync(It.Is<CompletionRequest>(cr => cr.Stream == true), It.IsAny<Stream>(), It.IsAny<CancellationToken>())).ReturnsAsync(new CompletionResponse
+        mockAiModel.Setup(a => a.CompletionStreamAsync(It.Is<CompletionRequest>(cr => cr.Stream == true), It.IsAny<TokenCreatedCallback>(), It.IsAny<CancellationToken>())).ReturnsAsync(new CompletionResponse
         {
             Content = "Hey stranger, how can I help you?"
         });
@@ -42,13 +42,17 @@ public class SendAiChatMessageCommandTests
             mockAntai.Object,
             mockAiModel.Object);
 
-        using var ms = new MemoryStream();
+        static Task tokenCallBack(string token)
+        {
+            return Task.CompletedTask;
+        }
+
         // act
         var result = await handler.Handle(new SendAiChatMessageCommand
         {
             ChatId = id,
             Message = "Hello",
-            Output = ms,
+            TokenCreatedCallback = tokenCallBack,
         }, CancellationToken.None);
         // assert
         Assert.NotNull(result);

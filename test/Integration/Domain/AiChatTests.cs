@@ -1,4 +1,5 @@
-﻿using AJE.Domain.Ai;
+﻿using System.Text;
+using AJE.Domain.Ai;
 using AJE.Domain.Commands;
 using AJE.Domain.Events;
 using AJE.Domain.Queries;
@@ -54,35 +55,31 @@ public class AiChatTests : IClassFixture<HttpClientFixture>, IClassFixture<Redis
         Assert.NotNull(startEvent);
         Assert.Equal(_idChat, startEvent.ChatId);
 
-        using var outputOne = new MemoryStream();
         // act: say hello to AI
-        aiEvent = await sendHandler.Handle(new SendAiChatMessageCommand { ChatId = _idChat, Message = "Hello my name is IntegrationTest, how are you?", Output = outputOne }, CancellationToken.None);
+        var tokens = new StringBuilder();
+        Task tokenCallBack(string token)
+        {
+            tokens.Append(token);
+            return Task.CompletedTask;
+        }
+
+        aiEvent = await sendHandler.Handle(new SendAiChatMessageCommand { ChatId = _idChat, Message = "Hello my name is IntegrationTest, how are you?", TokenCreatedCallback = tokenCallBack }, CancellationToken.None);
         var messageEvent = aiEvent as AiChatInteractionEvent;
         Assert.NotNull(messageEvent);
         Assert.Equal(_idChat, messageEvent.ChatId);
-        outputOne.Seek(0, SeekOrigin.Begin);
-        using (var reader = new StreamReader(outputOne))
-        {
-            var output = await reader.ReadToEndAsync();
-            Assert.NotEmpty(output);
-            Assert.Equal(messageEvent.Output, output.Trim());
-        }
+        Assert.NotEmpty(tokens.ToString().Trim());
+        Assert.Equal(messageEvent.Output, tokens.ToString().Trim());
 
         // act: ask AI what was my name again to test history context
-        using var outputTwo = new MemoryStream();
-        aiEvent = await sendHandler.Handle(new SendAiChatMessageCommand { ChatId = _idChat, Message = "What was my name again?", Output = outputTwo }, CancellationToken.None);
+        tokens.Clear();
+        aiEvent = await sendHandler.Handle(new SendAiChatMessageCommand { ChatId = _idChat, Message = "What was my name again?", TokenCreatedCallback = tokenCallBack }, CancellationToken.None);
         messageEvent = aiEvent as AiChatInteractionEvent;
         Assert.NotNull(messageEvent);
         Assert.Equal(_idChat, messageEvent.ChatId);
-        outputTwo.Seek(0, SeekOrigin.Begin);
-        using (var reader = new StreamReader(outputTwo))
-        {
-            var output = await reader.ReadToEndAsync();
-            Assert.NotEmpty(output);
-            Assert.Equal(messageEvent.Output, output.Trim());
-            Assert.Contains("IntegrationTest", output);
-            Assert.Contains("IntegrationTest", messageEvent.Output);
-        }
+        Assert.NotEmpty(tokens.ToString());
+        Assert.Equal(messageEvent.Output, tokens.ToString());
+        Assert.Contains("IntegrationTest", messageEvent.Output);
+        Assert.Contains("IntegrationTest", tokens.ToString());
 
         // Get chat
         var chat = await getHandler.Handle(new GetAiChatQuery { Id = _idChat }, CancellationToken.None);

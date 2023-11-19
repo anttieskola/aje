@@ -6,7 +6,7 @@ public record SendAiChatMessageCommand : IRequest<AiChatEvent>
 {
     public required Guid ChatId { get; init; }
     public required string Message { get; init; }
-    public required Stream Output { get; init; }
+    public required TokenCreatedCallback TokenCreatedCallback { get; init; }
 }
 
 public class SendAiChatMessageCommandHandler : IRequestHandler<SendAiChatMessageCommand, AiChatEvent>
@@ -42,7 +42,7 @@ public class SendAiChatMessageCommandHandler : IRequestHandler<SendAiChatMessage
             Stop = _antai.StopWords,
             Stream = true,
         };
-        var response = await _aiModel.CompletionStreamAsync(completionRequest, command.Output, cancellationToken);
+        var response = await _aiModel.CompletionStreamAsync(completionRequest, command.TokenCreatedCallback, cancellationToken);
         // TODO: Timestamp from the model response?
         // TODO: Take token calculation
         var historyEntry = new AiChatInteractionEntry

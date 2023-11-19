@@ -46,10 +46,13 @@ public class LlamaAiModel : IAiModel
         return response;
     }
 
-    public async Task<CompletionResponse> CompletionStreamAsync(CompletionRequest request, Stream outputStream, CancellationToken cancellationToken)
+    public async Task<CompletionResponse> CompletionStreamAsync(CompletionRequest request, TokenCreatedCallback tokenCreatedCallback, CancellationToken cancellationToken)
     {
         if (!request.Stream)
             throw new ArgumentException($"Use {nameof(CompletionAsync)} when Stream disabled", nameof(request));
+
+        if (tokenCreatedCallback == null)
+            throw new ArgumentNullException(nameof(tokenCreatedCallback));
 
         using var client = _httpClientFactory.CreateClient();
         client.Timeout = TimeSpan.FromSeconds(_configuration.TimeoutInSeconds);
@@ -59,7 +62,6 @@ public class LlamaAiModel : IAiModel
         var httpResponse = await client.SendAsync(httpRequest, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
         using var stream = await httpResponse.Content.ReadAsStreamAsync(cancellationToken);
         using var reader = new StreamReader(stream);
-        using var writer = new StreamWriter(outputStream, Encoding.UTF8, 1024, true);
         var sb = new StringBuilder();
         while (!reader.EndOfStream)
         {
@@ -75,7 +77,7 @@ public class LlamaAiModel : IAiModel
                     {
                         if (!completion.Stop)
                         {
-                            await writer.WriteAsync(completion.Content);
+                            await tokenCreatedCallback.Invoke(completion.Content);
                             sb.Append(completion.Content);
                         }
                         else

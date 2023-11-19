@@ -49,17 +49,17 @@ public class LlamaAiModelTests : IClassFixture<HttpClientFixture>
             NumberOfTokensToPredict = 256,
             Stream = true,
         };
-        using var responseStream = new MemoryStream();
-        var response = await model.CompletionStreamAsync(request, responseStream, CancellationToken.None);
+        var tokens = new StringBuilder();
+        Task tokenCallBack(string token)
+        {
+            tokens.Append(token);
+            return Task.CompletedTask;
+        }
+        var response = await model.CompletionStreamAsync(request, tokenCallBack, CancellationToken.None);
         Assert.NotNull(response);
         Assert.True(response.Stop);
-        responseStream.Seek(0, SeekOrigin.Begin);
-        using (var reader = new StreamReader(responseStream))
-        {
-            var output = await reader.ReadToEndAsync();
-            Assert.NotNull(output);
-            Assert.Equal(response.Content.Trim(), output.Trim());
-        }
+        Assert.NotEmpty(tokens.ToString());
+        Assert.Equal(response.Content, tokens.ToString());
     }
 
     [Fact]
