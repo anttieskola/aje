@@ -13,13 +13,14 @@
         @if (_inputDisabled)
         {
             <textarea id="disabledInput" class="ml-1 w-full text-sm" spellcheck="false" disabled aria-label="input"
-                @bind="_input" @onkeydown="InputKeyDown" rows="@CalculateRows(_input)">@_input </textarea>
+                @bind="_input" @onkeydown="InputKeyDown"
+                rows="@(_input != null ? CalculateRows(_input) : 1)">@_input </textarea>
         }
         else
         {
             <textarea id="input" tabindex="0" class="ml-1 w-full text-sm" spellcheck="false" aria-label="input"
                 @bind="_input" @onkeydown="InputKeyDown" placeholder="Type your message here"
-                rows="@CalculateRows(_input)">@_input</textarea>
+                rows="@(_input != null ? CalculateRows(_input) : 1)">@_input</textarea>
 
             <button class="submitButton" @onclick="InputSubmit" aria-label="submit">
                 <Icon Name="arrow-return-left" Padding="2" Size="26" />
@@ -33,7 +34,7 @@
     <div class="flex justify-end">
     <div class="container w-5/6 m-1 p-2 rounded-lg rounded-br-none bg-slate-800">
         <textarea id="output" class="mr-1 w-full text-sm" spellcheck="false" disabled aria-label="output"
-            rows="@CalculateRows(_output)">@_output</textarea>
+            rows="@(_output != null ? CalculateRows(_output) : 1)">@_output</textarea>
     </div>
 </div>
 }
