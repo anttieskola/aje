@@ -44,7 +44,6 @@ public class AiChatEventHandlerTests
             {
                 _chatHandlers.Add(chatId, new List<Action<AiChatEvent>> { handler });
             }
-
         }
 
         public void Unsubscribe(Action<AiChatEvent> handler)
