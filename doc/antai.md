@@ -1,6 +1,13 @@
 # UI
-- Skeleton done for chat with me feature
-- Backend done but no integration yeat
+- Basic functionality is there
+
+## Small issues
+- Focus works to new inputs and that also scrolls view to the point
+    - But at the bottom when answer is been written is out of view
+- Interaction component could share inputs from all clients
+    - Also the model output should be send to all clients
+    - Already works otherwise as clients refresh chat history when
+    new entry is added
 
 # Backend
 - Need to update system instructions to reflect freshly created CV's and applications
