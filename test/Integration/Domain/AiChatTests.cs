@@ -42,7 +42,7 @@ public class AiChatTests : IClassFixture<HttpClientFixture>, IClassFixture<Redis
         var configuration = new LlamaConfiguration { Host = "http://localhost:8080", LogFolder = "/tmp" };
 
         var aiChatRepository = new AiChatRepository(new Mock<ILogger<AiChatRepository>>().Object, _redisFixture.Connection);
-        var aiEventHandler = new AiChatEventHandler(_redisFixture.Connection);
+        var aiEventHandler = new AiChatEventHandler(new Mock<ILogger<AiChatEventHandler>>().Object, _redisFixture.Connection);
         var aiModel = new LlamaAiModel(new Mock<ILogger<LlamaAiModel>>().Object, configuration, _httpClientFixture.HttpClientFactory);
         var antai = new AntaiChatML();
         var startHandler = new StartAiChatCommandHandler(aiChatRepository, aiEventHandler);

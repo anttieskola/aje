@@ -4,6 +4,9 @@
 [JsonDerivedType(typeof(AiChatInteractionEvent), "interaction")]
 public record AiChatEvent
 {
+    [JsonPropertyName("isTest")]
+    public bool IsTest { get; init; } = false;
+
     [JsonPropertyName("chatId")]
     public required Guid ChatId { get; init; }
 

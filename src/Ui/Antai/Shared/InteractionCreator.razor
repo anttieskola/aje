@@ -10,9 +10,10 @@
     <p>input:@_input</p>
     <p>inputError:@_inputError</p>
     <p>inputDisabled:@_inputDisabled</p>
+    <p>_output:@_output</p>
 </div>
 
-<div class="container w-1/2 m-1 p-2 rounded-lg rounded-bl-none bg-slate-800 ">
+<div class="container w-3/4 m-1 p-2 rounded-lg rounded-bl-none bg-slate-800 ">
     <div class="container">
         @if (_inputError != null)
         {
@@ -22,18 +23,29 @@
     <div class="flex">
         @if (_inputDisabled)
         {
-            <input id="input" class="ml-1 w-full" type="text" @bind="_input" @onkeydown="InputKeyDown" disabled />
+            <textarea id="input" class="ml-1 w-full" spellcheck="false" aria-label="input" @bind="_input"
+                @onkeydown="InputKeyDown" disabled>@_input </textarea>
         }
         else
         {
-            <input id="input" class="ml-1 w-full" type="text" aria-label="input" placeholder="Type your message here"
-                @bind="_input" @onkeydown="InputKeyDown" />
+            <textarea id="input" class="ml-1 w-full" spellcheck="false" aria-label="input" @bind="_input"
+                @onkeydown="InputKeyDown" placeholder="Type your message here">@_input</textarea>
+
             <button class="submitButton" @onclick="InputSubmit" aria-label="submit">
                 <Icon Name="arrow-return-left" Padding="0" Size="20" />
             </button>
         }
     </div>
 </div>
+
+@if (_output != null)
+{
+    <div class="flex justify-end">
+    <div class="container w-3/4 m-1 p-2 rounded-lg rounded-br-none bg-slate-800">
+        <textarea id="output" class="mr-1 w-full" spellcheck="false" aria-label="output" disabled>@_output</textarea>
+    </div>
+</div>
+}
 
 @code {
     [Parameter]
@@ -42,7 +54,7 @@
     private string? _input;
     private string? _inputError;
     private bool _inputDisabled = false;
-    private Stream? _outputStream;
+    private string? _output;
     private IJSObjectReference? _js;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -52,6 +64,13 @@
             _js = await JS.InvokeAsync<IJSObjectReference>("import", "./Shared/InteractionCreator.razor.js");
             await _js.InvokeVoidAsync("focusElement", "input");
         }
+    }
+
+    private Task TokenCreatedCallback(string token)
+    {
+        _output += token;
+        StateHasChanged();
+        return Task.CompletedTask;
     }
 
     private async Task InputSubmit()
@@ -64,9 +83,12 @@
         _inputError = null;
         _inputDisabled = true;
         StateHasChanged();
-
-        _outputStream = new MemoryStream();
-        //await Sender.Send(new SendAiChatMessageCommand { ChatId = ChatId, Message = _input, Output = _outputStream });
+        await Sender.Send(new SendAiChatMessageCommand
+            {
+                ChatId = ChatId,
+                Message = _input,
+                TokenCreatedCallback = TokenCreatedCallback
+            });
     }
 
     private async Task InputKeyDown(KeyboardEventArgs args)
@@ -106,11 +128,6 @@
     }
     async ValueTask IAsyncDisposable.DisposeAsync()
     {
-        if (_outputStream is not null)
-        {
-            await _outputStream.DisposeAsync();
-        }
-
         if (_js is not null)
         {
             await _js.DisposeAsync();

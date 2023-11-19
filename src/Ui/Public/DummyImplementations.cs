@@ -66,4 +66,14 @@ public class DummyAiChatEventHandler : IAiChatEventHandler
     {
         throw new NotImplementedException();
     }
+
+    public void Subscribe(Guid chatId, Action<AiChatEvent> handler)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void Unsubscribe(Action<AiChatEvent> handler)
+    {
+        throw new NotImplementedException();
+    }
 }

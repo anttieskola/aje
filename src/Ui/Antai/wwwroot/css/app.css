@@ -893,16 +893,20 @@ input[type=submit]:enabled:hover {
   display: flex;
 }
 
+.w-1\/2 {
+  width: 50%;
+}
+
 .w-full {
   width: 100%;
 }
 
-.w-64 {
-  width: 16rem;
+.w-2\/3 {
+  width: 66.666667%;
 }
 
-.w-1\/2 {
-  width: 50%;
+.w-3\/4 {
+  width: 75%;
 }
 
 .flex-col {
@@ -913,6 +917,10 @@ input[type=submit]:enabled:hover {
   align-items: center;
 }
 
+.justify-end {
+  justify-content: flex-end;
+}
+
 .justify-center {
   justify-content: center;
 }
@@ -921,12 +929,12 @@ input[type=submit]:enabled:hover {
   border-radius: 0.5rem;
 }
 
-.rounded-br-none {
-  border-bottom-right-radius: 0px;
-}
-
 .rounded-bl-none {
   border-bottom-left-radius: 0px;
+}
+
+.rounded-br-none {
+  border-bottom-right-radius: 0px;
 }
 
 .bg-slate-800 {
@@ -936,10 +944,6 @@ input[type=submit]:enabled:hover {
 
 .p-2 {
   padding: 0.5rem;
-}
-
-.p-1 {
-  padding: 0.25rem;
 }
 
 .text-center {
