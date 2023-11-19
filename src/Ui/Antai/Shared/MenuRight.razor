@@ -1,17 +1,27 @@
-@implements IAsyncDisposable
+@inject NavigationManager NavigationManager
 @inject IJSRuntime JS
+@implements IAsyncDisposable
 
 <div class="fixed bottom-0 right-0 mb-1 mr-1">
-    <button type="button" @onclick="ToggleTheme" class="menuButton" aria-label="theme">
-        @if (_darkMode)
-        {
-            <Icon Name="sun-fill" Padding="@IconPadding" Size="@_iconSize" />
-        }
-        else
-        {
-            <Icon Name="moon-fill" Padding="@IconPadding" Size="@_iconSize" />
-        }
-    </button>
+    <div class="flex items-center">
+        <NavLink href="/chat" aria-label="chat">
+            <button class="menuButton p-2" aria-label="home">
+                <div class="flex">
+                    <Icon Name="recycle" Padding="1" Size="20" />
+                </div>
+            </button>
+        </NavLink>
+        <button type="button" @onclick="ToggleTheme" class="menuButton" aria-label="theme">
+            @if (_darkMode)
+            {
+                <Icon Name="sun-fill" Padding="@IconPadding" Size="@_iconSize" />
+            }
+            else
+            {
+                <Icon Name="moon-fill" Padding="@IconPadding" Size="@_iconSize" />
+            }
+        </button>
+    </div>
 </div>
 
 @code {

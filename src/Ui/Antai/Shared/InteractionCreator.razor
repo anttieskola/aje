@@ -2,18 +2,7 @@
 @inject ISender Sender
 @implements IAsyncDisposable
 
-@{
-    /* TODO: Remove just flow/debug/stuff */
-}
-<div class="container">
-    <h1>Debug</h1>
-    <p>input:@_input</p>
-    <p>inputError:@_inputError</p>
-    <p>inputDisabled:@_inputDisabled</p>
-    <p>_output:@_output</p>
-</div>
-
-<div class="container w-3/4 m-1 p-2 rounded-lg rounded-bl-none bg-slate-800 ">
+<div class="container w-5/6 m-1 p-2 rounded-lg rounded-bl-none bg-slate-800 ">
     <div class="container">
         @if (_inputError != null)
         {
@@ -23,16 +12,17 @@
     <div class="flex">
         @if (_inputDisabled)
         {
-            <textarea id="input" class="ml-1 w-full" spellcheck="false" aria-label="input" @bind="_input"
-                @onkeydown="InputKeyDown" disabled>@_input </textarea>
+            <textarea id="disabledInput" class="ml-1 w-full text-sm" spellcheck="false" disabled aria-label="input"
+                @bind="_input" @onkeydown="InputKeyDown" rows="@CalculateRows(_input)">@_input </textarea>
         }
         else
         {
-            <textarea id="input" class="ml-1 w-full" spellcheck="false" aria-label="input" @bind="_input"
-                @onkeydown="InputKeyDown" placeholder="Type your message here">@_input</textarea>
+            <textarea id="input" tabindex="0" class="ml-1 w-full text-sm" spellcheck="false" aria-label="input"
+                @bind="_input" @onkeydown="InputKeyDown" placeholder="Type your message here"
+                rows="@CalculateRows(_input)">@_input</textarea>
 
             <button class="submitButton" @onclick="InputSubmit" aria-label="submit">
-                <Icon Name="arrow-return-left" Padding="0" Size="20" />
+                <Icon Name="arrow-return-left" Padding="2" Size="26" />
             </button>
         }
     </div>
@@ -41,8 +31,9 @@
 @if (_output != null)
 {
     <div class="flex justify-end">
-    <div class="container w-3/4 m-1 p-2 rounded-lg rounded-br-none bg-slate-800">
-        <textarea id="output" class="mr-1 w-full" spellcheck="false" aria-label="output" disabled>@_output</textarea>
+    <div class="container w-5/6 m-1 p-2 rounded-lg rounded-br-none bg-slate-800">
+        <textarea id="output" class="mr-1 w-full text-sm" spellcheck="false" disabled aria-label="output"
+            rows="@CalculateRows(_output)">@_output</textarea>
     </div>
 </div>
 }
@@ -89,6 +80,22 @@
                 Message = _input,
                 TokenCreatedCallback = TokenCreatedCallback
             });
+        await InvokeAsync(Reset);
+    }
+
+    private async Task Reset()
+    {
+        // artificial delay
+        // TODO: some animation would be nice
+        await Task.Delay(TimeSpan.FromMilliseconds(200));
+        _inputError = null;
+        _input = null;
+        _output = null;
+        _inputDisabled = false;
+        StateHasChanged();
+
+        if (_js is not null)
+            await _js.InvokeVoidAsync("focusElement", "input");
     }
 
     private async Task InputKeyDown(KeyboardEventArgs args)
@@ -119,12 +126,35 @@
         else if (args.Key.Length == 1)
         {
             var c = args.Key[0];
-            if (char.IsLetterOrDigit(c))
+            if (IsCharAllowed(c))
             {
                 _input += c;
                 StateHasChanged();
             }
         }
+    }
+
+    private bool IsCharAllowed(char c)
+    {
+        return char.IsLetterOrDigit(c)
+        || c == ' '
+        || c == '.'
+        || c == ','
+        || c == '?'
+        || c == '!'
+        || c == ':'
+        || c == ')'
+        || c == '('
+        || c == '#'
+        || c == '\'';
+    }
+
+    private int CalculateRows(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            return 1;
+
+        return text.Length / 100;
     }
     async ValueTask IAsyncDisposable.DisposeAsync()
     {
