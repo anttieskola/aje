@@ -51,7 +51,7 @@ else
     protected override async Task OnInitializedAsync()
     {
         await Refresh();
-        AiChatEventHandler.Subscribe(ChatId, OnAiChatEvent);
+        //AiChatEventHandler.Subscribe(ChatId, OnAiChatEvent);
     }
 
     private void OnAiChatEvent(AiChatEvent aiChatEvent)
@@ -67,6 +67,6 @@ else
 
     void IDisposable.Dispose()
     {
-        AiChatEventHandler.Unsubscribe(OnAiChatEvent);
+        //AiChatEventHandler.Unsubscribe(OnAiChatEvent);
     }
 }

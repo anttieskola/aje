@@ -62,17 +62,17 @@ public class DummyAiChatEventHandler : IAiChatEventHandler
         throw new NotImplementedException();
     }
 
-    public void Subscribe(Action<AiChatEvent> handler)
+    public void Subscribe(Guid subscriberId, Func<AiChatEvent, Task> handler)
     {
         throw new NotImplementedException();
     }
 
-    public void Subscribe(Guid chatId, Action<AiChatEvent> handler)
+    public void SubscribeToChat(Guid subscriberId, Guid chatId, Func<AiChatEvent, Task> handler)
     {
         throw new NotImplementedException();
     }
 
-    public void Unsubscribe(Action<AiChatEvent> handler)
+    public void Unsubscribe(Guid subscriberId)
     {
         throw new NotImplementedException();
     }

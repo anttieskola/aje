@@ -1,7 +1,6 @@
-﻿
-namespace AJE.Infra.Redis.Events;
+﻿namespace AJE.Infra.Redis.Events;
 
-public class AiChatEventHandler : IAiChatEventHandler
+public class AiChatEventHandler : IAiChatEventHandler, IDisposable
 {
     private readonly ILogger<AiChatEventHandler> _logger;
     private readonly IRedisIndex _index = new AiChatIndex();
@@ -18,50 +17,81 @@ public class AiChatEventHandler : IAiChatEventHandler
     {
         var db = _connection.GetDatabase();
         await db.PublishAsync(_index.Channel, JsonSerializer.Serialize(aiChatEvent));
-        await Task.Delay(TimeSpan.FromMilliseconds(10)); // this is a hack to make sure the message is sent before the test continues
     }
 
-    private bool _subscribed = false;
-
-    private readonly List<Action<AiChatEvent>> _handlers = new();
-    private readonly Dictionary<Guid, List<Action<AiChatEvent>>> _chatHandlers = new();
-
+    private Thread? _deliveryThread;
+    private readonly object _lock = new();
     private void Subscribe()
     {
-        if (!_subscribed)
+        lock (_lock)
         {
-            var subscriber = _connection.GetSubscriber();
-            subscriber.SubscribeAsync(_index.Channel, HandleMessage);
-            _subscribed = true;
+            if (_deliveryThread == null)
+            {
+                _deliveryThread = new Thread(() =>
+                {
+                    var subscriber = _connection.GetSubscriber();
+                    subscriber.SubscribeAsync(_index.Channel, HandleMessage);
+                })
+                {
+                    IsBackground = true,
+                    Name = "AiChatEventHandler",
+                };
+                _deliveryThread.Start();
+            }
         }
     }
 
-    public void Subscribe(Action<AiChatEvent> handler)
+    private readonly ConcurrentDictionary<Guid, Func<AiChatEvent, Task>> _handlers = new();
+
+    public void Subscribe(Guid subscriberId, Func<AiChatEvent, Task> handler)
     {
         Subscribe();
-        _handlers.Add(handler);
+        if (!_handlers.ContainsKey(subscriberId))
+        {
+            if (!_handlers.TryAdd(subscriberId, handler))
+            {
+                throw new SubscriptionException($"Failed to even subscriber with id:{subscriberId}");
+            }
+        }
     }
 
-    public void Subscribe(Guid chatId, Action<AiChatEvent> handler)
+    private class ChatSubscriber
+    {
+        public required Guid ChatId { get; init; }
+        public required Func<AiChatEvent, Task> Handler { get; init; }
+    }
+
+    private readonly ConcurrentDictionary<Guid, ChatSubscriber> _chatEventhandlers = new();
+
+    public void SubscribeToChat(Guid subscriberId, Guid chatId, Func<AiChatEvent, Task> handler)
     {
         Subscribe();
-        if (_chatHandlers.TryGetValue(chatId, out var handlers))
+        if (!_chatEventhandlers.ContainsKey(subscriberId))
         {
-            handlers.Add(handler);
-        }
-        else
-        {
-            _chatHandlers.Add(chatId, new List<Action<AiChatEvent>> { handler });
+            var cb = new ChatSubscriber { ChatId = chatId, Handler = handler };
+            if (!_chatEventhandlers.TryAdd(subscriberId, cb))
+            {
+                throw new SubscriptionException($"Failed to even subscriber with id:{subscriberId}");
+            }
         }
     }
 
-    public void Unsubscribe(Action<AiChatEvent> handler)
+    public void Unsubscribe(Guid subscriberId)
     {
-        if (_handlers.Contains(handler))
-            _handlers.Remove(handler);
-
-        if (_chatHandlers.Values.Any(handlers => handlers.Contains(handler)))
-            _chatHandlers.Values.First(handlers => handlers.Contains(handler)).Remove(handler);
+        if (_handlers.ContainsKey(subscriberId))
+        {
+            if (!_handlers.TryRemove(subscriberId, out _))
+            {
+                throw new SubscriptionException($"Failed to remove subscriber with id:{subscriberId}");
+            }
+        }
+        if (_chatEventhandlers.ContainsKey(subscriberId))
+        {
+            if (!_chatEventhandlers.TryRemove(subscriberId, out _))
+            {
+                throw new SubscriptionException($"Failed to remove chat subscriber with id:{subscriberId}");
+            }
+        }
     }
 
     private void HandleMessage(RedisChannel channel, RedisValue value)
@@ -71,27 +101,53 @@ public class AiChatEventHandler : IAiChatEventHandler
             var msg = JsonSerializer.Deserialize<AiChatEvent>(value.ToString());
             if (msg == null)
             {
-                _logger.LogError("Failed to deserialize message:{}", value);
+                _logger.LogError("Channel:{}, Contains empty message:{}", channel, value);
             }
             else
             {
-                foreach (var handler in _handlers)
+                foreach (var handler in _handlers.Values)
                 {
-                    handler(msg);
+                    handler(msg).Wait();
                 }
+
                 var chatId = msg.ChatId;
-                if (_chatHandlers.TryGetValue(chatId, out var handlers))
+                foreach (var handler in _chatEventhandlers.Values.Where(x => x.ChatId == chatId))
                 {
-                    foreach (var handler in handlers)
-                    {
-                        handler(msg);
-                    }
+                    handler.Handler(msg).Wait();
                 }
             }
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Failed to deserialize message");
+            _logger.LogError(e, "Channel:{}, Failed to deserialize message:{}", channel, value);
         }
     }
+
+    #region IDisposable Support
+
+    private bool disposedValue;
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!disposedValue)
+        {
+            if (disposing)
+            {
+                if (_deliveryThread != null)
+                {
+                    _deliveryThread.Join();
+                    _deliveryThread = null;
+                }
+            }
+            disposedValue = true;
+        }
+    }
+
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    #endregion IDisposable Support
 }

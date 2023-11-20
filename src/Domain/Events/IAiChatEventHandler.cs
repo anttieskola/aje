@@ -3,7 +3,7 @@
 public interface IAiChatEventHandler
 {
     Task SendAsync(AiChatEvent aiChatEvent);
-    void Subscribe(Action<AiChatEvent> handler);
-    void Subscribe(Guid chatId, Action<AiChatEvent> handler);
-    void Unsubscribe(Action<AiChatEvent> handler);
+    void Subscribe(Guid subscriberId, Func<AiChatEvent, Task> handler);
+    void SubscribeToChat(Guid subscriberId, Guid chatId, Func<AiChatEvent, Task> handler);
+    void Unsubscribe(Guid subscriberId);
 }
