@@ -55,7 +55,7 @@ public class AiChatEventHandler : IAiChatEventHandler, IDisposable
         }
     }
 
-    private class ChatSubscriber
+    private sealed class ChatSubscriber
     {
         public required Guid ChatId { get; init; }
         public required Func<AiChatEvent, Task> Handler { get; init; }
@@ -78,49 +78,57 @@ public class AiChatEventHandler : IAiChatEventHandler, IDisposable
 
     public void Unsubscribe(Guid subscriberId)
     {
-        if (_handlers.ContainsKey(subscriberId))
+        if (_handlers.ContainsKey(subscriberId) && !_handlers.TryRemove(subscriberId, out _))
         {
-            if (!_handlers.TryRemove(subscriberId, out _))
-            {
-                throw new SubscriptionException($"Failed to remove subscriber with id:{subscriberId}");
-            }
+            throw new SubscriptionException($"Failed to remove subscriber with id:{subscriberId}");
         }
-        if (_chatEventhandlers.ContainsKey(subscriberId))
+        if (_chatEventhandlers.ContainsKey(subscriberId) && !_chatEventhandlers.TryRemove(subscriberId, out _))
         {
-            if (!_chatEventhandlers.TryRemove(subscriberId, out _))
-            {
-                throw new SubscriptionException($"Failed to remove chat subscriber with id:{subscriberId}");
-            }
+            throw new SubscriptionException($"Failed to remove chat subscriber with id:{subscriberId}");
         }
     }
 
     private void HandleMessage(RedisChannel channel, RedisValue value)
     {
-        _logger.LogDebug("HandleMessage {}", DateTime.UtcNow);
+        var msg = Deserialize(value.ToString());
         try
         {
-            var msg = JsonSerializer.Deserialize<AiChatEvent>(value.ToString());
-            if (msg == null)
+            foreach (var handler in _handlers.Values)
             {
-                _logger.LogError("Channel:{}, Contains empty message:{}", channel, value);
+                handler(msg).Wait();
             }
-            else
-            {
-                foreach (var handler in _handlers.Values)
-                {
-                    handler(msg).Wait();
-                }
 
-                var chatId = msg.ChatId;
-                foreach (var handler in _chatEventhandlers.Values.Where(x => x.ChatId == chatId))
-                {
-                    handler.Handler(msg).Wait();
-                }
+            var chatId = msg.ChatId;
+            foreach (var handler in _chatEventhandlers.Values.Where(x => x.ChatId == chatId))
+            {
+                handler.Handler(msg).Wait();
             }
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Channel:{}, Failed to deserialize message:{}", channel, value);
+            _logger.LogError(e, "Failed to deliver message");
+        }
+    }
+
+    private AiChatEvent Deserialize(string eventString)
+    {
+        try
+        {
+            if (eventString == null)
+                throw new ArgumentException("Value cannot be null", nameof(eventString));
+            var aiEvent = JsonSerializer.Deserialize<AiChatEvent>(eventString)
+                ?? throw new ParsingException($"Failed to deserialize AiChatEvent:{eventString}");
+            return aiEvent;
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogError(ex, "Failed to deserialize AiChatEvent:{eventString}", eventString);
+            throw;
+        }
+        catch (NotSupportedException ex)
+        {
+            _logger.LogError(ex, "Failed to deserialize AiChatEvent:{eventString}", eventString);
+            throw;
         }
     }
 
@@ -132,13 +140,10 @@ public class AiChatEventHandler : IAiChatEventHandler, IDisposable
     {
         if (!disposedValue)
         {
-            if (disposing)
+            if (disposing && _deliveryThread != null)
             {
-                if (_deliveryThread != null)
-                {
-                    _deliveryThread.Join();
-                    _deliveryThread = null;
-                }
+                _deliveryThread.Join();
+                _deliveryThread = null;
             }
             disposedValue = true;
         }
