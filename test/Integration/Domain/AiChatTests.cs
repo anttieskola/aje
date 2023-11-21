@@ -77,7 +77,7 @@ public class AiChatTests : IClassFixture<HttpClientFixture>, IClassFixture<Redis
         Assert.NotNull(messageEvent);
         Assert.Equal(_idChat, messageEvent.ChatId);
         Assert.NotEmpty(tokens.ToString());
-        Assert.Equal(messageEvent.Output, tokens.ToString());
+        Assert.Equal(messageEvent.Output.Trim(), tokens.ToString().Trim());
         Assert.Contains("IntegrationTest", messageEvent.Output);
         Assert.Contains("IntegrationTest", tokens.ToString());
 

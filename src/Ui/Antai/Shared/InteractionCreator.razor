@@ -58,11 +58,12 @@
         }
     }
 
-    private Task TokenCreatedCallback(string token)
+    private async Task TokenCreatedCallback(string token)
     {
         _output += token;
         StateHasChanged();
-        return Task.CompletedTask;
+        if (_js != null)
+            await _js.InvokeVoidAsync("focusElement", "output");
     }
 
     private async Task InputSubmit()

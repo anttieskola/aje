@@ -34,7 +34,7 @@ public class AiChatEventHandler : IAiChatEventHandler, IDisposable
                 })
                 {
                     IsBackground = true,
-                    Name = "AiChatEventHandler",
+                    Name = "AiChatEventHandlerSubscription",
                 };
                 _deliveryThread.Start();
             }
@@ -96,6 +96,7 @@ public class AiChatEventHandler : IAiChatEventHandler, IDisposable
 
     private void HandleMessage(RedisChannel channel, RedisValue value)
     {
+        _logger.LogDebug("HandleMessage {}", DateTime.UtcNow);
         try
         {
             var msg = JsonSerializer.Deserialize<AiChatEvent>(value.ToString());

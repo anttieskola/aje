@@ -6,9 +6,20 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/util/MChatter/bin/Debug/net7.0/AJE.MChatter",
+            "program": "${workspaceFolder}/util/MChatter/bin/Debug/net7.0/AJE.Util.MChatter",
             "args": [],
             "cwd": "${workspaceFolder}/util/MChatter",
+            "stopAtEntry": false,
+            "console": "externalTerminal"
+        },
+        {
+            "name": "Messenger",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/util/Messenger/bin/Debug/net7.0/AJE.Util.Messenger",
+            "args": [],
+            "cwd": "${workspaceFolder}/util/Messenger",
             "stopAtEntry": false,
             "console": "externalTerminal"
         },

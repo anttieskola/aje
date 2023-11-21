@@ -48,15 +48,16 @@ else
     public Guid ChatId { get; set; }
 
     private AiChat? _chat;
+    private readonly Guid _subscriptionId = Guid.NewGuid();
     protected override async Task OnInitializedAsync()
     {
         await Refresh();
-        //AiChatEventHandler.Subscribe(ChatId, OnAiChatEvent);
+        AiChatEventHandler.SubscribeToChat(_subscriptionId, ChatId, OnAiChatEvent);
     }
 
-    private void OnAiChatEvent(AiChatEvent aiChatEvent)
+    private async Task OnAiChatEvent(AiChatEvent aiChatEvent)
     {
-        InvokeAsync(Refresh);
+        await InvokeAsync(Refresh);
     }
 
     private async Task Refresh()
@@ -67,6 +68,6 @@ else
 
     void IDisposable.Dispose()
     {
-        //AiChatEventHandler.Unsubscribe(OnAiChatEvent);
+        AiChatEventHandler.Unsubscribe(ChatId);
     }
 }
