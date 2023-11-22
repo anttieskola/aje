@@ -35,7 +35,7 @@ public class SendAiChatMessageCommandHandler : IRequestHandler<SendAiChatMessage
         var prompt = _antai.Chat(command.Message, chat.Interactions.ToArray())
             ?? throw new AiException($"Failed to create context for Antai message:{command.Message}");
 
-        // send event for each token created
+        // request
         async Task OnTokenCreated(string token)
         {
             await _aiChatEventHandler.SendAsync(new AiChatTokenEvent
@@ -46,8 +46,6 @@ public class SendAiChatMessageCommandHandler : IRequestHandler<SendAiChatMessage
                 Token = token,
             });
         }
-
-        // TODO: Token calculation using tokenizer API, to prevent hogging all GPU resources
         var completionRequest = new CompletionRequest
         {
             Prompt = prompt,
@@ -58,24 +56,30 @@ public class SendAiChatMessageCommandHandler : IRequestHandler<SendAiChatMessage
         var response = await _aiModel.CompletionStreamAsync(completionRequest, OnTokenCreated, cancellationToken);
         // TODO: Timestamp from the model response?
         // TODO: Take token calculation
-        var historyEntry = new AiChatInteractionEntry
+        var interactionEntry = new AiChatInteractionEntry
         {
             InteractionId = Guid.NewGuid(),
             InteractionTimestamp = DateTimeOffset.UtcNow,
             Input = command.Message,
             Output = response.Content.Trim(),
+            Model = response.GenerationSettings.Model,
+            NumberOfTokensEvaluated = response.TokensEvaluated,
+            NumberOfTokensContext = response.GenerationSettings.NumberOfTokensContext,
         };
-        chat = await _aiChatRepository.AddHistoryEntry(chat.ChatId, historyEntry);
-        var chatEvent = new AiChatInteractionEvent
+        chat = await _aiChatRepository.AddInteractionEntryAsync(chat.ChatId, interactionEntry);
+        var interactionEvent = new AiChatInteractionEvent
         {
             IsTest = command.IsTest,
             ChatId = chat.ChatId,
-            EventTimeStamp = historyEntry.InteractionTimestamp,
-            InteractionId = historyEntry.InteractionId,
-            Input = historyEntry.Input,
-            Output = historyEntry.Output,
+            EventTimeStamp = interactionEntry.InteractionTimestamp,
+            InteractionId = interactionEntry.InteractionId,
+            Input = interactionEntry.Input,
+            Output = interactionEntry.Output,
+            Model = interactionEntry.Model,
+            NumberOfTokensEvaluated = interactionEntry.NumberOfTokensEvaluated,
+            NumberOfTokensContext = interactionEntry.NumberOfTokensContext,
         };
-        await _aiChatEventHandler.SendAsync(chatEvent);
-        return chatEvent;
+        await _aiChatEventHandler.SendAsync(interactionEvent);
+        return interactionEvent;
     }
 }

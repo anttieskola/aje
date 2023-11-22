@@ -28,6 +28,8 @@ public class LlamaAiModel : IAiModel
         if (request.Stream)
             throw new ArgumentException($"Use {nameof(CompletionStreamAsync)} when Stream enabled", nameof(request));
 
+        await CheckContentIsNotTooLarge(request.Prompt, cancellationToken);
+
         using var client = _httpClientFactory.CreateClient();
         client.Timeout = TimeSpan.FromSeconds(_configuration.TimeoutInSeconds);
         var httpRequest = new HttpRequestMessage(HttpMethod.Post, new Uri(_serverUri, "completion"));
@@ -53,6 +55,8 @@ public class LlamaAiModel : IAiModel
 
         if (tokenCreatedCallback == null)
             throw new ArgumentNullException(nameof(tokenCreatedCallback));
+
+        await CheckContentIsNotTooLarge(request.Prompt, cancellationToken);
 
         using var client = _httpClientFactory.CreateClient();
         client.Timeout = TimeSpan.FromSeconds(_configuration.TimeoutInSeconds);
@@ -122,6 +126,14 @@ public class LlamaAiModel : IAiModel
         }
     }
 
+    private async Task CheckContentIsNotTooLarge(string content, CancellationToken cancellationToken)
+    {
+        var response = await TokenizeAsync(new TokenizeRequest { Content = content }, cancellationToken);
+        int tokenCount = response.Tokens.Length;
+        if (tokenCount > _configuration.MaxTokenCount)
+            throw new AiException($"Content is too large, token count: {tokenCount}, max token count: {_configuration.MaxTokenCount}");
+    }
+
     public async Task<DeTokenizeResponse> DeTokenizeAsync(DeTokenizeRequest request, CancellationToken cancellationToken)
     {
         using var client = _httpClientFactory.CreateClient();
@@ -162,6 +174,11 @@ public class LlamaAiModel : IAiModel
             _logger.LogError("Error parsing json: {}", e.Message);
             throw;
         }
+    }
+
+    public async Task<int> MaxTokenCountAsync(CancellationToken cancellationToken)
+    {
+        return await Task.FromResult(_configuration.MaxTokenCount);
     }
 
     private static StringContent Serialize(object request)

@@ -37,4 +37,13 @@ public record AiChatInteractionEvent : AiChatEvent
 
     [JsonPropertyName("output")]
     public required string Output { get; init; }
+
+    [JsonPropertyName("model")]
+    public required string Model { get; init; }
+
+    [JsonPropertyName("numberOfTokensEvaluated")]
+    public required int NumberOfTokensEvaluated { get; init; }
+
+    [JsonPropertyName("numberOfTokensContext")]
+    public required int NumberOfTokensContext { get; init; }
 }

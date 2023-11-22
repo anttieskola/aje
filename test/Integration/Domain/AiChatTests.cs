@@ -86,9 +86,10 @@ public class AiChatTests : IClassFixture<HttpClientFixture>, IClassFixture<Redis
         Assert.NotEmpty(tokens.ToString().Trim());
         Assert.Equal(messageEvent.Output, tokens.ToString().Trim());
 
-        // act: ask AI what was my name again to test history context
+        // act: ask AI what was my name again to test context contains history of past interactions
         tokens.Clear();
         aiEvent = await sendHandler.Handle(new SendAiChatMessageCommand { IsTest = true, ChatId = _idChat, Message = "What was my name again?" }, CancellationToken.None);
+        await Task.Delay(TimeSpan.FromSeconds(1));
         messageEvent = aiEvent as AiChatInteractionEvent;
         Assert.NotNull(messageEvent);
         Assert.Equal(_idChat, messageEvent.ChatId);

@@ -10,4 +10,5 @@ public interface IAiModel
     Task<TokenizeResponse> TokenizeAsync(TokenizeRequest request, CancellationToken cancellationToken);
     Task<DeTokenizeResponse> DeTokenizeAsync(DeTokenizeRequest request, CancellationToken cancellationToken);
     Task<EmbeddingResponse> EmbeddingAsync(EmbeddingRequest request, CancellationToken cancellationToken);
+    Task<int> MaxTokenCountAsync(CancellationToken cancellationToken);
 }

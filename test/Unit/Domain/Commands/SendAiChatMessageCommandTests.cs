@@ -15,7 +15,7 @@ public class SendAiChatMessageCommandTests
         var id = Guid.ParseExact("00000000-1000-0000-0000-000000000001", "D");
         var mockAiChatRepository = new Mock<IAiChatRepository>();
         mockAiChatRepository.Setup(x => x.GetAsync(It.Is<Guid>(g => g == id))).ReturnsAsync(new AiChat { ChatId = id, StartTimestamp = DateTimeOffset.UtcNow });
-        mockAiChatRepository.Setup(x => x.AddHistoryEntry(It.Is<Guid>(g => g == id), It.Is<AiChatInteractionEntry>(x => x.Input == "Hello" && x.Output == "Hey stranger, how can I help you?")))
+        mockAiChatRepository.Setup(x => x.AddInteractionEntryAsync(It.Is<Guid>(g => g == id), It.Is<AiChatInteractionEntry>(x => x.Input == "Hello" && x.Output == "Hey stranger, how can I help you?")))
             .ReturnsAsync(new AiChat
             {
                 ChatId = id,
@@ -26,6 +26,9 @@ public class SendAiChatMessageCommandTests
                     InteractionTimestamp = DateTimeOffset.UtcNow,
                     Input = "Hello",
                     Output = "Hey stranger, how can I help you?",
+                    Model = "llama-unit-test",
+                    NumberOfTokensContext = 1024,
+                    NumberOfTokensEvaluated = 24,
                 }}
             });
         var mockAiChatEventHandler = new Mock<IAiChatEventHandler>();
@@ -34,7 +37,13 @@ public class SendAiChatMessageCommandTests
         var mockAiModel = new Mock<IAiModel>();
         mockAiModel.Setup(a => a.CompletionStreamAsync(It.Is<CompletionRequest>(cr => cr.Stream == true), It.IsAny<TokenCreatedCallback>(), It.IsAny<CancellationToken>())).ReturnsAsync(new CompletionResponse
         {
-            Content = "Hey stranger, how can I help you?"
+            Content = "Hey stranger, how can I help you?",
+            TokensEvaluated = 24,
+            GenerationSettings = new GenerationSettings
+            {
+                Model = "llama-unit-test",
+                NumberOfTokensContext = 1024,
+            },
         });
         var handler = new SendAiChatMessageCommandHandler(
             mockAiChatRepository.Object,

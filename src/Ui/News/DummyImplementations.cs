@@ -1,5 +1,4 @@
-﻿
-namespace AJE.Ui.News;
+﻿namespace AJE.Ui.News;
 
 public class DummyAiModel : IAiModel
 {
@@ -19,6 +18,11 @@ public class DummyAiModel : IAiModel
     }
 
     public Task<EmbeddingResponse> EmbeddingAsync(EmbeddingRequest request, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<int> MaxTokenCountAsync(CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }
@@ -44,7 +48,7 @@ public class DummyAiChatRepository : IAiChatRepository
         throw new NotImplementedException();
     }
 
-    public Task<AiChat> AddHistoryEntry(Guid chatId, AiChatInteractionEntry entry)
+    public Task<AiChat> AddInteractionEntryAsync(Guid chatId, AiChatInteractionEntry entry)
     {
         throw new NotImplementedException();
     }

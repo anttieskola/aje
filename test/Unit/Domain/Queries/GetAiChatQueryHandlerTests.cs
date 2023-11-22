@@ -22,7 +22,10 @@ public class GetAiChatQueryHandlerTests
                     InteractionId = Guid.NewGuid(),
                     InteractionTimestamp = DateTime.UtcNow,
                     Input = "User",
-                    Output = "Ai"
+                    Output = "Ai",
+                    Model = "llama-unit-test",
+                    NumberOfTokensContext = 1024,
+                    NumberOfTokensEvaluated = 8,
                 }
             }
         });

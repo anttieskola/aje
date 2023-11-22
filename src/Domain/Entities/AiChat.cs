@@ -14,7 +14,7 @@ public record AiChat
     [JsonPropertyName("startTimestamp")]
     public required DateTimeOffset StartTimestamp { get; init; }
 
-    [JsonPropertyName("history")]
+    [JsonPropertyName("interactions")]
     public EquatableList<AiChatInteractionEntry> Interactions { get; init; } = EquatableList<AiChatInteractionEntry>.Empty;
 }
 
@@ -31,4 +31,14 @@ public record AiChatInteractionEntry
 
     [JsonPropertyName("output")]
     public required string Output { get; init; }
+
+    [JsonPropertyName("model")]
+    public required string Model { get; init; }
+
+    [JsonPropertyName("numberOfTokensEvaluated")]
+    public required int NumberOfTokensEvaluated { get; init; }
+
+    [JsonPropertyName("numberOfTokensContext")]
+    public required int NumberOfTokensContext { get; init; }
+
 }

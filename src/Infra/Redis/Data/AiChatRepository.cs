@@ -33,18 +33,24 @@ public class AiChatRepository : IAiChatRepository
         return chat;
     }
 
-    public async Task<AiChat> AddHistoryEntry(Guid chatId, AiChatInteractionEntry entry)
+    public async Task<AiChat> AddInteractionEntryAsync(Guid chatId, AiChatInteractionEntry entry)
     {
         var db = _connection.GetDatabase();
         var redisId = _index.RedisId(chatId.ToString());
-        var appendResult = await db.ExecuteAsync("JSON.ARRAPPEND", redisId, "$.history", JsonSerializer.Serialize(entry));
-        var resultString = appendResult.ToString() ?? throw new DataException($"failed append history entry to AiChat with id:{redisId}");
+        var appendResult = await db.ExecuteAsync("JSON.ARRAPPEND", redisId, "$.interactions", JsonSerializer.Serialize(entry));
+        var resultString = appendResult.ToString() ?? throw new DataException($"failed append interaction entry to AiChat with id:{redisId}");
         if (!resultString.Contains("element(s)"))
         {
-            _logger.LogError("failed append history entry to AiChat with id:{}, result:{}", redisId, resultString);
-            throw new DataException($"failed append history entry to AiChat with id:{redisId}");
+            _logger.LogError("failed append interaction entry to AiChat with id:{}, result:{}", redisId, resultString);
+            throw new DataException($"failed append interaction entry to AiChat with id:{redisId}");
         }
-        _logger.LogTrace("Appended history entry to AiChat with id:{}", chatId);
+        else
+        {
+            var count = int.Parse(resultString.Split(' ')[0]);
+            if (count == 0)
+                throw new DataException($"failed append interaction entry to AiChat with id:{redisId}");
+        }
+        _logger.LogTrace("Appended interaction entry to AiChat with id:{}", chatId);
         return await GetAsync(chatId);
     }
 
