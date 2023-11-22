@@ -3,5 +3,4 @@
 public interface IArticleEventHandler
 {
     Task SendAsync(ArticleEvent articleEvent);
-    void Subscribe(Action<ArticleEvent> handler);
 }

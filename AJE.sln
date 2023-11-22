@@ -67,8 +67,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{24D9
 		get-llama.sh = get-llama.sh
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Messenger", "util\Messenger\Messenger.csproj", "{CBC8AD65-E62A-4FA6-A29F-A8378F200664}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -131,10 +129,6 @@ Global
 		{47FE4290-B8C1-42BE-AC01-3FF32A1C7A4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{47FE4290-B8C1-42BE-AC01-3FF32A1C7A4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{47FE4290-B8C1-42BE-AC01-3FF32A1C7A4E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CBC8AD65-E62A-4FA6-A29F-A8378F200664}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CBC8AD65-E62A-4FA6-A29F-A8378F200664}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CBC8AD65-E62A-4FA6-A29F-A8378F200664}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CBC8AD65-E62A-4FA6-A29F-A8378F200664}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -152,7 +146,6 @@ Global
 		{ED8BFD38-4449-4544-A75E-A8A73BC2D19B} = {8ABB8C8E-04A6-48BD-815B-0DA9D4DA8E56}
 		{F2F265BD-30CD-4CD5-A234-97A269448868} = {1F2CC064-FF62-4052-B834-31EF506C62F8}
 		{47FE4290-B8C1-42BE-AC01-3FF32A1C7A4E} = {8ABB8C8E-04A6-48BD-815B-0DA9D4DA8E56}
-		{CBC8AD65-E62A-4FA6-A29F-A8378F200664} = {B459C576-8866-4283-ADAF-F9B14ACA9A56}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7135E4BF-2488-4C17-B543-559F024C76FA}

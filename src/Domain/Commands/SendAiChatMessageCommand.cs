@@ -4,9 +4,9 @@ namespace AJE.Domain.Commands;
 
 public record SendAiChatMessageCommand : IRequest<AiChatEvent>
 {
+    public bool IsTest { get; init; } = false;
     public required Guid ChatId { get; init; }
     public required string Message { get; init; }
-    public required TokenCreatedCallback TokenCreatedCallback { get; init; }
 }
 
 public class SendAiChatMessageCommandHandler : IRequestHandler<SendAiChatMessageCommand, AiChatEvent>
@@ -34,15 +34,28 @@ public class SendAiChatMessageCommandHandler : IRequestHandler<SendAiChatMessage
             ?? throw new KeyNotFoundException($"Chat with id {command.ChatId} not found");
         var prompt = _antai.Chat(command.Message, chat.Interactions.ToArray())
             ?? throw new AiException($"Failed to create context for Antai message:{command.Message}");
+
+        // send event for each token created
+        async Task OnTokenCreated(string token)
+        {
+            await _aiChatEventHandler.SendAsync(new AiChatTokenEvent
+            {
+                IsTest = command.IsTest,
+                ChatId = command.ChatId,
+                EventTimeStamp = DateTimeOffset.UtcNow,
+                Token = token,
+            });
+        }
+
         // TODO: Token calculation using tokenizer API, to prevent hogging all GPU resources
         var completionRequest = new CompletionRequest
         {
             Prompt = prompt,
-            Temperature = 1.2,
+            Temperature = 0.2,
             Stop = _antai.StopWords,
             Stream = true,
         };
-        var response = await _aiModel.CompletionStreamAsync(completionRequest, command.TokenCreatedCallback, cancellationToken);
+        var response = await _aiModel.CompletionStreamAsync(completionRequest, OnTokenCreated, cancellationToken);
         // TODO: Timestamp from the model response?
         // TODO: Take token calculation
         var historyEntry = new AiChatInteractionEntry
@@ -55,10 +68,10 @@ public class SendAiChatMessageCommandHandler : IRequestHandler<SendAiChatMessage
         chat = await _aiChatRepository.AddHistoryEntry(chat.ChatId, historyEntry);
         var chatEvent = new AiChatInteractionEvent
         {
+            IsTest = command.IsTest,
             ChatId = chat.ChatId,
-            StartTimestamp = chat.StartTimestamp,
+            EventTimeStamp = historyEntry.InteractionTimestamp,
             InteractionId = historyEntry.InteractionId,
-            InteractionTimestamp = historyEntry.InteractionTimestamp,
             Input = historyEntry.Input,
             Output = historyEntry.Output,
         };

@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System.Runtime.CompilerServices;
+using System.Text;
+using System.Text.Json;
 using AJE.Domain.Ai;
 using AJE.Domain.Commands;
 using AJE.Domain.Events;
@@ -39,31 +41,45 @@ public class AiChatTests : IClassFixture<HttpClientFixture>, IClassFixture<Redis
     {
         // arrange
         await _redisFixture.Database.KeyDeleteAsync(_index.RedisId(_idChat.ToString()));
-        var configuration = new LlamaConfiguration { Host = "http://localhost:8080", LogFolder = "/tmp" };
 
+        var configuration = new LlamaConfiguration { Host = "http://localhost:8080", LogFolder = "/tmp" };
         var aiChatRepository = new AiChatRepository(new Mock<ILogger<AiChatRepository>>().Object, _redisFixture.Connection);
-        var aiEventHandler = new AiChatEventHandler(new Mock<ILogger<AiChatEventHandler>>().Object, _redisFixture.Connection);
+        var aiEventHandler = new AiChatEventHandler(_redisFixture.Connection);
         var aiModel = new LlamaAiModel(new Mock<ILogger<LlamaAiModel>>().Object, configuration, _httpClientFixture.HttpClientFactory);
         var antai = new AntaiChatML();
         var startHandler = new StartAiChatCommandHandler(aiChatRepository, aiEventHandler);
         var sendHandler = new SendAiChatMessageCommandHandler(aiChatRepository, aiEventHandler, antai, aiModel);
         var getHandler = new GetAiChatQueryHandler(aiChatRepository);
 
+        var tokens = new StringBuilder();
+        var startEvents = new List<AiChatStartedEvent>();
+        var interactionEvents = new List<AiChatInteractionEvent>();
+        _redisFixture.Connection.GetSubscriber().Subscribe(_index.Channel, OnMessage);
+        void OnMessage(RedisChannel channel, RedisValue message)
+        {
+            if (message.HasValue)
+            {
+                var msg = JsonSerializer.Deserialize<AiChatEvent>(message.ToString());
+                if (msg != null && msg.IsTest && msg.ChatId == _idChat && startEvents != null && interactionEvents != null && tokens != null)
+                {
+                    if (msg is AiChatStartedEvent startEvent)
+                        startEvents.Add(startEvent);
+                    else if (msg is AiChatInteractionEvent interactionEvent)
+                        interactionEvents.Add(interactionEvent);
+                    else if (msg is AiChatTokenEvent tokenEvent)
+                        tokens.Append(tokenEvent.Token);
+                }
+            }
+        }
+
         // act: start chat
-        var aiEvent = await startHandler.Handle(new StartAiChatCommand { Id = _idChat }, CancellationToken.None);
+        var aiEvent = await startHandler.Handle(new StartAiChatCommand { IsTest = true, Id = _idChat }, CancellationToken.None);
         var startEvent = aiEvent as AiChatStartedEvent;
         Assert.NotNull(startEvent);
         Assert.Equal(_idChat, startEvent.ChatId);
 
         // act: say hello to AI
-        var tokens = new StringBuilder();
-        Task tokenCallBack(string token)
-        {
-            tokens.Append(token);
-            return Task.CompletedTask;
-        }
-
-        aiEvent = await sendHandler.Handle(new SendAiChatMessageCommand { ChatId = _idChat, Message = "Hello my name is IntegrationTest, how are you?", TokenCreatedCallback = tokenCallBack }, CancellationToken.None);
+        aiEvent = await sendHandler.Handle(new SendAiChatMessageCommand { IsTest = true, ChatId = _idChat, Message = "Hello my name is IntegrationTest, how are you?" }, CancellationToken.None);
         var messageEvent = aiEvent as AiChatInteractionEvent;
         Assert.NotNull(messageEvent);
         Assert.Equal(_idChat, messageEvent.ChatId);
@@ -72,7 +88,7 @@ public class AiChatTests : IClassFixture<HttpClientFixture>, IClassFixture<Redis
 
         // act: ask AI what was my name again to test history context
         tokens.Clear();
-        aiEvent = await sendHandler.Handle(new SendAiChatMessageCommand { ChatId = _idChat, Message = "What was my name again?", TokenCreatedCallback = tokenCallBack }, CancellationToken.None);
+        aiEvent = await sendHandler.Handle(new SendAiChatMessageCommand { IsTest = true, ChatId = _idChat, Message = "What was my name again?" }, CancellationToken.None);
         messageEvent = aiEvent as AiChatInteractionEvent;
         Assert.NotNull(messageEvent);
         Assert.Equal(_idChat, messageEvent.ChatId);
@@ -88,6 +104,10 @@ public class AiChatTests : IClassFixture<HttpClientFixture>, IClassFixture<Redis
         Assert.Equal(2, chat.Interactions.Count);
 
         // cleanup
+        await Task.Delay(TimeSpan.FromSeconds(1));
+        Assert.Single(startEvents);
+        Assert.Equal(2, interactionEvents.Count);
+
         await _redisFixture.Database.KeyDeleteAsync(_index.RedisId(_idChat.ToString()));
     }
 }

@@ -1,8 +1,7 @@
 @page "/chat/{ChatId:guid}"
 @inject NavigationManager NavigationManager
 @inject ISender Sender
-@inject IAiChatEventHandler AiChatEventHandler
-@implements IDisposable
+@inject IConnectionMultiplexer Connection
 
 <PageTitle>Antai - Chat - @ChatId</PageTitle>
 
@@ -47,12 +46,32 @@ else
     [Parameter]
     public Guid ChatId { get; set; }
 
+    private IRedisIndex _index = new AiChatIndex();
     private AiChat? _chat;
-    private readonly Guid _subscriptionId = Guid.NewGuid();
     protected override async Task OnInitializedAsync()
     {
+        var pubsub = Connection.GetSubscriber();
+        await pubsub.SubscribeAsync(_index.Channel, OnMessage);
         await Refresh();
-        AiChatEventHandler.SubscribeToChat(_subscriptionId, ChatId, OnAiChatEvent);
+    }
+
+    private void OnMessage(RedisChannel channel, RedisValue message)
+    {
+        if (message.HasValue)
+        {
+            // todo: test this works (as removed type from event fields)
+            var msg = JsonSerializer.Deserialize<AiChatEvent>(message.ToString());
+            if (msg != null
+            && msg is AiChatInteractionEvent interactionEvent
+            && !interactionEvent.IsTest
+            && interactionEvent.ChatId == ChatId)
+            {
+                InvokeAsync(async () =>
+                {
+                    await Refresh();
+                });
+            }
+        }
     }
 
     private async Task OnAiChatEvent(AiChatEvent aiChatEvent)
@@ -64,10 +83,5 @@ else
     {
         _chat = await Sender.Send(new GetAiChatQuery { Id = ChatId });
         StateHasChanged();
-    }
-
-    void IDisposable.Dispose()
-    {
-        AiChatEventHandler.Unsubscribe(ChatId);
     }
 }

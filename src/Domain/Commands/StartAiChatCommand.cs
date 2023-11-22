@@ -3,6 +3,7 @@
 // could contain, model info, system instructions, prompt creator, temperature...
 public record StartAiChatCommand : IRequest<AiChatEvent>
 {
+    public bool IsTest { get; init; } = false;
     public required Guid Id { get; init; }
 }
 
@@ -28,8 +29,9 @@ public class StartAiChatCommandHandler : IRequestHandler<StartAiChatCommand, AiC
         var chat = await _aiChatRepository.AddAsync(options);
         var e = new AiChatStartedEvent
         {
+            IsTest = command.IsTest,
             ChatId = chat.ChatId,
-            StartTimestamp = DateTimeOffset.UtcNow,
+            EventTimeStamp = DateTimeOffset.UtcNow,
         };
         await _aiChatEventHandler.SendAsync(e);
         return e;
