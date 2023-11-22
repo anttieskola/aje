@@ -6,9 +6,20 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/util/MChatter/bin/Debug/net7.0/AJE.MChatter",
+            "program": "${workspaceFolder}/util/MChatter/bin/Debug/net7.0/AJE.Util.MChatter",
             "args": [],
             "cwd": "${workspaceFolder}/util/MChatter",
+            "stopAtEntry": false,
+            "console": "externalTerminal"
+        },
+        {
+            "name": "Messenger",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/util/Messenger/bin/Debug/net7.0/AJE.Util.Messenger",
+            "args": [],
+            "cwd": "${workspaceFolder}/util/Messenger",
             "stopAtEntry": false,
             "console": "externalTerminal"
         },
@@ -53,7 +64,7 @@
                 "pattern": "\\bNow listening on:\\s+(https?://\\S+)",
                 // save this format somewhere, it's useful as you can open to debug specific page
                 // i had to playaround quite abit to get this working
-                "uriFormat": "%s/chat/a5381321-9cc7-4847-9a69-4eeb94751831"
+                //"uriFormat": "%s/chat/a5381321-9cc7-4847-9a69-4eeb94751831"
             },
             "env": {
                 "ASPNETCORE_ENVIRONMENT": "Development",

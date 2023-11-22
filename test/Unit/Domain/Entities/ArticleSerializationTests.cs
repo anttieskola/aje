@@ -4,7 +4,7 @@ using AJE.Domain.Enums;
 
 namespace AJE.Test.Unit.Domain.Entities;
 
-public class SerializationTests
+public class ArticleSerializationTests
 {
     #region article
 

@@ -42,17 +42,11 @@ public class SendAiChatMessageCommandTests
             mockAntai.Object,
             mockAiModel.Object);
 
-        static Task tokenCallBack(string token)
-        {
-            return Task.CompletedTask;
-        }
-
         // act
         var result = await handler.Handle(new SendAiChatMessageCommand
         {
             ChatId = id,
             Message = "Hello",
-            TokenCreatedCallback = tokenCallBack,
         }, CancellationToken.None);
         // assert
         Assert.NotNull(result);

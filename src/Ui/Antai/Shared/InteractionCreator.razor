@@ -1,5 +1,6 @@
 ﻿@inject IJSRuntime JS
 @inject ISender Sender
+@inject IConnectionMultiplexer Connection
 @implements IAsyncDisposable
 
 <div class="container w-5/6 m-1 p-2 rounded-lg rounded-bl-none bg-slate-800 ">
@@ -36,6 +37,7 @@
         <textarea id="output" class="mr-1 w-full text-sm" spellcheck="false" disabled aria-label="output"
             rows="@(_output != null ? CalculateRows(_output) : 1)">@_output</textarea>
     </div>
+
 </div>
 }
 
@@ -43,11 +45,18 @@
     [Parameter]
     public Guid ChatId { get; set; }
 
+    private IRedisIndex _index = new AiChatIndex();
     private string? _input;
     private string? _inputError;
     private bool _inputDisabled = false;
     private string? _output;
     private IJSObjectReference? _js;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var pubsub = Connection.GetSubscriber();
+        await pubsub.SubscribeAsync(_index.Channel, OnMessage);
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -58,11 +67,23 @@
         }
     }
 
-    private Task TokenCreatedCallback(string token)
+    private void OnMessage(RedisChannel channel, RedisValue message)
     {
-        _output += token;
-        StateHasChanged();
-        return Task.CompletedTask;
+        if (message.HasValue)
+        {
+            // todo: test this works (as removed type from event fields)
+            var msg = JsonSerializer.Deserialize<AiChatEvent>(message.ToString());
+            if (msg != null && msg is AiChatTokenEvent tokenEvent && !tokenEvent.IsTest && tokenEvent.ChatId == ChatId)
+            {
+                InvokeAsync(async () =>
+                {
+                    _output += tokenEvent.Token;
+                    StateHasChanged();
+                    if (_js != null)
+                        await _js.InvokeVoidAsync("focusElement", "scrollToBottom");
+                });
+            }
+        }
     }
 
     private async Task InputSubmit()
@@ -74,18 +95,22 @@
         }
         _inputError = null;
         _inputDisabled = true;
+        if (_js is not null)
+            await _js.InvokeVoidAsync("outputStart");
         StateHasChanged();
         await Sender.Send(new SendAiChatMessageCommand
             {
                 ChatId = ChatId,
                 Message = _input,
-                TokenCreatedCallback = TokenCreatedCallback
             });
         await InvokeAsync(Reset);
     }
 
     private async Task Reset()
     {
+        if (_js is not null)
+            await _js.InvokeVoidAsync("outputEnd");
+
         // artificial delay
         // TODO: some animation would be nice
         await Task.Delay(TimeSpan.FromMilliseconds(200));
@@ -155,7 +180,7 @@
         if (string.IsNullOrWhiteSpace(text))
             return 1;
 
-        return text.Length / 100;
+        return text.Length / 80;
     }
     async ValueTask IAsyncDisposable.DisposeAsync()
     {

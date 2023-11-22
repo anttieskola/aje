@@ -1,6 +1,7 @@
 ﻿namespace AJE.Domain.Events;
 
 [JsonDerivedType(typeof(AiChatStartedEvent), "start")]
+[JsonDerivedType(typeof(AiChatTokenEvent), "token")]
 [JsonDerivedType(typeof(AiChatInteractionEvent), "interaction")]
 public record AiChatEvent
 {
@@ -10,8 +11,8 @@ public record AiChatEvent
     [JsonPropertyName("chatId")]
     public required Guid ChatId { get; init; }
 
-    [JsonPropertyName("startTimestamp")]
-    public required DateTimeOffset StartTimestamp { get; init; }
+    [JsonPropertyName("eventTimestamp")]
+    public required DateTimeOffset EventTimeStamp { get; init; }
 }
 
 #pragma warning disable S2094
@@ -20,13 +21,16 @@ public record AiChatStartedEvent : AiChatEvent
 }
 #pragma warning restore S2094
 
+public record AiChatTokenEvent : AiChatEvent
+{
+    [JsonPropertyName("token")]
+    public required string Token { get; init; }
+}
+
 public record AiChatInteractionEvent : AiChatEvent
 {
     [JsonPropertyName("interactionId")]
     public required Guid InteractionId { get; init; }
-
-    [JsonPropertyName("interactionTimestamp")]
-    public required DateTimeOffset InteractionTimestamp { get; init; }
 
     [JsonPropertyName("input")]
     public required string Input { get; init; }

@@ -15,10 +15,4 @@ public class ArticleEventHandler : IArticleEventHandler
         var db = _connection.GetDatabase();
         await db.PublishAsync(_index.Channel, JsonSerializer.Serialize(articleEvent));
     }
-
-    public void Subscribe(Action<ArticleEvent> handler)
-    {
-        // TODO
-        throw new NotImplementedException();
-    }
 }
