@@ -1,7 +1,8 @@
 ﻿@if (AiChatInteractionEntry != null)
 {
-    <label for="context" class="w-1/5 text-xs">Context</label>
-    <progress id="context" class="ml-4 w-full" max="@_max" value="@_value">@_percent %</progress>
+    <label for="context" class="text-xs w-1/5">Context</label>
+    <progress id="context" class="ml-1 xs:w-4/5 lg:w-3/4" max="@_max" value="@_value">@_percent %</progress>
+    <span class="hidden lg:block text-xs ml-1 lg:w-1/4">@_rawValue</span>
 }
 else
 {
@@ -43,6 +44,13 @@ else
             }
             else
                 return 0.0;
+        }
+    }
+    private string _rawValue
+    {
+        get
+        {
+            return $"{AiChatInteractionEntry?.NumberOfTokensEvaluated ?? 0} / {AiChatInteractionEntry?.NumberOfTokensContext ?? 1}";
         }
     }
 }
