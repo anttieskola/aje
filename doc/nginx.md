@@ -1,4 +1,4 @@
-# Zeus (development)
+# Development (zeus) Everything locally with GTX 3060 (12GB)
 
 ## Hosts
 ```
@@ -65,7 +65,7 @@ server {
 }
 ```
 
-## Production
+# Production (ares) Websites + Redis
 
 ## Hosts
 ```
@@ -160,5 +160,31 @@ server {
                 proxy_set_header Host $host;
                 proxy_cache_bypass $http_upgrade;
        }
+}
+```
+
+# Production (god) - Llama.cpp with GTX 3080 (10GB)
+
+## Hosts
+```
+127.0.0.1       localhost
+192.168.1.11    god
+
+# The following lines are desirable for IPv6 capable hosts
+::1     localhost ip6-localhost ip6-loopback
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+```
+
+## Nginx
+```
+server {
+        listen 80;
+        root /var/www/html;
+        index index.html;
+        location / {
+                proxy_pass http://localhost:5999;
+                proxy_http_version 1.1;
+        }
 }
 ```
