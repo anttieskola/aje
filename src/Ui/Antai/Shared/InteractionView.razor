@@ -3,7 +3,8 @@
     <div class="border-solid border-2 border-t-2 border-y-0 rounded-lg border-sky-600 p-2">
     <div class="flex sm:flex-row">
         <div class="text-xs w-2/6">@AiChatInteractionEntry.InteractionTimestamp.ToString("yyyy-MM-dd hh:mm")</div>
-        <div class="text-xs w-4/6">@AiChatInteractionEntry.InteractionId</div>
+        <div class="text-xs w-2/6">@AiChatInteractionEntry.InteractionId</div>
+        <div class="text-xs w-2/6">@ModelName()</div>
     </div>
     <div>
         <div class="container w-5/6 m-1 p-2 rounded-lg rounded-bl-none bg-slate-800 ">
@@ -33,5 +34,10 @@ else
     private int CalculateRows(string text)
     {
         return text.Length / 100;
+    }
+
+    private string ModelName()
+    {
+        return AiChatInteractionEntry != null ? Path.GetFileNameWithoutExtension(AiChatInteractionEntry.Model) : string.Empty;
     }
 }

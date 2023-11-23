@@ -11,35 +11,37 @@
 }
 else
 {
-    <div class="container sm:flex flex-col md:flex-row">
-    <div class="container text-center mt-1 sm:w-full lg:w-1/3">
-        <div class="flex items-center">
-            <label for="id" class="w-1/5 text-xs">Id</label>
-            <textarea id="id" class="w-4/5 text-xs" rows="1" readonly>@_chat.ChatId</textarea>
+    <div class="fixed top-0 left-1 right-1 mt-[2px] flex w-screen bg-green-950/70 dark:bg-black/70">
+    <div class="container xs:flex-row lg:flex">
+        <div class="container text-center mt-1 xs:w-full lg:w-1/3">
+            <div class="flex items-center">
+                <label for="id" class="w-1/5 text-xs">Id</label>
+                <textarea id="id" class="w-4/5 text-xs" rows="1" cols="37" readonly>@_chat.ChatId</textarea>
+            </div>
         </div>
-    </div>
-    <div class="container text-center mt-1 sm:w-full lg:w-1/3">
-        <div class="flex items-center">
-            <label for="id" class="w-1/4 text-xs">Start</label>
-            <textarea id="id" class="w-3/4 text-xs" rows="1" cols="17"
-                readonly>@_chat.StartTimestamp.ToString("yyyy-MM-dd hh:mm")</textarea>
+        <div class="container text-center mt-1 xs:w-full lg:w-1/3">
+            <div class="flex items-center">
+                <label for="id" class="w-1/5 text-xs">Start</label>
+                <textarea id="id" class="w-4/5 text-xs" rows="1" cols="17"
+                    readonly>@_chat.StartTimestamp.ToString("yyyy-MM-dd hh:mm")</textarea>
+            </div>
         </div>
-    </div>
-    <div class="container text-center mt-1 sm:w-full lg:w-1/3">
-        <div class="flex items-center">
-            <label for="context" class="text-xs">Context (placeholder)</label>
-            <progress id="context" max="100" value="45">45%</progress>
+        <div class="container text-center mt-1 xs:w-full lg:w-1/3">
+            <div class="flex items-center">
+                <ContextView AiChatInteractionEntry="@_lastInteraction" />
+            </div>
         </div>
     </div>
 </div>
-
+    <div class="lg:mt-[30px] xs:mt-[68px]">
     @foreach (var interaction in _chat.Interactions)
-    {
-        <InteractionView AiChatInteractionEntry="@interaction" />
-    }
-
-    <InteractionCreator ChatId="_chat.ChatId" />
+        {
+            <InteractionView AiChatInteractionEntry="@interaction" />
+        }
+        <InteractionCreator ChatId="_chat.ChatId" />
+    </div>
 }
+
 
 @code {
 
@@ -48,6 +50,16 @@ else
 
     private IRedisIndex _index = new AiChatIndex();
     private AiChat? _chat;
+
+    private AiChatInteractionEntry? _lastInteraction
+    {
+        get
+        {
+            if (_chat != null && _chat.Interactions.Count > 0)
+                return _chat.Interactions.Last();
+            return null;
+        }
+    }
     protected override async Task OnInitializedAsync()
     {
         var pubsub = Connection.GetSubscriber();

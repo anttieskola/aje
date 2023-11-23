@@ -1,0 +1,48 @@
+﻿@if (AiChatInteractionEntry != null)
+{
+    <label for="context" class="w-1/5 text-xs">Context</label>
+    <progress id="context" class="ml-4 w-full" max="@_max" value="@_value">@_percent %</progress>
+}
+else
+{
+    <label for="context" class="w-1/5 text-xs">Context</label>
+    <progress id="context" class="ml-4 w-full" max="1" value="0">0%</progress>
+}
+
+@code {
+
+    [Parameter]
+    public AiChatInteractionEntry? AiChatInteractionEntry { get; set; }
+
+    private int _max
+    {
+        get
+        {
+            return AiChatInteractionEntry?.NumberOfTokensContext ?? 1;
+        }
+    }
+
+    private int _value
+    {
+        get
+        {
+            return AiChatInteractionEntry?.NumberOfTokensEvaluated ?? 0;
+        }
+    }
+
+    private double _percent
+    {
+        get
+        {
+
+            if (AiChatInteractionEntry != null)
+            {
+                var max = (double)AiChatInteractionEntry.NumberOfTokensContext;
+                var current = (double)AiChatInteractionEntry.NumberOfTokensEvaluated;
+                return Math.Round((current / max) * 100, 2);
+            }
+            else
+                return 0.0;
+        }
+    }
+}
