@@ -923,10 +923,6 @@ input[type=submit]:enabled:hover {
   display: none;
 }
 
-.h-3 {
-  height: 0.75rem;
-}
-
 .w-1\/5 {
   width: 20%;
 }
@@ -1028,6 +1024,11 @@ input[type=submit]:enabled:hover {
   line-height: 1rem;
 }
 
+.text-green-300 {
+  --tw-text-opacity: 1;
+  color: rgb(134 239 172 / var(--tw-text-opacity));
+}
+
 .text-red-500 {
   --tw-text-opacity: 1;
   color: rgb(239 68 68 / var(--tw-text-opacity));
@@ -1038,30 +1039,6 @@ input[type=submit]:enabled:hover {
 }
 
 @media (min-width: 400px) {
-  .xs\:fixed {
-    position: fixed;
-  }
-
-  .xs\:bottom-0 {
-    bottom: 0px;
-  }
-
-  .xs\:left-0 {
-    left: 0px;
-  }
-
-  .xs\:bottom-20 {
-    bottom: 5rem;
-  }
-
-  .xs\:left-6 {
-    left: 1.5rem;
-  }
-
-  .xs\:left-\[6px\] {
-    left: 6px;
-  }
-
   .xs\:mt-\[68px\] {
     margin-top: 68px;
   }

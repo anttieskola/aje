@@ -29,7 +29,13 @@
     </div>
 </div>
 
-@if (_output != null)
+@if (_output == null && _inputDisabled)
+{
+    <div class="container items-center text-center">
+    <p class="text-green-300">Waiting on turn on the graphics card/llama.cpp server...</p>
+</div>
+}
+else if (_output != null)
 {
     <div class="flex justify-end m-1">
     <div class="container w-11/12 m-1 p-2 rounded-lg rounded-br-none bg-slate-800">
@@ -97,11 +103,13 @@
         _inputError = null;
         _inputDisabled = true;
         StateHasChanged();
+        await Task.Delay(TimeSpan.FromMilliseconds(200));
         await Sender.Send(new SendAiChatMessageCommand
             {
                 ChatId = ChatId,
                 Message = _input,
             });
+        await Task.Delay(TimeSpan.FromMilliseconds(200));
         await InvokeAsync(Reset);
     }
 
