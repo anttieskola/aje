@@ -1,4 +1,6 @@
-﻿@if (AiChatInteractionEntry != null)
+﻿@inject IJSRuntime JS
+
+@if (AiChatInteractionEntry != null)
 {
     <div class="border-solid border-2 border-t-2 border-y-0 rounded-lg border-sky-600 p-2">
     <div class="flex sm:flex-row">
@@ -7,16 +9,16 @@
         <div class="text-xs w-2/6">@ModelName()</div>
     </div>
     <div>
-        <div class="container w-5/6 m-1 p-2 rounded-lg rounded-bl-none bg-slate-800 ">
+        <div class="container m-1 p-2 rounded-lg rounded-bl-none bg-slate-800 ">
             <textarea class="ml-1 w-full text-sm" spellcheck="false" disabled
-                rows="@CalculateRows(AiChatInteractionEntry.Input)">@AiChatInteractionEntry.Input</textarea>
+                rows="@_inputRows">@AiChatInteractionEntry.Input</textarea>
         </div>
     </div>
 
     <div class="flex justify-end">
-        <div class="container w-5/6 m-1 p-2 rounded-lg rounded-br-none bg-slate-800">
+        <div class="container m-1 p-2 rounded-lg rounded-br-none bg-slate-800">
             <textarea class="mr-1 w-full text-sm" spellcheck="false" disabled
-                rows="@CalculateRows(AiChatInteractionEntry.Output)">@AiChatInteractionEntry.Output</textarea>
+                rows="@_outputRows">@AiChatInteractionEntry.Output</textarea>
         </div>
     </div>
 </div>
@@ -31,10 +33,61 @@ else
     [Parameter]
     public AiChatInteractionEntry? AiChatInteractionEntry { get; set; }
 
-    private int CalculateRows(string text)
+    private int _inputRows = 1;
+    private int _outputRows = 1;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        return text.Length / 100;
+        await CalculateRows();
     }
+
+    // TODO: Similar code with InteractionCreator.razor
+    async Task CalculateRows()
+    {
+        if (AiChatInteractionEntry != null)
+        {
+            var windowWidth = await JS.InvokeAsync<int>("eval", "window.innerWidth");
+            _inputRows = CalculateRows(AiChatInteractionEntry.Input ?? string.Empty, windowWidth);
+            _outputRows = CalculateRows(AiChatInteractionEntry.Output ?? string.Empty, windowWidth);
+            StateHasChanged();
+        }
+    }
+
+    int CalculateRows(string text, int windowWidth)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            return 1;
+
+        // letter width with current settings is around 7...10px
+        // width of textare is ~90% of window width on small screens
+        // larger screens get bigger margins
+        var columns = (int)((double)windowWidth * 0.90 / 8.5);
+        var rows = text.Length / columns;
+        // add line feeds
+        var lineFeeds = text.Count(c => c == '\n');
+        rows += lineFeeds;
+        // fine tuning
+        if (windowWidth < 600)
+        {
+            // small screen
+            if (rows < 5)
+                rows += 2;
+            else if (rows < 20)
+                rows += 3;
+            else if (rows < 30)
+                rows += 4;
+            else
+                rows += 5;
+        }
+        else
+        {
+            // large screen
+            if (rows < 20)
+                rows += 2;
+        }
+        return rows == 0 ? 1 : rows;
+    }
+
 
     private string ModelName()
     {
