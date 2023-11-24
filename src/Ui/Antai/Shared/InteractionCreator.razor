@@ -14,12 +14,13 @@
         @if (_inputDisabled)
         {
             <textarea id="disabledInput" class="ml-1 w-full text-sm" spellcheck="false" disabled aria-label="input"
-                @bind="_input" @onkeydown="InputKeyDown" rows="@_inputRows">@_input </textarea>
+                @bind="_input" rows="@_inputRows">@_input </textarea>
         }
         else
         {
             <textarea id="input" tabindex="0" class="ml-1 w-full text-sm" spellcheck="false" aria-label="input"
-                @bind="_input" @onkeydown="InputKeyDown" placeholder="Type your message here" rows="@_inputRows">@_input</textarea>
+                @bind="_input" @onkeydown="OnKeyDown" placeholder="Type your message here"
+                rows="@_inputRows">@_input</textarea>
 
             <button class="submitButton" @onclick="InputSubmit" aria-label="submit">
                 <Icon Name="arrow-return-left" Padding="2" Size="26" />
@@ -120,7 +121,7 @@
     }
 
     // TODO: Keyevents should be send using SignalR (redis channels) to all browsers that have chat open
-    async Task InputKeyDown(KeyboardEventArgs args)
+    async Task OnKeyDown(KeyboardEventArgs args)
     {
         if (args.Key == null
         || args.CtrlKey
