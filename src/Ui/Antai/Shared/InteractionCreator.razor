@@ -19,8 +19,7 @@
         else
         {
             <textarea id="input" tabindex="0" class="ml-1 w-full text-sm" spellcheck="false" aria-label="input"
-                @bind="_input" @onkeydown="InputKeyDown" placeholder="Type your message here"
-                ows="@_inputRows">@_input</textarea>
+                @bind="_input" @onkeydown="InputKeyDown" placeholder="Type your message here" rows="@_inputRows">@_input</textarea>
 
             <button class="submitButton" @onclick="InputSubmit" aria-label="submit">
                 <Icon Name="arrow-return-left" Padding="2" Size="26" />
@@ -32,7 +31,7 @@
 @if (_output != null)
 {
     <div class="flex justify-end">
-    <div class="container m-1 p-2 rounded-lg rounded-br-none bg-slate-800">
+    <div class="container w-11/12 m-1 p-2 rounded-lg rounded-br-none bg-slate-800">
         <textarea id="output" class="mr-1 w-full text-sm" spellcheck="false" disabled aria-label="output"
             rows="@_outputRows">@_output</textarea>
     </div>
@@ -181,7 +180,8 @@
     async Task CalculateRows()
     {
         var windowWidth = await JS.InvokeAsync<int>("eval", "window.innerWidth");
-        _inputRows = CalculateRows(_input ?? string.Empty, windowWidth);
+        if (!_inputDisabled)
+            _inputRows = CalculateRows(_input ?? string.Empty, windowWidth);
         _outputRows = CalculateRows(_output ?? string.Empty, windowWidth);
     }
 
