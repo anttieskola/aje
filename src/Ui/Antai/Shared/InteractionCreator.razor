@@ -10,7 +10,7 @@
             <div class="text-red-500">@_inputError</div>
         }
     </div>
-    <div class="flex">
+    <div class="flex m-1">
         @if (_inputDisabled)
         {
             <textarea id="disabledInput" class="ml-1 w-full text-sm" spellcheck="false" disabled aria-label="input"
@@ -31,7 +31,7 @@
 
 @if (_output != null)
 {
-    <div class="flex justify-end">
+    <div class="flex justify-end m-1">
     <div class="container w-11/12 m-1 p-2 rounded-lg rounded-br-none bg-slate-800">
         <textarea id="output" class="mr-1 w-full text-sm" spellcheck="false" disabled aria-label="output"
             rows="@_outputRows">@_output</textarea>
