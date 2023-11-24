@@ -11,7 +11,7 @@
     <div>
         <div class="container w-11/12 mt-2 p-2 rounded-lg rounded-bl-none bg-slate-800 ">
             <textarea class="ml-1 w-full text-sm" spellcheck="false" disabled
-                rows="@_inputRows">@AiChatInteractionEntry.Input</textarea>
+                rows="6">@AiChatInteractionEntry.Input</textarea>
         </div>
     </div>
 
@@ -33,12 +33,14 @@ else
     [Parameter]
     public AiChatInteractionEntry? AiChatInteractionEntry { get; set; }
 
-    private int _inputRows = 1;
     private int _outputRows = 1;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        var inputText = await JS.InvokeAsync<string>("eval", "document.getElementById('inputText').value");
+        var outputText = await JS.InvokeAsync<string>("eval", "document.getElementById('outputText').value");
         await CalculateRows();
+
     }
 
     // TODO: Similar code with InteractionCreator.razor
@@ -47,8 +49,6 @@ else
         if (AiChatInteractionEntry != null)
         {
             var windowWidth = await JS.InvokeAsync<int>("eval", "window.innerWidth");
-            _inputRows = CalculateRows(AiChatInteractionEntry.Input ?? string.Empty, windowWidth);
-            _outputRows = CalculateRows(AiChatInteractionEntry.Output ?? string.Empty, windowWidth);
             StateHasChanged();
         }
     }
