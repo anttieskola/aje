@@ -95,8 +95,6 @@
         }
         _inputError = null;
         _inputDisabled = true;
-        if (_js is not null)
-            await _js.InvokeVoidAsync("outputStart");
         StateHasChanged();
         await Sender.Send(new SendAiChatMessageCommand
             {
@@ -108,9 +106,6 @@
 
     async Task Reset()
     {
-        if (_js is not null)
-            await _js.InvokeVoidAsync("outputEnd");
-
         // artificial delay
         // TODO: some animation would be nice
         await Task.Delay(TimeSpan.FromMilliseconds(200));
