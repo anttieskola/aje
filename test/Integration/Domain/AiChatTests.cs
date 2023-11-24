@@ -42,7 +42,7 @@ public class AiChatTests : IClassFixture<HttpClientFixture>, IClassFixture<Redis
         // arrange
         await _redisFixture.Database.KeyDeleteAsync(_index.RedisId(_idChat.ToString()));
 
-        var configuration = new LlamaConfiguration { Host = "http://localhost:8080", LogFolder = "/tmp" };
+        var configuration = new LlamaConfiguration { Host = TestConstants.LlamaAddress, LogFolder = "/tmp" };
         var aiChatRepository = new AiChatRepository(new Mock<ILogger<AiChatRepository>>().Object, _redisFixture.Connection);
         var aiEventHandler = new AiChatEventHandler(_redisFixture.Connection);
         var aiModel = new LlamaAiModel(new Mock<ILogger<LlamaAiModel>>().Object, configuration, _httpClientFixture.HttpClientFactory);

@@ -7,6 +7,7 @@ namespace AJE.Test.Unit.Domain.Queries;
 
 public class GetArticleSentimentPolarityQueryHandlerTests
 {
+    // It calls itself
     [Fact]
     public void Ok()
     {

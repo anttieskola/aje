@@ -31,7 +31,7 @@ public class Playground
     [Fact]
     public async Task ScanLanguages()
     {
-        using var connection = await ConnectionMultiplexer.ConnectAsync("localhost:6379");
+        using var connection = await ConnectionMultiplexer.ConnectAsync("ares:6379");
         var db = connection.GetDatabase();
         var index = new ArticleIndex();
         var arguments = new string[] { index.Name, "*", "RETURN", "1", "$.language", "LIMIT", "0", "10000" };

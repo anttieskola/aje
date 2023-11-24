@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 namespace AJE.Test.Integration.Infra;
 
 /// <summary>
-/// Tests require llama.cpp running on localhost:8080
+/// Tests require llama.cpp running on localhost:5999
 /// </summary>
 public class LlamaAiModelTests : IClassFixture<HttpClientFixture>
 {
@@ -21,7 +21,7 @@ public class LlamaAiModelTests : IClassFixture<HttpClientFixture>
     [Fact]
     public async Task CompletionAsyncTest()
     {
-        var configuration = new LlamaConfiguration { Host = "http://localhost:8080", LogFolder = "/var/aje/ai" };
+        var configuration = new LlamaConfiguration { Host = TestConstants.LlamaAddress, LogFolder = "/var/aje/ai" };
         var model = new LlamaAiModel(new Mock<ILogger<LlamaAiModel>>().Object, configuration, _fixture.HttpClientFactory);
         var request = new CompletionRequest
         {
@@ -39,7 +39,7 @@ public class LlamaAiModelTests : IClassFixture<HttpClientFixture>
     [Fact]
     public async Task CompletionStreamAsync()
     {
-        var configuration = new LlamaConfiguration { Host = "http://localhost:8080", LogFolder = "/var/aje/ai" };
+        var configuration = new LlamaConfiguration { Host = TestConstants.LlamaAddress, LogFolder = "/var/aje/ai" };
         var model = new LlamaAiModel(new Mock<ILogger<LlamaAiModel>>().Object, configuration, _fixture.HttpClientFactory);
         var request = new CompletionRequest
         {
@@ -65,7 +65,7 @@ public class LlamaAiModelTests : IClassFixture<HttpClientFixture>
     [Fact]
     public async Task TokenizeAndDeTokenize()
     {
-        var configuration = new LlamaConfiguration { Host = "http://localhost:8080", LogFolder = "/var/aje/ai" };
+        var configuration = new LlamaConfiguration { Host = TestConstants.LlamaAddress, LogFolder = "/var/aje/ai" };
         var model = new LlamaAiModel(new Mock<ILogger<LlamaAiModel>>().Object, configuration, _fixture.HttpClientFactory);
         var tokenizeRequest = new TokenizeRequest
         {
@@ -88,7 +88,7 @@ public class LlamaAiModelTests : IClassFixture<HttpClientFixture>
     [Fact]
     public async Task Embedding()
     {
-        var configuration = new LlamaConfiguration { Host = "http://localhost:8080", LogFolder = "/var/aje/ai" };
+        var configuration = new LlamaConfiguration { Host = TestConstants.LlamaAddress, LogFolder = "/var/aje/ai" };
         var model = new LlamaAiModel(new Mock<ILogger<LlamaAiModel>>().Object, configuration, _fixture.HttpClientFactory);
         var embeddingRequest = new EmbeddingRequest
         {
@@ -102,7 +102,7 @@ public class LlamaAiModelTests : IClassFixture<HttpClientFixture>
     [Fact]
     public async Task AnttiChatMLCreatorPromptLength()
     {
-        var configuration = new LlamaConfiguration { Host = "http://localhost:8080", LogFolder = "/var/aje/ai" };
+        var configuration = new LlamaConfiguration { Host = TestConstants.LlamaAddress, LogFolder = "/var/aje/ai" };
         var model = new LlamaAiModel(new Mock<ILogger<LlamaAiModel>>().Object, configuration, _fixture.HttpClientFactory);
         var a = new AntaiChatML();
         var tokenizeRequest = new TokenizeRequest

@@ -10,15 +10,15 @@
     </div>
     <div>
         <div class="container w-11/12 mt-2 p-2 rounded-lg rounded-bl-none bg-slate-800 ">
-            <textarea class="ml-1 w-full text-sm" spellcheck="false" disabled
-                rows="6">@AiChatInteractionEntry.Input</textarea>
+            <textarea id="@(GenerateInputId())" class="ml-1 w-full text-sm" spellcheck="false" disabled rows="6"
+                cols="50">@AiChatInteractionEntry.Input</textarea>
         </div>
     </div>
 
     <div class="flex justify-end">
         <div class="container w-11/12 mt-2 p-2 rounded-lg rounded-br-none bg-slate-800">
-            <textarea class="mr-1 w-full text-sm" spellcheck="false" disabled
-                rows="@_outputRows">@AiChatInteractionEntry.Output</textarea>
+            <textarea id="@GenerateOutputId()" class="mr-1 w-full text-sm" spellcheck="false" disabled
+                cols="@_outputCols" rows="@_outputRows">@AiChatInteractionEntry.Output</textarea>
         </div>
     </div>
 </div>
@@ -33,22 +33,27 @@ else
     [Parameter]
     public AiChatInteractionEntry? AiChatInteractionEntry { get; set; }
 
-    private int _outputRows = 1;
+    int _outputRows = 2;
+    int _outputCols = 50;
+
+    string GenerateInputId()
+    {
+        return $"input_{AiChatInteractionEntry?.InteractionId.ToString()}" ?? string.Empty;
+    }
+    string GenerateOutputId()
+    {
+        return $"output_{AiChatInteractionEntry?.InteractionId.ToString()}" ?? string.Empty;
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        var inputText = await JS.InvokeAsync<string>("eval", "document.getElementById('inputText').value");
-        var outputText = await JS.InvokeAsync<string>("eval", "document.getElementById('outputText').value");
-        await CalculateRows();
+        if (JS == null || AiChatInteractionEntry == null)
+            return;
 
-    }
-
-    // TODO: Similar code with InteractionCreator.razor
-    async Task CalculateRows()
-    {
-        if (AiChatInteractionEntry != null)
+        int? windowWidth = await JS.InvokeAsync<int>("eval", "window.innerWidth");
+        if (windowWidth.HasValue)
         {
-            var windowWidth = await JS.InvokeAsync<int>("eval", "window.innerWidth");
+            _outputRows = CalculateRows(AiChatInteractionEntry.Output, windowWidth.Value);
             StateHasChanged();
         }
     }

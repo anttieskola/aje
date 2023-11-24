@@ -923,6 +923,10 @@ input[type=submit]:enabled:hover {
   display: none;
 }
 
+.h-3 {
+  height: 0.75rem;
+}
+
 .w-1\/5 {
   width: 20%;
 }

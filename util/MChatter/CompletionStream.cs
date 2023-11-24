@@ -2,7 +2,7 @@
 
 public class CompletionStream : IDisposable
 {
-    private readonly Uri _serverUri = new("http://localhost:8080/completion");
+    private readonly Uri _serverUri = new("http://localhost:5999/completion");
     private readonly HttpClient _client;
 
     public CompletionStream()
