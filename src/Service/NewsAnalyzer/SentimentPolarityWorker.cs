@@ -43,7 +43,7 @@ public class SentimentPolarityWorker : BackgroundService
         var context = scope.ServiceProvider.GetRequiredService<NewsAnalyzerContext>();
         var rows = context.SentimentPolarities
             .GroupBy(row => row.Source)
-            .Select(group => group.OrderByDescending(row => row.Timestamp).First())
+            .Select(group => group.OrderByDescending(row => row.PolarityVersion).First())
             .AsAsyncEnumerable();
 
         await foreach (var row in rows)
@@ -52,7 +52,7 @@ public class SentimentPolarityWorker : BackgroundService
                 break;
 
             // update article with saved polarity if they are missing
-            var current = await _sender.Send(new GetArticleByIdQuery { Id = row.Id }, _cancellationToken);
+            var current = await _sender.Send(new GetArticleBySourceQuery { Source = row.Source }, _cancellationToken);
             if (current != null && current.PolarityVersion < row.PolarityVersion)
             {
                 current.Polarity = row.Polarity;
@@ -88,8 +88,6 @@ public class SentimentPolarityWorker : BackgroundService
             var context = scope.ServiceProvider.GetRequiredService<NewsAnalyzerContext>();
             context.SentimentPolarities.Add(new ArticleSentimentPolarityRow
             {
-                Id = article.Id,
-                Timestamp = DateTimeOffset.UtcNow,
                 Source = article.Source,
                 Polarity = polarityEvent.Polarity,
                 PolarityVersion = polarityEvent.PolarityVersion

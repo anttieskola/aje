@@ -14,6 +14,12 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddDomain();
         services.AddRedis(config);
         services.AddHostedService<YleWorker>();
+
+        // dummys
+        services.AddSingleton<IAiModel, DummyAiModel>();
+        services.AddSingleton<IAiLogger, DummyAiLogger>();
+        services.AddSingleton<IAiChatRepository, DummyAiChatRepository>();
+        services.AddSingleton<IAiChatEventHandler, DummyAiChatEventHandler>();
     })
     .ConfigureLogging(logging =>
     {

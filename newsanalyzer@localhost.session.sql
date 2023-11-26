@@ -1,4 +1,4 @@
-select sp."Id"
+select sp.source
 from sentimentpolarities sp
-group by sp."Id"
+group by sp.source
 HAVING count(*) > 1;

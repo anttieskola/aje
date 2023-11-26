@@ -129,7 +129,7 @@ public class YleWorker : BackgroundService
     {
         try
         {
-            HtmlParser.Parse(content, string.Empty);
+            HtmlParser.Parse(content, "https://news.anttieskola.com/123456789012");
             return true;
         }
         catch (ParsingException)

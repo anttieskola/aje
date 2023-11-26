@@ -15,8 +15,9 @@ public class Playground
         // zeus: article:1fbf9390-2e7d-75ba-a9b1-4f8896754a0a
         // ares: article:365e3ed8-416e-43be-9e1b-5c0836d4e7b7
         // ares: article:846510de-b512-4d74-8046-30a469379941
+        // ares: article:db883d82-fefd-4550-943b-9321049055a7
         var asQuery = RedisTokenizer.RedisEscape("https://yle.fi/a/74-20025030");
-        // "@source:{https\\:\\/\\/yle\\.fi\\/a\\/74\\-20025030}"
+        // ft.search "idx:article" "@source:{https\\:\\/\\/yle\\.fi\\/a\\/74\\-20025030}"
         await Task.Delay(TimeSpan.FromMicroseconds(1));
     }
 #pragma warning restore S2699

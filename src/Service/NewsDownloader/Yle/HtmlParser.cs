@@ -12,9 +12,31 @@ public static class HtmlParser
         return article;
     }
 
+    public static Guid CreateId(string source)
+    {
+        var guidString = new StringBuilder();
+        if (source.Contains("yle.fi"))
+        {
+            guidString.Append(1000);
+        }
+        foreach (var c in source)
+        {
+            if (char.IsDigit(c))
+            {
+                guidString.Append(c);
+            }
+        }
+        if (guidString.Length < 12)
+            throw new ParsingException("unable to create proper id");
+
+        byte[] hash = SHA1.HashData(Encoding.Default.GetBytes(guidString.ToString()));
+        return new Guid(hash.Take(16).ToArray());
+    }
+
     // This seems to fail to produce the same hash when the host computer changes...
     // ares vs zeus produces different hashes
-    public static Guid CreateId(string source)
+    // or somethign else is wrong dono, but have no idea atm...
+    public static Guid CreateIdOld(string source)
     {
         var data = MD5.HashData(Encoding.UTF8.GetBytes(source));
         var guid = new Guid(data);

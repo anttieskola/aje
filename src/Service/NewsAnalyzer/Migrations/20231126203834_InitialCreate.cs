@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
@@ -7,7 +6,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AJE.Service.NewsAnalyzer.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -16,17 +15,15 @@ namespace AJE.Service.NewsAnalyzer.Migrations
                 name: "sentimentpolarities",
                 columns: table => new
                 {
-                    Serial = table.Column<int>(type: "integer", nullable: false)
+                    serial = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Source = table.Column<string>(type: "text", nullable: false),
-                    Timestamp = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    Polarity = table.Column<int>(type: "integer", nullable: false),
-                    PolarityVersion = table.Column<int>(type: "integer", nullable: false)
+                    source = table.Column<string>(type: "text", nullable: false),
+                    polarity = table.Column<int>(type: "integer", nullable: false),
+                    polarityversion = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_sentimentpolarities", x => x.Serial);
+                    table.PrimaryKey("PK_sentimentpolarities", x => x.serial);
                 });
         }
 
