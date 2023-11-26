@@ -14,7 +14,7 @@ public class RedisFixture : IDisposable
 
     public RedisFixture()
     {
-        Connection = ConnectionMultiplexer.Connect("ares:6379");
+        Connection = ConnectionMultiplexer.Connect(TestConstants.RedisAddress);
         Database = Connection.GetDatabase();
         ArticleRepository = new ArticleRepository(new Mock<ILogger<ArticleRepository>>().Object, Connection);
         var redis = new RedisService(new Mock<ILogger<RedisService>>().Object, Connection);

@@ -85,6 +85,11 @@ public class ArticleTests : IClassFixture<RedisFixture>
         Assert.NotNull(articles);
         Assert.NotEmpty(articles.Items);
 
+        // act: get by source
+        var getBySourceHandler = new GetArticleBySourceQueryHandler(_redisFixture.ArticleRepository);
+        var articleBySource = await getBySourceHandler.Handle(new GetArticleBySourceQuery { Source = source }, CancellationToken.None);
+        Assert.NotNull(articleBySource);
+
         // clean
         await _redisFixture.Database.KeyDeleteAsync(_index.RedisId(_idOk.ToString()));
     }

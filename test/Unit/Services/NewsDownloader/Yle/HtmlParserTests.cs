@@ -10,6 +10,7 @@ public class HtmlParserTests
     public void CreateId()
     {
         // few samples
+        Assert.Equal(new Guid("1fbf9390-2e7d-75ba-a9b1-4f8896754a0a"), HtmlParser.CreateId("https://yle.fi/a/74-20025030"));
         Assert.Equal(new Guid("330c936a-80bc-150d-0839-88ffd3895c4a"), HtmlParser.CreateId("https://yle.fi/a/74-20038161"));
         Assert.Equal(new Guid("72b10cc1-e7ee-59bc-a581-140e057a9d46"), HtmlParser.CreateId("https://yle.fi/a/74-20056936"));
         Assert.Equal(new Guid("5db98199-c8aa-de84-3cac-ae64cf01c0d7"), HtmlParser.CreateId("https://yle.fi/a/74-20053559"));

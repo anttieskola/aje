@@ -12,6 +12,8 @@ public static class HtmlParser
         return article;
     }
 
+    // This seems to fail to produce the same hash when the host computer changes...
+    // ares vs zeus produces different hashes
     public static Guid CreateId(string source)
     {
         var data = MD5.HashData(Encoding.UTF8.GetBytes(source));
