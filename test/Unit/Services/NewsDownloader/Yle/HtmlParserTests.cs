@@ -6,24 +6,7 @@ namespace AJE.Test.Unit.Services.News.Yle;
 
 public class HtmlParserTests
 {
-    private const string _source = "https://news.anttieskola.com/123456789012";
-
-    [Fact]
-    public void CreateId()
-    {
-        // test
-        Assert.Equal(Guid.ParseExact("cd3c998d-28f6-6ee2-170a-949ee2a38704", "D"), HtmlParser.CreateId(_source));
-        var url1 = "https://yle.fi/a/74-20052790";
-        var id1 = HtmlParser.CreateId(url1);
-
-        var url2 = "https://yle.fi/a/3-20052790";
-        var id2 = HtmlParser.CreateId(url2);
-
-        Assert.NotEqual(id1, id2);
-
-        var id3 = HtmlParser.CreateId(url1);
-        Assert.Equal(id1, id3);
-    }
+    private readonly Guid _id = Guid.ParseExact("20000000-eaea-c123-4567-890120000000", "D");
 
     private const string _htmlNoScript = @"
 <!DOCTYPE html>
@@ -37,7 +20,7 @@ public class HtmlParserTests
     [Fact]
     public void HtmlEmpty()
     {
-        var expection = Assert.Throws<ParsingException>(() => HtmlParser.Parse(_htmlNoScript, _source));
+        var expection = Assert.Throws<ParsingException>(() => HtmlParser.Parse(_htmlNoScript, _id));
         Assert.Equal("unable to find last script tag", expection.Message);
     }
 
@@ -54,7 +37,7 @@ public class HtmlParserTests
     [Fact]
     public void NoState()
     {
-        var expection = Assert.Throws<ParsingException>(() => HtmlParser.Parse(_htmlNoState, _source));
+        var expection = Assert.Throws<ParsingException>(() => HtmlParser.Parse(_htmlNoState, _id));
         Assert.Equal("unable to find initial state", expection.Message);
     }
 
@@ -72,11 +55,11 @@ public class HtmlParserTests
     [Fact]
     public void NoArticle()
     {
-        var expection = Assert.Throws<ParsingException>(() => HtmlParser.Parse(_htmlNoArticle, _source));
+        var expection = Assert.Throws<ParsingException>(() => HtmlParser.Parse(_htmlNoArticle, _id));
         Assert.Equal("unable to find article", expection.Message);
     }
 
-    private const string _htmlNoDate = @"
+    private const string _htmlNoFullUrl = @"
 <!DOCTYPE html>
 <html>
     <head></head>
@@ -93,9 +76,33 @@ public class HtmlParserTests
 </html>
 ";
     [Fact]
+    public void NoFullUrl()
+    {
+        var expection = Assert.Throws<ParsingException>(() => HtmlParser.Parse(_htmlNoFullUrl, _id));
+        Assert.Equal("no fullUrl", expection.Message);
+    }
+
+    private const string _htmlNoDate = @"
+<!DOCTYPE html>
+<html>
+    <head></head>
+    <body>
+        <script type=""text/javascript"">
+            window.__INITIAL__STATE__={
+                ""pageData"": {
+                    ""article"": {
+                        ""fullUrl"": ""https://news.anttieskola.com/123456789012""
+                    }
+                }
+            }
+        </script>
+    </body>
+</html>
+";
+    [Fact]
     public void NoDate()
     {
-        var expection = Assert.Throws<ParsingException>(() => HtmlParser.Parse(_htmlNoDate, _source));
+        var expection = Assert.Throws<ParsingException>(() => HtmlParser.Parse(_htmlNoDate, _id));
         Assert.Equal("no date", expection.Message);
     }
 
@@ -108,6 +115,7 @@ public class HtmlParserTests
             window.__INITIAL__STATE__={
                 ""pageData"": {
                     ""article"": {
+                        ""fullUrl"": ""https://news.anttieskola.com/123456789012"",
                         ""dateJsonModified"": ""1980-09-12T18:00:00+0300""
                     }
                 }
@@ -119,7 +127,7 @@ public class HtmlParserTests
     [Fact]
     public void NoTitle()
     {
-        var expection = Assert.Throws<ParsingException>(() => HtmlParser.Parse(_htmlNoTitle, _source));
+        var expection = Assert.Throws<ParsingException>(() => HtmlParser.Parse(_htmlNoTitle, _id));
         Assert.Equal("no title", expection.Message);
     }
 
@@ -132,6 +140,7 @@ public class HtmlParserTests
             window.__INITIAL__STATE__={
                 ""pageData"": {
                     ""article"": {
+                        ""fullUrl"": ""https://news.anttieskola.com/123456789012"",
                         ""dateJsonModified"": ""1980-09-12T18:00:00+0300"",
                         ""title"": ""Article title""
                     }
@@ -144,7 +153,7 @@ public class HtmlParserTests
     [Fact]
     public void NoLanguage()
     {
-        var expection = Assert.Throws<ParsingException>(() => HtmlParser.Parse(_htmlNoLanguage, _source));
+        var expection = Assert.Throws<ParsingException>(() => HtmlParser.Parse(_htmlNoLanguage, _id));
         Assert.Equal("no language", expection.Message);
     }
 
@@ -157,6 +166,7 @@ public class HtmlParserTests
             window.__INITIAL__STATE__={
                 ""pageData"": {
                     ""article"": {
+                        ""fullUrl"": ""https://news.anttieskola.com/123456789012"",
                         ""dateJsonModified"": ""1980-09-12T18:00:00+0300"",
                         ""title"": ""Article title"",
                         ""language"": ""en""
@@ -170,7 +180,7 @@ public class HtmlParserTests
     [Fact]
     public void NoContent()
     {
-        var expection = Assert.Throws<ParsingException>(() => HtmlParser.Parse(_htmlNoContent, _source));
+        var expection = Assert.Throws<ParsingException>(() => HtmlParser.Parse(_htmlNoContent, _id));
         Assert.Equal("no content array", expection.Message);
     }
 
@@ -183,6 +193,7 @@ public class HtmlParserTests
             window.__INITIAL__STATE__={
                 ""pageData"": {
                     ""article"": {
+                        ""fullUrl"": ""https://news.anttieskola.com/123456789012"",
                         ""dateJsonModified"": ""1980-09-12T18:00:00+0300"",
                         ""title"": ""Article title"",
                         ""language"": ""en"",
@@ -197,7 +208,7 @@ public class HtmlParserTests
     [Fact]
     public void EmptyContentArray()
     {
-        var expection = Assert.Throws<ParsingException>(() => HtmlParser.Parse(_htmlEmptyContentArray, _source));
+        var expection = Assert.Throws<ParsingException>(() => HtmlParser.Parse(_htmlEmptyContentArray, _id));
         Assert.Equal("empty content array", expection.Message);
     }
 
@@ -210,6 +221,7 @@ public class HtmlParserTests
             window.__INITIAL__STATE__={
                 ""pageData"": {
                     ""article"": {
+                        ""fullUrl"": ""https://news.anttieskola.com/123456789012"",
                         ""dateJsonModified"": ""1980-09-12T18:00:00+0300"",
                         ""title"": ""Article title"",
                         ""language"": ""en"",
@@ -242,8 +254,9 @@ public class HtmlParserTests
     [Fact]
     public void Ok()
     {
-        var article = HtmlParser.Parse(_htmlOk, _source);
+        var article = HtmlParser.Parse(_htmlOk, _id);
         Assert.NotNull(article);
+        Assert.Equal("https://news.anttieskola.com/123456789012", article.Source);
         Assert.Equal(new DateTimeOffset(1980, 9, 12, 18, 0, 0, TimeSpan.FromHours(3)).UtcTicks, article.Modified);
         Assert.Equal("Article title", article.Title);
         Assert.Equal("en", article.Language);
@@ -274,6 +287,7 @@ public class HtmlParserTests
             window.__INITIAL__STATE__={
                 ""pageData"": {
                     ""article"": {
+                        ""fullUrl"": ""https://news.anttieskola.com/123456789012"",
                         ""dateJsonModified"": ""1980-09-12T18:00:00+0300"",
                         ""title"": ""Article title"",
                         ""language"": ""en"",
@@ -294,7 +308,7 @@ public class HtmlParserTests
     [Fact]
     public void LiveFeed()
     {
-        var article = HtmlParser.Parse(_htmlLiveFeed, _source);
+        var article = HtmlParser.Parse(_htmlLiveFeed, _id);
         Assert.NotNull(article);
         Assert.Equal("Article title", article.Title);
         Assert.NotEmpty(article.Content);

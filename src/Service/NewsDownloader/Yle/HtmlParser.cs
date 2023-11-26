@@ -2,45 +2,13 @@
 
 public static class HtmlParser
 {
-    public static Article Parse(string html, string source)
+    public static Article Parse(string html, Guid id)
     {
         var js = ParseJavaScript(html);
         var state = ParseStateString(js);
         var article = ParseJson(state);
-        article.Id = CreateId(source);
-        article.Source = source;
+        article.Id = id;
         return article;
-    }
-
-    public static Guid CreateId(string source)
-    {
-        var guidString = new StringBuilder();
-        if (source.Contains("yle.fi"))
-        {
-            guidString.Append(1000);
-        }
-        foreach (var c in source)
-        {
-            if (char.IsDigit(c))
-            {
-                guidString.Append(c);
-            }
-        }
-        if (guidString.Length < 12)
-            throw new ParsingException("unable to create proper id");
-
-        byte[] hash = SHA1.HashData(Encoding.Default.GetBytes(guidString.ToString()));
-        return new Guid(hash.Take(16).ToArray());
-    }
-
-    // This seems to fail to produce the same hash when the host computer changes...
-    // ares vs zeus produces different hashes
-    // or somethign else is wrong dono, but have no idea atm...
-    public static Guid CreateIdOld(string source)
-    {
-        var data = MD5.HashData(Encoding.UTF8.GetBytes(source));
-        var guid = new Guid(data);
-        return guid;
     }
 
     private static string ParseJavaScript(string content)
@@ -81,6 +49,7 @@ public static class HtmlParser
 
     private static Article ParseArticle(JsonNode article)
     {
+        var fullUrl = article["fullUrl"]?.ToString() ?? throw new ParsingException("no fullUrl");
         var dateJsonModified = (article["dateJsonModified"]?.ToString()) ?? throw new ParsingException("no date");
         var titleElement = article["title"] ?? throw new ParsingException("no title");
         var languageElement = article["language"] ?? throw new ParsingException("no language");
@@ -159,6 +128,7 @@ public static class HtmlParser
         }
         return new Article
         {
+            Source = fullUrl,
             Category = Category.NEWS,
             Polarity = Polarity.Unknown,
             PolarityVersion = 0,

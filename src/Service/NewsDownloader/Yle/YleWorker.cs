@@ -6,6 +6,8 @@ public class YleWorker : BackgroundService
     private readonly YleConfiguration _configuration;
     private readonly ISender _sender;
     private readonly TimeSpan _refreshDelay;
+    private CancellationToken _stoppingToken;
+    private const string _guidCategory = "10000000";
 
     public YleWorker(
         ILogger<YleWorker> logger,
@@ -22,27 +24,38 @@ public class YleWorker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        await Reload(stoppingToken);
+        _stoppingToken = stoppingToken;
 
-        while (!stoppingToken.IsCancellationRequested)
+        await Reload();
+
+        while (!_stoppingToken.IsCancellationRequested)
         {
             // update current links
             foreach (var feed in _configuration.Feeds)
-                await ScanFeed(feed, stoppingToken);
+                await ScanFeed(feed);
 
             _logger.LogInformation("Link count {}", _currentLinks.Count);
 
             // handle links
             foreach (var link in _currentLinks)
             {
-                await HandleLink(link, stoppingToken);
+                await HandleLink(link);
             }
 
             await Task.Delay(_refreshDelay, stoppingToken);
         }
     }
 
-    private async Task Reload(CancellationToken stoppingToken)
+    private async Task<Guid> CreateId(string source)
+    {
+        return await _sender.Send(new GetGuidQuery
+        {
+            Category = _guidCategory,
+            UniqueString = source,
+        }, CancellationToken.None);
+    }
+
+    private async Task Reload()
     {
         var files = Directory.GetFiles(_configuration.DumpFolder, "*.html");
         _logger.LogInformation("Found {} files in dump folder", files.Length);
@@ -50,28 +63,28 @@ public class YleWorker : BackgroundService
         foreach (var file in files)
         {
             var link = $"https://yle.fi/a/{Path.GetFileNameWithoutExtension(file)}";
-            if (!await _sender.Send(new ArticleExistsQuery { Source = link }, stoppingToken))
+            if (!await _sender.Send(new ArticleExistsQuery { Source = link }, _stoppingToken))
             {
-                var content = await File.ReadAllTextAsync(file, stoppingToken);
-                if (TestHtmlParse(content))
+                var content = await File.ReadAllTextAsync(file, _stoppingToken);
+                if (await TestHtmlParse(content))
                 {
                     // add
-                    var article = HtmlParser.Parse(content, link);
-                    await _sender.Send(new AddArticleCommand { Article = article }, stoppingToken);
+                    var article = HtmlParser.Parse(content, await CreateId(link));
+                    await _sender.Send(new AddArticleCommand { Article = article }, _stoppingToken);
                 }
                 else
                 {
                     // file content is invalid, downloading again to see if we get valid article
-                    content = await Request(new Uri(link), stoppingToken);
-                    if (TestHtmlParse(content))
+                    content = await Request(new Uri(link));
+                    if (await TestHtmlParse(content))
                     {
                         // save valid article file
                         _logger.LogInformation("Article file {} fixed with valid content", file);
-                        await File.WriteAllTextAsync(Path.Combine(_configuration.DumpFolder, CreateHTMLFileName(link)), content, stoppingToken);
+                        await File.WriteAllTextAsync(Path.Combine(_configuration.DumpFolder, CreateHTMLFileName(link)), content, _stoppingToken);
 
                         // add
-                        var article = HtmlParser.Parse(content, link);
-                        await _sender.Send(new AddArticleCommand { Article = article }, stoppingToken);
+                        var article = HtmlParser.Parse(content, await CreateId(link));
+                        await _sender.Send(new AddArticleCommand { Article = article }, _stoppingToken);
                     }
                     else
                     {
@@ -82,14 +95,14 @@ public class YleWorker : BackgroundService
         }
     }
 
-    private async Task ScanFeed(YleFeed feed, CancellationToken stoppingToken)
+    private async Task ScanFeed(YleFeed feed)
     {
         try
         {
             using var client = new HttpClient();
-            var response = await client.GetAsync(feed.Url, stoppingToken);
-            var content = await response.Content.ReadAsStringAsync(stoppingToken);
-            await File.WriteAllTextAsync(Path.Combine(_configuration.DumpFolder, CreateRSSFileName(feed.Url)), content, stoppingToken);
+            var response = await client.GetAsync(feed.Url, _stoppingToken);
+            var content = await response.Content.ReadAsStringAsync(_stoppingToken);
+            await File.WriteAllTextAsync(Path.Combine(_configuration.DumpFolder, CreateRSSFileName(feed.Url)), content, _stoppingToken);
             var links = RssParser.Parse(content);
             foreach (var link in links)
             {
@@ -103,20 +116,20 @@ public class YleWorker : BackgroundService
         }
     }
 
-    private async Task HandleLink(string link, CancellationToken ct)
+    private async Task HandleLink(string link)
     {
         try
         {
-            if (!await _sender.Send(new ArticleExistsQuery { Source = link }, ct))
+            if (!await _sender.Send(new ArticleExistsQuery { Source = link }, _stoppingToken))
             {
                 // Note, we want to crash if any errors occur in reloading
                 // Yle uses [Amazon CloudFron](https://aws.amazon.com/cloudfront/)
                 // So in case of high traffic or similar we might download an CloudFront error page
                 // TODO: Feature that detects the error page and works around it
-                var content = await Request(new Uri(link), ct);
-                await File.WriteAllTextAsync(Path.Combine(_configuration.DumpFolder, CreateHTMLFileName(link)), content, ct);
-                var article = HtmlParser.Parse(content, link);
-                await _sender.Send(new AddArticleCommand { Article = article }, ct);
+                var content = await Request(new Uri(link));
+                await File.WriteAllTextAsync(Path.Combine(_configuration.DumpFolder, CreateHTMLFileName(link)), content, _stoppingToken);
+                var article = HtmlParser.Parse(content, await CreateId(link));
+                await _sender.Send(new AddArticleCommand { Article = article }, _stoppingToken);
             }
         }
         catch (Exception e)
@@ -125,11 +138,11 @@ public class YleWorker : BackgroundService
         }
     }
 
-    public static bool TestHtmlParse(string content)
+    public async Task<bool> TestHtmlParse(string content)
     {
         try
         {
-            HtmlParser.Parse(content, "https://news.anttieskola.com/123456789012");
+            HtmlParser.Parse(content, await CreateId("https://news.anttieskola.com/123456789012"));
             return true;
         }
         catch (ParsingException)
@@ -138,23 +151,23 @@ public class YleWorker : BackgroundService
         }
     }
 
-    public static async Task<string> Request(Uri uri, CancellationToken stoppingToken)
+    public async Task<string> Request(Uri uri)
     {
         using var client = new HttpClient();
         var request = CreateRequest(uri);
-        var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, stoppingToken);
+        var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, _stoppingToken);
         if (response.Content.Headers.ContentEncoding.Contains("gzip"))
         {
-            using var stream = await response.Content.ReadAsStreamAsync(stoppingToken);
+            using var stream = await response.Content.ReadAsStreamAsync(_stoppingToken);
             using var gzipStream = new GZipStream(stream, CompressionMode.Decompress);
             using var decompressedStream = new MemoryStream();
-            await gzipStream.CopyToAsync(decompressedStream, stoppingToken);
+            await gzipStream.CopyToAsync(decompressedStream, _stoppingToken);
             decompressedStream.Seek(0, SeekOrigin.Begin);
-            return await new StreamReader(decompressedStream).ReadToEndAsync(stoppingToken);
+            return await new StreamReader(decompressedStream).ReadToEndAsync(_stoppingToken);
         }
         else
         {
-            return await response.Content.ReadAsStringAsync(stoppingToken);
+            return await response.Content.ReadAsStringAsync(_stoppingToken);
         }
     }
 
