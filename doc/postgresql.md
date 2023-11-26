@@ -130,3 +130,23 @@ dotnet ef migrations add InitialCreate --context NewsAnalyzerContext
 
 # Should create Migrations folder and migration script
 ```
+
+# Backups
+```bash
+#!/bin/bash
+pg_dump -U antti -F t newsanalyzer | bzip2 > db_newsanalyzer.tar.bz2
+```
+
+# Restore
+```bash
+#!/bin/bash
+
+# drop (EF migration history fails currently with backups so have to remake it)
+sudo -u postgres dropdb newsanalyzer
+
+# create
+sudo -u postgres createdb -O antti newsanalyzer
+
+# restore
+bzip2 -d -c db_newsanalyzer.tar.bz2 | pg_restore -U antti -d newsanalyzer
+```
