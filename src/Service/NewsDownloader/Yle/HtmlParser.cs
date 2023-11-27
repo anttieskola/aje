@@ -192,6 +192,32 @@ public static class HtmlParser
                             }
                             break;
                         }
+                    case "text":
+                        {
+                            var content = (JsonArray?)page["content"];
+                            if (content != null)
+                            {
+                                foreach (var c in content)
+                                {
+                                    if (c != null)
+                                    {
+                                        var contentType = c["type"]?.ToString();
+                                        if (contentType == "TextBlock")
+                                        {
+                                            var text = (string?)c["text"];
+                                            if (text != null)
+                                            {
+                                                elements.Add(new MarkdownTextElement
+                                                {
+                                                    Text = text
+                                                });
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            break;
+                        }
                     default:
                         break;
                 }

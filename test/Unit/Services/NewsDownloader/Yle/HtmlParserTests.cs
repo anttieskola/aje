@@ -377,6 +377,15 @@ public class HtmlParserTests
                                                 ""text"": ""Astu 1990-luvulle""
                                             }
                                         ]
+                                    },
+                                    {
+                                        ""type"": ""text"",
+                                        ""content"": [
+                                            {
+                                                ""type"": ""TextBlock"",
+                                                ""text"": ""C-kasettimankka oli 1990-luvulle saakka jokaisen teinin huonessa.""
+                                            }
+                                        ]
                                     }
                                 ]
                             }
@@ -396,10 +405,14 @@ public class HtmlParserTests
         Assert.NotNull(article);
         Assert.Equal("Article title", article.Title);
         Assert.NotEmpty(article.Content);
-        Assert.Single(article.Content);
+        Assert.Equal(2, article.Content.Count);
 
         var headerElement = article.Content.ElementAt(0) as MarkdownHeaderElement;
         Assert.NotNull(headerElement);
         Assert.Equal("Astu 1990-luvulle", headerElement.Text);
+
+        var textElement = article.Content.ElementAt(1) as MarkdownTextElement;
+        Assert.NotNull(textElement);
+        Assert.Equal("C-kasettimankka oli 1990-luvulle saakka jokaisen teinin huonessa.", textElement.Text);
     }
 }
