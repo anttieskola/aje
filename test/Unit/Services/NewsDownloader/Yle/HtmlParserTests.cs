@@ -318,4 +318,88 @@ public class HtmlParserTests
         Assert.NotNull(textElement);
         Assert.Equal("64-1-1519", textElement.Text);
     }
+
+    private const string _htmlFeatureBlockNoPages = @"
+<!DOCTYPE html>
+<html>
+    <head></head>
+    <body>
+        <script type=""text/javascript"">
+            window.__INITIAL__STATE__={
+                ""pageData"": {
+                    ""article"": {
+                        ""fullUrl"": ""https://news.anttieskola.com/123456789012"",
+                        ""dateJsonModified"": ""1980-09-12T18:00:00+0300"",
+                        ""title"": ""Article title"",
+                        ""language"": ""en"",
+                        ""content"": [
+                            {
+                                ""type"": ""FeatureBlock""
+                            }
+                        ]
+
+                    }
+                }
+            }
+        </script>
+    </body>
+</html>
+";
+    [Fact]
+    public void NoPagesOnFeatureBlock()
+    {
+        var expection = Assert.Throws<ParsingException>(() => HtmlParser.Parse(_htmlFeatureBlockNoPages, _id));
+        Assert.Equal("no pages array in FeatureBlock", expection.Message);
+    }
+
+    private const string _htmlFeatureBlock = @"
+<!DOCTYPE html>
+<html>
+    <head></head>
+    <body>
+        <script type=""text/javascript"">
+            window.__INITIAL__STATE__={
+                ""pageData"": {
+                    ""article"": {
+                        ""fullUrl"": ""https://news.anttieskola.com/123456789012"",
+                        ""dateJsonModified"": ""1980-09-12T18:00:00+0300"",
+                        ""title"": ""Article title"",
+                        ""language"": ""en"",
+                        ""content"": [
+                            {
+                                ""type"": ""FeatureBlock"",
+                                ""pages"": [
+                                    {
+                                        ""type"": ""header"",
+                                        ""content"": [
+                                            {
+                                                ""type"": ""HeadingBlock"",
+                                                ""text"": ""Astu 1990-luvulle""
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+
+                    }
+                }
+            }
+        </script>
+    </body>
+</html>
+";
+    [Fact]
+    public void FeatureBlock()
+    {
+        var article = HtmlParser.Parse(_htmlFeatureBlock, _id);
+        Assert.NotNull(article);
+        Assert.Equal("Article title", article.Title);
+        Assert.NotEmpty(article.Content);
+        Assert.Single(article.Content);
+
+        var headerElement = article.Content.ElementAt(0) as MarkdownHeaderElement;
+        Assert.NotNull(headerElement);
+        Assert.Equal("Astu 1990-luvulle", headerElement.Text);
+    }
 }

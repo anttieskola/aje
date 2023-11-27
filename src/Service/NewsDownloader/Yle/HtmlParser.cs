@@ -62,6 +62,19 @@ public static class HtmlParser
                 var type = c["type"]?.ToString();
                 switch (type)
                 {
+                    case "FeatureBlock":
+                        {
+                            var pages = c["pages"]?.AsArray();
+                            if (pages != null)
+                            {
+                                elements.AddRange(ParseFeatureBlock(pages));
+                            }
+                            else
+                            {
+                                throw new ParsingException("no pages array in FeatureBlock");
+                            }
+                        }
+                        break;
                     case "HeadingBlock":
                         {
                             var level = (int?)c["level"];
@@ -139,6 +152,52 @@ public static class HtmlParser
             Published = true,
             Content = elements
         };
+    }
+
+
+    private static IEnumerable<MarkdownElement> ParseFeatureBlock(JsonArray pages)
+    {
+        var elements = new List<MarkdownElement>();
+        foreach (var page in pages)
+        {
+            if (page != null)
+            {
+                var type = page["type"]?.ToString();
+                switch (type)
+                {
+                    case "header":
+                        {
+                            var content = (JsonArray?)page["content"];
+                            if (content != null)
+                            {
+                                foreach (var c in content)
+                                {
+                                    if (c != null)
+                                    {
+                                        var contentType = c["type"]?.ToString();
+                                        if (contentType == "HeadingBlock")
+                                        {
+                                            var text = (string?)c["text"];
+                                            if (text != null)
+                                            {
+                                                elements.Add(new MarkdownHeaderElement
+                                                {
+                                                    Level = 1,
+                                                    Text = text
+                                                });
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            break;
+                        }
+                    default:
+                        break;
+                }
+            }
+        }
+        return elements;
     }
 }
 
