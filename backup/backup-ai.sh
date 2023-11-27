@@ -1,4 +1,4 @@
 #!/bin/bash
-rm ai.tar.bz2
-tar -cvjf ai.tar.bz2 /var/aje/ai
+rm ~/aje-backup/ai.tar.bz2
+tar -cvjf ~/aje-backup/ai.tar.bz2 /var/aje/ai
 

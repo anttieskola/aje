@@ -1,3 +1,3 @@
 #!/bin/bash
-rm yle.tar.bz2
-tar -cvjf yle.tar.bz2 /var/aje/yle
+rm ~/aje-backup/yle.tar.bz2
+tar -cvjf ~/aje-backup/yle.tar.bz2 /var/aje/yle

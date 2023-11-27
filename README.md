@@ -37,6 +37,8 @@ Currently [main site](https://www.anttieskola.com) is just html page with link t
 access to AI. MediatR is missing support for this and will not get it (has been asked from author)
 
 ### News
+- Add current page of list and filter values to url so they survive page reload as I don't use
+any cookies by design
 - Statistic from the news, I want to see graph showing me for many positive news articles
 are released daily. Vision to see history graph and some way to dig thru the graph aswell
 into actual articles
