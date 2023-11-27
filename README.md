@@ -24,7 +24,7 @@ It is not ready for writing job applications or selecting jobs I want to apply f
 After I learn to create good enough instructions I want to learn to fine-tune models
 and start creating a data-set to use in fine-tuning these awesome open source models.
 
-- [Antai, Antti AI chat is up and running](https://antai.anttieskola.com/)]
+- [Antai, Antti AI chat is up and running](https://antai.anttieskola.com/)
 	- Currently behind username and password for myself and family to test it out
 
 Public site is not currently deployed, not sure what content to add into it.
