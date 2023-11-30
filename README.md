@@ -42,6 +42,8 @@ any cookies by design
 - Statistic from the news, I want to see graph showing me for many positive news articles
 are released daily. Vision to see history graph and some way to dig thru the graph aswell
 into actual articles
+- Yle published same article in different languages, examine can AI determine that they are
+same article. We only need to check for same articles during some time window like 24 hours.
 - Create Eduskunta RSS feed downloader and analyzer
 - Buy subscriptions to Helsinki Sanomat, Kaleva, Kauppalehti, YCombinator... any that
   provide RSS feeds or similar ways to track new articles
