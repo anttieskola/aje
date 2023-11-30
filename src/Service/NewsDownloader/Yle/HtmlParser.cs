@@ -56,7 +56,12 @@ public static class HtmlParser
             fullUrl = url?["full"]?.ToString() ?? throw new ParsingException("no fullUrl");
         }
         var dateJsonModified = (article["dateJsonModified"]?.ToString()) ?? throw new ParsingException("no date");
-        var titleElement = article["title"] ?? throw new ParsingException("no title");
+        var titleElement = article["title"]?.ToString();
+        if (titleElement == null)
+        {
+            var headline = article["headline"]?.AsObject();
+            titleElement = headline?["full"]?.ToString() ?? throw new ParsingException("no title");
+        }
         var languageElement = article["language"] ?? throw new ParsingException("no language");
         var contentArray = (article["content"]?.AsArray()) ?? throw new ParsingException("no content array");
         var elements = new EquatableList<MarkdownElement>();
@@ -106,6 +111,18 @@ public static class HtmlParser
                             }
                         }
                         break;
+                    case "text":
+                        {
+                            var content = (string?)c["text"];
+                            if (content != null)
+                            {
+                                elements.Add(new MarkdownTextElement
+                                {
+                                    Text = content
+                                });
+                            }
+                            break;
+                        }
                     case "BulletListBlock":
                         {
                             var items = c["items"]?.AsArray();
