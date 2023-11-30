@@ -152,6 +152,18 @@ public static class HtmlParser
                             }
                         }
                         break;
+                    case "livefeed":
+                        {
+                            var feedId = (string?)c["livefeedId"];
+                            if (feedId != null)
+                            {
+                                elements.Add(new MarkdownTextElement
+                                {
+                                    Text = feedId,
+                                });
+                            }
+                        }
+                        break;
                     default:
                         break;
                 }
