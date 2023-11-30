@@ -46,6 +46,17 @@
             "console": "internalConsole"
         },
         {
+            "name": "NewsTrends",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/src/Service/NewsTrends/bin/Debug/net7.0/AJE.Service.NewsTrends",
+            "args": [],
+            "cwd": "${workspaceFolder}/src/Service/NewsTrends",
+            "stopAtEntry": false,
+            "console": "internalConsole"
+        },
+        {
             // Use IntelliSense to find out which attributes exist for C# debugging
             // Use hover for the description of the existing attributes
             // For further information visit https://github.com/dotnet/vscode-csharp/blob/main/debugger-launchjson.md.
