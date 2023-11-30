@@ -49,7 +49,12 @@ public static class HtmlParser
 
     private static Article ParseArticle(JsonNode article)
     {
-        var fullUrl = article["fullUrl"]?.ToString() ?? throw new ParsingException("no fullUrl");
+        var fullUrl = article["fullUrl"]?.ToString();
+        if (fullUrl == null)
+        {
+            var url = article["url"]?.AsObject();
+            fullUrl = url?["full"]?.ToString() ?? throw new ParsingException("no fullUrl");
+        }
         var dateJsonModified = (article["dateJsonModified"]?.ToString()) ?? throw new ParsingException("no date");
         var titleElement = article["title"] ?? throw new ParsingException("no title");
         var languageElement = article["language"] ?? throw new ParsingException("no language");

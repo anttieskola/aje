@@ -278,6 +278,77 @@ public class HtmlParserTests
     }
 
 
+    private const string _htmlAlternativeFullUrlOk = @"
+<!DOCTYPE html>
+<html>
+    <head></head>
+    <body>
+        <script type=""text/javascript"">
+            window.__INITIAL__STATE__={
+                ""pageData"": {
+                    ""article"": {
+                        ""url"": {
+                            ""full"": ""https://news.anttieskola.com/123456789012""
+                        },
+                        ""dateJsonModified"": ""1980-09-12T18:00:00+0300"",
+                        ""title"": ""Article title"",
+                        ""language"": ""en"",
+                        ""content"": [
+                            {
+                                ""type"": ""HeadingBlock"",
+                                ""level"": 1,
+                                ""text"": ""Heading One""
+                            },
+                            {
+                                ""type"": ""TextBlock"",
+                                ""markdown"": ""Paragraph""
+                            },
+                            {
+                                ""type"": ""BulletListBlock"",
+                                ""items"": [
+                                    ""Bullet one"",
+                                    ""Bullet two""
+                                ]
+                            }
+                        ]
+
+                    }
+                }
+            }
+        </script>
+    </body>
+</html>
+";
+
+
+    [Fact]
+    public void AlterFullUrl()
+    {
+        var article = HtmlParser.Parse(_htmlAlternativeFullUrlOk, _id);
+        Assert.NotNull(article);
+        Assert.Equal("https://news.anttieskola.com/123456789012", article.Source);
+        Assert.Equal(new DateTimeOffset(1980, 9, 12, 18, 0, 0, TimeSpan.FromHours(3)).UtcTicks, article.Modified);
+        Assert.Equal("Article title", article.Title);
+        Assert.Equal("en", article.Language);
+        Assert.NotEmpty(article.Content);
+        Assert.Equal(3, article.Content.Count());
+
+        var headingElement = article.Content.ElementAt(0) as MarkdownHeaderElement;
+        Assert.NotNull(headingElement);
+        Assert.Equal(1, headingElement.Level);
+        Assert.Equal("Heading One", headingElement.Text);
+
+        var textElement = article.Content.ElementAt(1) as MarkdownTextElement;
+        Assert.NotNull(textElement);
+        Assert.Equal("Paragraph", textElement.Text);
+
+        var textListElement = article.Content.ElementAt(2) as MarkdownElement;
+        Assert.NotNull(textListElement);
+        Assert.Equal("- Bullet one" + Environment.NewLine + "- Bullet two" + Environment.NewLine, textListElement.Text);
+
+    }
+
+
     private const string _htmlLiveFeed = @"
 <!DOCTYPE html>
 <html>
