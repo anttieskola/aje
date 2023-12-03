@@ -1,32 +1,77 @@
-﻿@{
-    /* Purpose of page is to list of current available articles */
-}
-@page "/"
+﻿@page "/"
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
 @inject ISender Sender
 
 <PageTitle>articles</PageTitle>
+<div class="p-1 border-2 rounded-lg border-sky-600">
+    <div class="flex p-2">
+        <div>
+            <label for="polarity">Sentiment</label>
+            <select name="polarity" value="@_polarity" @onchange="Polarity">
+                <option value="">-</option>
+                <option value="Positive">Positive</option>
+                <option value="Neutral">Neutral</option>
+                <option value="Negative">Negative</option>
+                <option value="Unknown">Unknown</option>
+            </select>
+        </div>
+        <div class="ml-2">
+            <label for="language">Language</label>
+            <select name="language" value="@_language" @onchange="Language">
+                <option value="">-</option>
+                <option value="en">en</option>
+                <option value="fi">fi</option>
+                <option value="krl">krl</option>
+                <option value="ru">ru</option>
+                <option value="se">se</option>
+                <option value="smn">smn</option>
+                <option value="sms">sms</option>
+                <option value="uk">uk</option>
+            </select>
+        </div>
+    </div>
 
-<label for="polarity">Sentiment</label>
-<select name="polarity" @onchange="Polarity">
-    <option value="">-</option>
-    <option value="Positive" selected>Positive</option>
-    <option value="Neutral">Neutral</option>
-    <option value="Negative">Negative</option>
-    <option value="Unknown">Unknown</option>
-</select>
+    <div class="flex items-center justify-center">
+        <div>
+            @if (_isPreviousEnabled)
+            {
+                <div class="mr-2">
+                    <button aria-label="previous" class="w-16 min-w-16 submitButton" @onclick="Previous">
+                        <Icon Name="arrow-left-square" Size="24" />
+                    </button>
+                </div>
+            }
+            else
+            {
+                <div class="mr-2">
+                    <button aria-label="previous" class="w-16 min-w-16 submitButton" disabled @onclick="Previous">
+                        <Icon Name="arrow-left-square" Size="24" />
+                    </button>
+                </div>
 
-<label for="language">Language</label>
-<select name="language" @onchange="Language">
-    <option value="">-</option>
-    <option value="en">en</option>
-    <option value="fi">fi</option>
-    <option value="krl">krl</option>
-    <option value="ru">ru</option>
-    <option value="se">se</option>
-    <option value="smn">smn</option>
-    <option value="sms">sms</option>
-    <option value="uk">uk</option>
-</select>
+            }
+        </div>
+        <div>
+            @if (_isNextEnabled)
+            {
+                <div class="ml-2">
+                    <button aria-label="next" class="w-16 min-w-16 submitButton" @onclick="Next">
+                        <Icon Name="arrow-right-square" Size="24" />
+                    </button>
+                </div>
+            }
+            else
+            {
+                <div class="ml-2">
+                    <button aria-label="next" class="w-16 min-w-16 submitButton" disabled @onclick="Next">
+                        <Icon Name="arrow-right-square" Size="24" />
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
 
 <table class="table-auto mt-1">
     <tbody>
@@ -52,37 +97,7 @@
     </tbody>
 </table>
 
-<div class="flex items-center justify-center">
-    <div class="mt-2">
-        @if (_isPreviousEnabled)
-        {
-            <button aria-label="previous" class="w-16 min-w-16 submitButton" @onclick="Previous">
-                <Icon Name="arrow-left-square" Size="28" />
-            </button>
-        }
-        else
-        {
-            <button aria-label="previous" class="w-16 min-w-16 submitButton" disabled @onclick="Previous">
-                <Icon Name="arrow-left-square" Size="28" />
-            </button>
 
-        }
-    </div>
-    <div class="mt-2">
-        @if (_isNextEnabled)
-        {
-            <button aria-label="next" class="w-16 min-w-16 submitButton" @onclick="Next">
-                <Icon Name="arrow-right-square" Size="28" />
-            </button>
-        }
-        else
-        {
-            <button aria-label="next" class="w-16 min-w-16 submitButton" disabled @onclick="Next">
-                <Icon Name="arrow-right-square" Size="28" />
-            </button>
-        }
-    </div>
-</div>
 
 @code {
 
@@ -93,42 +108,32 @@
         if (a.Value is null || a.Value.ToString() == "")
             _language = null;
         else
+        {
             _language = a.Value.ToString();
+            await UpdateQueryString();
+        }
 
         await InvokeAsync(() => Fetch());
     }
 
-    private string? _polarity = "Positive";
+    private string? _polarity;
 
     private async Task Polarity(ChangeEventArgs a)
     {
         if (a.Value is null || a.Value.ToString() == "")
             _polarity = null;
         else
+        {
             _polarity = a.Value.ToString();
+            await UpdateQueryString();
+        }
 
         await InvokeAsync(() => Fetch());
     }
 
-    private async Task Fetch(int offset = 0)
-    {
-        _headers = await Sender.Send(new GetArticleHeadersQuery
-            {
-                Offset = offset,
-                PageSize = _pageSize,
-                Language = string.IsNullOrEmpty(_language) ? null : _language,
-                Polarity = string.IsNullOrEmpty(_polarity) ? null : Enum.Parse<Polarity>(_polarity),
-            });
-
-        await InvokeAsync(() => StateHasChanged());
-    }
-
-
-    #region table -> todo component
-
     private PaginatedList<ArticleHeader> _headers = new PaginatedList<ArticleHeader>(new List<ArticleHeader>(), 0, 0);
-
-    private int _pageSize = 9;
+    private int _offset = 0;
+    private int _pageSize = 9; // TODO: could maybe set dynamic based on screen size or user selection?
 
     private bool _isPreviousEnabled
     {
@@ -145,21 +150,77 @@
             return _headers.TotalCount > _pageSize + _headers.Offset;
         }
     }
-    protected override async Task OnInitializedAsync()
-    {
-        await Fetch();
-    }
 
     private async Task Previous()
     {
         if (_isPreviousEnabled)
-            await Fetch(_headers.Offset - _pageSize);
+        {
+            _offset -= _pageSize;
+            await UpdateQueryString();
+            await Fetch();
+        }
     }
 
     private async Task Next()
     {
         if (_isNextEnabled)
-            await Fetch(_headers.Offset + _pageSize);
+        {
+            _offset += _pageSize;
+            await UpdateQueryString();
+            await Fetch();
+        }
     }
-    #endregion table -> todo component
+
+    private async Task Fetch()
+    {
+        _headers = await Sender.Send(new GetArticleHeadersQuery
+            {
+                Offset = _offset,
+                PageSize = _pageSize,
+                Language = string.IsNullOrEmpty(_language) ? null : _language,
+                Polarity = string.IsNullOrEmpty(_polarity) ? null : Enum.Parse<Polarity>(_polarity),
+            });
+
+        await InvokeAsync(() => StateHasChanged());
+    }
+
+    private async Task UpdateQueryString()
+    {
+        var uri = new Uri(NavigationManager.Uri);
+        var newUri = $"{uri.GetLeftPart(UriPartial.Path)}?polarity={_polarity}&language={_language}&offset={_offset}";
+        await JSRuntime.InvokeVoidAsync("history.pushState", null, string.Empty, newUri);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var uri = new Uri(NavigationManager.Uri);
+        var language = HttpUtility.ParseQueryString(uri.Query).Get("language");
+        var polarity = HttpUtility.ParseQueryString(uri.Query).Get("polarity");
+        var stringOffset = HttpUtility.ParseQueryString(uri.Query).Get("offset");
+
+        if (!string.IsNullOrEmpty(language))
+            _language = language;
+
+        if (!string.IsNullOrEmpty(polarity))
+            _polarity = polarity;
+
+        if (!string.IsNullOrEmpty(stringOffset))
+        {
+            if (int.TryParse(stringOffset, out var offset))
+            {
+                _offset = offset >= 0 ? offset : 0;
+            }
+        }
+
+        // set default polarity to positive
+        if (_polarity == null && _language == null && _offset == 0)
+        {
+            _polarity = "Positive";
+            var newUri = $"{uri}?polarity=Positive";
+            // using JS to change url without reloading page and saving it to browser history
+            await JSRuntime.InvokeVoidAsync("history.pushState", null, string.Empty, newUri);
+        }
+
+        await Fetch();
+    }
 }
