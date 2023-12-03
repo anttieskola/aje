@@ -176,7 +176,7 @@ public static class HtmlParser
         return new Article
         {
             Source = fullUrl,
-            Category = Category.NEWS,
+            Category = ArticleCategory.NEWS,
             Polarity = Polarity.Unknown,
             PolarityVersion = 0,
             // timestamps have no milliseconds so we need to parse it manually

@@ -1,4 +1,4 @@
-﻿namespace AJE.Ui.Public;
+﻿namespace AJE.Infra.DummyAi;
 
 public class DummyAiModel : IAiModel
 {

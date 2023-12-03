@@ -9,23 +9,40 @@ public record NewsPolarityTrendItem
     public required int PolarityVersion { get; init; }
 }
 
-public record NewsPolarityTrendCounts
-{
-    public int Negative { get; set; }
-    public EquatableList<NewsPolarityTrendItem> NegativeItems { get; set; } = EquatableList<NewsPolarityTrendItem>.Empty;
-    public int Neutral { get; set; }
-    public EquatableList<NewsPolarityTrendItem> NeutralItems { get; set; } = EquatableList<NewsPolarityTrendItem>.Empty;
-    public int Positive { get; set; }
-    public EquatableList<NewsPolarityTrendItem> PositiveItems { get; set; } = EquatableList<NewsPolarityTrendItem>.Empty;
-    public int Unknown { get; set; }
-    public EquatableList<NewsPolarityTrendItem> UnknownItems { get; set; } = EquatableList<NewsPolarityTrendItem>.Empty;
-}
-
-public record NewsPolarityTrendSegment : NewsPolarityTrendCounts
+public record NewsPolarityTrendSegment
 {
     public required TimePeriod TimePeriod { get; init; }
     public required DateTimeOffset Start { get; init; }
     public required DateTimeOffset End { get; init; }
+    public required EquatableList<NewsPolarityTrendItem> Items { get; init; } = EquatableList<NewsPolarityTrendItem>.Empty;
+    public int PositiveCount
+    {
+        get
+        {
+            return Items.Where(x => x.Polarity == Polarity.Positive).Count();
+        }
+    }
+    public int NeutralCount
+    {
+        get
+        {
+            return Items.Where(x => x.Polarity == Polarity.Neutral).Count();
+        }
+    }
+    public int NegativeCount
+    {
+        get
+        {
+            return Items.Where(x => x.Polarity == Polarity.Negative).Count();
+        }
+    }
+    public int UnknownCount
+    {
+        get
+        {
+            return Items.Where(x => x.Polarity == Polarity.Unknown).Count();
+        }
+    }
 }
 
 public record NewsPolarityTrends

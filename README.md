@@ -47,6 +47,8 @@ same article. We only need to check for same articles during some time window li
 - Create Eduskunta RSS feed downloader and analyzer
 - Buy subscriptions to Helsinki Sanomat, Kaleva, Kauppalehti, YCombinator... any that
   provide RSS feeds or similar ways to track new articles
+- Create microservice that inspects articles using AI to detect failty ones, then try
+to repair them: redownload content, try to parse again?...
 
 ### Antai
 - Ability to modify all content in context (AI replies and own answers)
@@ -55,6 +57,15 @@ and based upon the first interaction with the chat
 - Chat list page to list all existing chats (title would be nice for this as only ID and lenght can be shown...)
 - Chat's are all stored only in Redis atm, I want a microservice that writes them into
 database
+
+### Far fetched ideas
+- Persons in news articles (are kinda tagged), offer possibility to ask AI to explain about them
+	- Offer wikipedia link about them
+- Create network of AI models
+	- I would run multiple different models on n-number of hosts
+	- Run prompts on each simultaneously and then combine results
+
+
 
 # Code architecture
 All is done using clean architecture / "domain based" programming. Most of all I want to
@@ -126,7 +137,7 @@ List of current components and used software
 	- Llama.cpp is running @ god, then ngingx is proxied into it, this way
 	also solution on ares can access it (antai)
 - Redis is installed manually on server into path `/usr/local/bin/Redis/`
-	- Modules have own folders under `/usr/local/bin`
+	- Modules and config are placed in same directory
 - Sonarqube is installed manually on server into path `/usr/local/bin/sonarqube/`
 	- I made a [Github repo of this](https://github.com/anttieskola/sonarqube)
 	- Only run server locally and on-demand only
@@ -155,6 +166,12 @@ Could someday learn to create docker containers and make one for each component.
 - [WebSocket documentation](https://www.nginx.com/blog/websocket-nginx/)
 - TODO: Need separate certificate for news.anttieskola.com
 - TODO: How to configure server to support both sites
+
+## Backup
+Folder `backup` contains scripts to create backup files from database, raw yle news
+, ai model inspection reports and complete Redis installation.
+
+These are saved in my onedrive.
 
 # Links
 - [this repository](https://github.com/anttieskola/aje)

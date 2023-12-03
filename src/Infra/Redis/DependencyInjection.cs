@@ -14,6 +14,7 @@ public static class DependencyInjection
         services.AddSingleton<IArticleEventHandler, ArticleEventHandler>();
         services.AddSingleton<IAiChatRepository, AiChatRepository>();
         services.AddSingleton<IAiChatEventHandler, AiChatEventHandler>();
+        services.AddSingleton<ITrendRepository, TrendRepository>();
         services.AddSingleton<IRedisService, RedisService>();
         return services;
     }

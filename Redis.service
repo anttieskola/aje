@@ -24,7 +24,7 @@ Restart=always
 # Note working directory is a must
 # otherwiser process can't find resources -> odd errors
 WorkingDirectory=/usr/local/bin/Redis/
-ExecStart=/usr/local/bin/Redis/redis-server /usr/local/bin/redis.conf
+ExecStart=/usr/local/bin/Redis/redis-server redis.conf
 User=antti
 
 SyslogIdentifier=Redis

@@ -18,7 +18,7 @@ public class SentimentPolarityWorker : BackgroundService
 
     private CancellationToken _cancellationToken;
 
-    public Category? NEWS { get; private set; }
+    public ArticleCategory? NEWS { get; private set; }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -70,7 +70,7 @@ public class SentimentPolarityWorker : BackgroundService
         // or has been analyzed with older polarity version
         var query = new GetArticlesQuery
         {
-            Category = Category.NEWS,
+            Category = ArticleCategory.NEWS,
             MaxPolarityVersion = GetArticleSentimentPolarityQuery.CURRENT_POLARITY_VERSION - 1,
             Offset = 0,
             PageSize = 1

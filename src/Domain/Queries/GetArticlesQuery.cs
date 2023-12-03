@@ -2,7 +2,7 @@
 
 public record GetArticlesQuery : PaginatedQuery, IRequest<PaginatedList<Article>>
 {
-    public Category? Category { get; init; }
+    public ArticleCategory? Category { get; init; }
     public bool? Published { get; init; }
     public string? Language { get; init; }
     public Polarity? Polarity { get; init; }

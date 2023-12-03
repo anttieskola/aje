@@ -13,6 +13,7 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddDomain();
         services.AddAi(config);
         services.AddRedis(config);
+        services.AddHostedService<TrendWorker>();
     })
     .ConfigureLogging(logging =>
     {

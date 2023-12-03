@@ -15,7 +15,7 @@ public record ArticleHeader
 public record Article : ArticleHeader
 {
     [JsonPropertyName("category")]
-    public Category Category { get; set; }
+    public ArticleCategory Category { get; set; }
 
     [JsonPropertyName("modified")]
     public long Modified { get; set; }
