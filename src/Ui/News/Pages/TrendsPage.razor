@@ -12,21 +12,18 @@
 }
 else
 {
-    foreach (var segment in _segments)
+    <canvas id="canvasTrends" width="@_width" height="@_height"></canvas>
+    for (var i = 0; i < _segments.Length; i++)
     {
-        <div class="margin-auto">
-            <p>@segment.Start</p>
-            <p>@segment.End</p>
-            <p>positive: @segment.PositiveCount</p>
-            <p>negative: @segment.NeutralCount</p>
-            <p>neutral: @segment.NegativeCount</p>
-            <p>unknown: @segment.UnknownCount</p>
-        </div>
+        <ChartPeriodBar CanvasId="canvasTrends" StartPosition="@(i*_segmentWidth)" Width="@_segmentWidth"
+    Segment="_segments[i]" />
     }
 }
 
 @code {
-
+    private int _width = 1200;
+    private int _height = 400;
+    private int _segmentWidth => _segments.Length > 0 ? _width / _segments.Length : 0;
     private NewsPolarityTrendSegment[] _segments = new NewsPolarityTrendSegment[] { };
     private TimePeriod _timePeriod = TimePeriod.Day;
     private DateTimeOffset _start = DateTimeOffset.UtcNow.Date.AddMonths(-1);

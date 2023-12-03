@@ -1,0 +1,37 @@
+﻿@implements IAsyncDisposable
+@inject IJSRuntime JSRuntime
+@if (!string.IsNullOrEmpty(CanvasId) && Segment != null)
+{
+    <p>CanvasId:@CanvasId</p>
+    <p>StartPosition:@StartPosition</p>
+    <p>Width:@Width</p>
+}
+@code {
+
+    [Parameter]
+    public string CanvasId { get; set; } = string.Empty;
+
+    [Parameter]
+    public int StartPosition { get; set; }
+
+    [Parameter]
+    public int Width { get; set; }
+
+    [Parameter]
+    public NewsPolarityTrendSegment? Segment { get; set; }
+
+    private IJSObjectReference? _js;
+    protected override async Task OnInitializedAsync()
+    {
+        _js = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./Shared/ChartPeriodBar.razor.js");
+        await _js.InvokeVoidAsync("drawBox", CanvasId, StartPosition, Width);
+        await _js.InvokeVoidAsync("drawTitle", CanvasId, StartPosition, Segment?.Start.ToString("MM-dd"));
+    }
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        if (_js is not null)
+        {
+            await _js.DisposeAsync();
+        }
+    }
+}
