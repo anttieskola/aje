@@ -3,11 +3,36 @@
 @inject NavigationManager NavigationManager
 
 <div class="fixed bottom-0 right-0 mb-1 mr-1">
-    <div>
-        <button type="button" @onclick="ToggleList" class="menuButton" aria-label="swtich between list and stream">
-            <Icon Name="@icon" Padding=@IconPadding Size=@_iconSize />
-        </button>
-    </div>
+    @if (_isTrendButtonVisible)
+    {
+        <div>
+            <button type="button" class="menuButton" aria-label="news trends">
+                <NavLink href="/trends" aria-label="news trends">
+                    <Icon Name="file-earmark-bar-graph" Padding=@IconPadding Size=@_iconSize />
+                </NavLink>
+            </button>
+        </div>
+    }
+    @if (_isListButtonVisible)
+    {
+        <div>
+            <button type="button" class="menuButton" aria-label="articles">
+                <NavLink href="/" aria-label="articles">
+                    <Icon Name="list-ul" Padding=@IconPadding Size=@_iconSize />
+                </NavLink>
+            </button>
+        </div>
+    }
+    @if (_isStreamButtonVisible)
+    {
+        <div>
+            <button type="button" class="menuButton" aria-label="stream articles">
+                <NavLink href="/stream" aria-label="stream articles">
+                    <Icon Name="camera-reels" Padding=@IconPadding Size=@_iconSize />
+                </NavLink>
+            </button>
+        </div>
+    }
     <div class="mt-1">
         <button type="button" @onclick="ToggleTheme" class="menuButton" aria-label="theme">
             @if (_darkMode)
@@ -21,25 +46,52 @@
         </button>
     </div>
 </div>
+
 @code {
-    private string icon = "camera-reels";
     private bool _darkMode = false;
     private IJSObjectReference? _js;
-    private static string[] _navLinks = new string[] { "articles", "storybook", "icons" };
+    private bool _isTrendButtonVisible = false;
+    private bool _isStreamButtonVisible = false;
+    private bool _isListButtonVisible = false;
     private int IconPadding => 2;
     private int _iconSize => 32;
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnInitializedAsync()
     {
-        if (firstRender)
+        _js = await JS.InvokeAsync<IJSObjectReference>("import", "./Shared/MenuRight.razor.js");
+        _darkMode = await _js.InvokeAsync<bool>("isDarkModeDefault");
+        if (_darkMode)
         {
-            _js = await JS.InvokeAsync<IJSObjectReference>("import", "./Shared/MenuRight.razor.js");
-            _darkMode = await _js.InvokeAsync<bool>("isDarkModeDefault");
-            if (_darkMode)
-            {
-                await _js.InvokeVoidAsync("toggleDarkMode");
-                StateHasChanged();
-            }
+            await _js.InvokeVoidAsync("toggleDarkMode");
+            StateHasChanged();
         }
+        SetupButtons(NavigationManager.Uri);
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        SetupButtons(e.Location);
+    }
+    private void SetupButtons(String uri)
+    {
+        if (uri.Contains("trends"))
+        {
+            _isTrendButtonVisible = false;
+            _isStreamButtonVisible = true;
+            _isListButtonVisible = true;
+        }
+        else if (uri.Contains("stream"))
+        {
+            _isTrendButtonVisible = true;
+            _isStreamButtonVisible = false;
+            _isListButtonVisible = true;
+        }
+        else
+        {
+            _isTrendButtonVisible = true;
+            _isStreamButtonVisible = true;
+            _isListButtonVisible = false;
+        }
+        InvokeAsync(StateHasChanged);
     }
 
     private async Task ToggleTheme()
@@ -51,30 +103,12 @@
             StateHasChanged();
         }
     }
-
-    private void ToggleList()
-    {
-        if (NavigationManager.Uri.Contains("stream") == true)
-        {
-            var relativeUrl = "/";
-            var absoluteUrl = NavigationManager.ToAbsoluteUri(relativeUrl).ToString();
-            NavigationManager.NavigateTo(absoluteUrl);
-            icon = "camera-reels";
-        }
-        else
-        {
-            var relativeUrl = "/stream";
-            var absoluteUrl = NavigationManager.ToAbsoluteUri(relativeUrl).ToString();
-            NavigationManager.NavigateTo(absoluteUrl);
-            icon = "list-ul";
-        }
-
-    }
     async ValueTask IAsyncDisposable.DisposeAsync()
     {
         if (_js is not null)
         {
             await _js.DisposeAsync();
         }
+        NavigationManager.LocationChanged -= OnLocationChanged;
     }
 }
