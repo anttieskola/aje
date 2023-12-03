@@ -2,5 +2,49 @@
     /* Purpose of page is to view trends of news sentiment polarity*/
 }
 @page "/trends"
+@inject ISender Sender
 
 <PageTitle>Trends</PageTitle>
+
+@if (_segments == null)
+{
+    <p class="text-rose-600">null</p>
+}
+else
+{
+    foreach (var segment in _segments)
+    {
+        <div class="margin-auto">
+            <p>@segment.Start</p>
+            <p>@segment.End</p>
+            <p>positive: @segment.PositiveCount</p>
+            <p>negative: @segment.NeutralCount</p>
+            <p>neutral: @segment.NegativeCount</p>
+            <p>unknown: @segment.UnknownCount</p>
+        </div>
+    }
+}
+
+@code {
+
+    private NewsPolarityTrendSegment[] _segments = new NewsPolarityTrendSegment[] { };
+    private TimePeriod _timePeriod = TimePeriod.Day;
+    private DateTimeOffset _start = DateTimeOffset.UtcNow.Date.AddMonths(-1);
+    private DateTimeOffset _end = DateTimeOffset.UtcNow;
+
+    private async Task Fetch()
+    {
+        _segments = await Sender.Send(new GetArticleSentimentPolarityTrendsQuery
+            {
+                ArticleCategory = ArticleCategory.NEWS,
+                TimePeriod = _timePeriod,
+                Start = _start,
+                End = _end
+            });
+        await InvokeAsync(() => StateHasChanged());
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        await Fetch();
+    }
+}
