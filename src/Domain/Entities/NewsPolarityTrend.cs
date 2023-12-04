@@ -19,28 +19,35 @@ public record NewsPolarityTrendSegment
     {
         get
         {
-            return Items.Where(x => x.Polarity == Polarity.Positive).Count();
+            return Items.Count(x => x.Polarity == Polarity.Positive);
         }
     }
     public int NeutralCount
     {
         get
         {
-            return Items.Where(x => x.Polarity == Polarity.Neutral).Count();
+            return Items.Count(x => x.Polarity == Polarity.Neutral);
         }
     }
     public int NegativeCount
     {
         get
         {
-            return Items.Where(x => x.Polarity == Polarity.Negative).Count();
+            return Items.Count(x => x.Polarity == Polarity.Negative);
         }
     }
     public int UnknownCount
     {
         get
         {
-            return Items.Where(x => x.Polarity == Polarity.Unknown).Count();
+            return Items.Count(x => x.Polarity == Polarity.Unknown);
+        }
+    }
+    public int TotalCount
+    {
+        get
+        {
+            return Items.Count;
         }
     }
 }

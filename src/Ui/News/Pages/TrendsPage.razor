@@ -1,7 +1,9 @@
 ﻿@{
-    /* Purpose of page is to view trends of news sentiment polarity*/
+    /* Purpose of page is to view trends of news sentiment polarity */
 }
 @page "/trends"
+@implements IAsyncDisposable
+@inject IJSRuntime JSRuntime
 @inject ISender Sender
 
 <PageTitle>Trends</PageTitle>
@@ -12,21 +14,24 @@
 }
 else
 {
-    <canvas id="canvasTrends" width="@_width" height="@_height"></canvas>
+    <canvas id="@_canvasId" width="@_width" height="@_height"></canvas>
     for (var i = 0; i < _segments.Length; i++)
     {
-        <ChartPeriodBar CanvasId="canvasTrends" StartPosition="@(i*_segmentWidth)" Width="@_segmentWidth"
-    Segment="_segments[i]" />
+        <NewsTrendSegmentComponent CanvasId="@_canvasId" MaxCount="@_maxCount" StartPosition="@(i*_segmentWidth+20)"
+    Width="@_segmentWidth" Segment="_segments[i]" />
     }
 }
 
 @code {
-    private int _width = 1200;
-    private int _height = 400;
-    private int _segmentWidth => _segments.Length > 0 ? _width / _segments.Length : 0;
+    private const string _canvasId = "canvasTrends";
+    private IJSObjectReference? _js;
+    private int _width = 2000;
+    private int _height = 1000;
+    private int _segmentWidth => _segments.Length > 0 ? (_width - 20) / _segments.Length : 0;
+    private int _maxCount => _segments.Max(x => x.TotalCount);
     private NewsPolarityTrendSegment[] _segments = new NewsPolarityTrendSegment[] { };
     private TimePeriod _timePeriod = TimePeriod.Day;
-    private DateTimeOffset _start = DateTimeOffset.UtcNow.Date.AddMonths(-1);
+    private DateTimeOffset _start = DateTimeOffset.UtcNow.Date.AddDays(-1);
     private DateTimeOffset _end = DateTimeOffset.UtcNow;
 
     private async Task Fetch()
@@ -38,10 +43,24 @@ else
                 Start = _start,
                 End = _end
             });
-        await InvokeAsync(() => StateHasChanged());
+        if (_js is not null)
+        {
+            await _js.InvokeVoidAsync("drawLabels", _canvasId, _maxCount);
+        }
+        StateHasChanged();
     }
+
     protected override async Task OnInitializedAsync()
     {
+        _js = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./Pages/TrendsPage.razor.js");
         await Fetch();
+    }
+
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        if (_js is not null)
+        {
+            await _js.DisposeAsync();
+        }
     }
 }

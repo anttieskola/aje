@@ -108,11 +108,9 @@
         if (a.Value is null || a.Value.ToString() == "")
             _language = null;
         else
-        {
             _language = a.Value.ToString();
-            await UpdateQueryString();
-        }
 
+        await UpdateQueryString();
         await InvokeAsync(() => Fetch());
     }
 
@@ -123,11 +121,9 @@
         if (a.Value is null || a.Value.ToString() == "")
             _polarity = null;
         else
-        {
             _polarity = a.Value.ToString();
-            await UpdateQueryString();
-        }
 
+        await UpdateQueryString();
         await InvokeAsync(() => Fetch());
     }
 

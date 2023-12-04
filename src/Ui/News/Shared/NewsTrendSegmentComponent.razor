@@ -1,0 +1,59 @@
+﻿@implements IAsyncDisposable
+@inject IJSRuntime JSRuntime
+@{
+    /* only drawing to canvas*/
+}
+@code {
+
+    [Parameter]
+    public string CanvasId { get; set; } = string.Empty;
+
+    [Parameter]
+    public int MaxCount { get; set; }
+
+    [Parameter]
+    public int StartPosition { get; set; }
+
+    [Parameter]
+    public int Width { get; set; }
+
+    [Parameter]
+    public NewsPolarityTrendSegment? Segment { get; set; }
+
+    private IJSObjectReference? _js;
+    protected override async Task OnInitializedAsync()
+    {
+        _js = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./Shared/NewsTrendSegmentComponent.razor.js");
+        // draw boxes
+        await _js.InvokeVoidAsync(
+        "drawBoxes",
+        CanvasId,
+        StartPosition,
+        Width,
+        MaxCount,
+        Segment?.NegativeCount,
+        Segment?.NeutralCount,
+        Segment?.PositiveCount,
+        Segment?.UnknownCount
+        );
+        // draw titles
+        await _js.InvokeVoidAsync(
+        "drawTitles",
+        CanvasId,
+        StartPosition,
+        Segment?.Start.ToString("MM-dd"),
+        MaxCount,
+        Segment?.NegativeCount,
+        Segment?.NeutralCount,
+        Segment?.PositiveCount,
+        Segment?.UnknownCount
+        );
+    }
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        if (_js is not null)
+        {
+            await _js.DisposeAsync();
+        }
+    }
+}

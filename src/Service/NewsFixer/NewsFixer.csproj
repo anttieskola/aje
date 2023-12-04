@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk.Worker">
 
   <PropertyGroup>
-    <RootNamespace>AJE.Service.NewsTrends</RootNamespace>
-    <AssemblyName>AJE.Service.NewsTrends</AssemblyName>
+    <RootNamespace>AJE.Service.NewsFixer</RootNamespace>
+    <AssemblyName>AJE.Service.NewsFixer</AssemblyName>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -22,9 +22,5 @@
     <ProjectReference Include="..\..\Application\Application.csproj" />
     <ProjectReference Include="..\..\Infra\Ai\Ai.csproj" />
     <ProjectReference Include="..\..\Infra\Redis\Redis.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Infra/" />
   </ItemGroup>
 </Project>

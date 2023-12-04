@@ -14,6 +14,10 @@
 }
 else
 {
+    /* TODO REMOVE */
+    <p class="mt-1">@Published.Ticks</p>
+    <p class="mt-1 mb-2">@Published</p>
+
     @foreach (var content in Model.Content)
     {
         switch (content)
@@ -46,6 +50,21 @@ else
 
     [Parameter]
     public Article? Model { get; set; }
+
+    private DateTimeOffset Published
+    {
+        get
+        {
+            if (Model == null)
+            {
+                return DateTimeOffset.MinValue;
+            }
+            else
+            {
+                return new DateTimeOffset(new DateTime(Model.Modified, DateTimeKind.Utc));
+            }
+        }
+    }
 
     // Using JS API to go back we save our query string
     private async Task GoBack()

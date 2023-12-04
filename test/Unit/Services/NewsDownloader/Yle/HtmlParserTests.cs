@@ -261,7 +261,7 @@ public class HtmlParserTests
         Assert.Equal("Article title", article.Title);
         Assert.Equal("en", article.Language);
         Assert.NotEmpty(article.Content);
-        Assert.Equal(3, article.Content.Count());
+        Assert.Equal(3, article.Content.Count);
 
         var headingElement = article.Content.ElementAt(0) as MarkdownHeaderElement;
         Assert.NotNull(headingElement);
@@ -331,7 +331,7 @@ public class HtmlParserTests
         Assert.Equal("Article title", article.Title);
         Assert.Equal("en", article.Language);
         Assert.NotEmpty(article.Content);
-        Assert.Equal(3, article.Content.Count());
+        Assert.Equal(3, article.Content.Count);
 
         var headingElement = article.Content.ElementAt(0) as MarkdownHeaderElement;
         Assert.NotNull(headingElement);
@@ -400,7 +400,7 @@ public class HtmlParserTests
         Assert.Equal("Article title", article.Title);
         Assert.Equal("en", article.Language);
         Assert.NotEmpty(article.Content);
-        Assert.Equal(3, article.Content.Count());
+        Assert.Equal(3, article.Content.Count);
 
         var headingElement = article.Content.ElementAt(0) as MarkdownHeaderElement;
         Assert.NotNull(headingElement);
