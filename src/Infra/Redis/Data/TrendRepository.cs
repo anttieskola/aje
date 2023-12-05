@@ -18,35 +18,69 @@ public class TrendRepository : ITrendRepository
 
     public async Task<NewsPolarityTrendSegment[]> GetArticleSentimentPolarityTrendsAsync(GetArticleSentimentPolarityTrendsQuery query, CancellationToken cancellationToken)
     {
-        var db = _connection.GetDatabase();
-        // gather trend items from the given time period
-        var items = new List<NewsPolarityTrendItem>();
-        var offset = 0;
+        // Adjust start time
         var queryStart = query.Start;
-        var queryEnd = query.End;
         if (query.TimePeriod != TimePeriod.Hour)
         {
             // reset time to 00:00
             queryStart = queryStart.Date;
-            queryEnd = queryEnd.Date;
         }
         else
         {
             // reset time to the current hour
             queryStart = new DateTimeOffset(queryStart.Year, queryStart.Month, queryStart.Day, queryStart.Hour, 0, 0, TimeSpan.Zero);
-            queryEnd = new DateTimeOffset(queryEnd.Year, queryEnd.Month, queryEnd.Day, queryEnd.Hour, 0, 0, TimeSpan.Zero);
         }
 
+        // query items
+        var items = await GetNewsPolarityTrendItemsForPeriod(query.ArticleCategory, queryStart.Ticks, query.End.Ticks);
+
+        // create segments and split items into them
+        var segments = new List<NewsPolarityTrendSegment>();
+        var start = queryStart;
+        var end = queryStart.AddPeriod(query.TimePeriod);
+        while (true)
+        {
+            var segment = new NewsPolarityTrendSegment
+            {
+                TimePeriod = query.TimePeriod,
+                Start = start,
+                End = end,
+                Items = new EquatableList<NewsPolarityTrendItem>()
+            };
+
+            foreach (var item in items.Where(x => x.Published >= start && x.Published < end))
+                segment.Items.Add(item);
+
+            segments.Add(segment);
+
+            // note we want to build segments to the defined end of the query
+            if (end >= query.End)
+                break;
+            else
+            {
+                start = end;
+                end = end.AddPeriod(query.TimePeriod);
+            }
+        }
+        return segments.ToArray();
+    }
+
+
+    private async Task<List<NewsPolarityTrendItem>> GetNewsPolarityTrendItemsForPeriod(ArticleCategory category, long start, long end)
+    {
+        var db = _connection.GetDatabase();
+        var items = new List<NewsPolarityTrendItem>();
+        var offset = 0;
         while (true)
         {
             var arguments = new string[]
             {
                 _index.Name,
-                $"@category:[{(int)query.ArticleCategory} {(int)query.ArticleCategory}]",
+                $"@category:[{(int)category} {(int)category}]",
                 "FILTER",
                 "modified",
-                queryStart.Ticks.ToString(),
-                queryEnd.Ticks.ToString(),
+                start.ToString(),
+                end.ToString(),
                 "SORTBY",
                 "modified",
                 "ASC",
@@ -102,34 +136,6 @@ public class TrendRepository : ITrendRepository
             else
                 offset += 1000;
         }
-        // create segments and split items into them
-        var segments = new List<NewsPolarityTrendSegment>();
-        var start = queryStart;
-        var end = queryStart.AddPeriod(query.TimePeriod);
-        while (true)
-        {
-            var segment = new NewsPolarityTrendSegment
-            {
-                TimePeriod = query.TimePeriod,
-                Start = start,
-                End = end,
-                Items = new EquatableList<NewsPolarityTrendItem>()
-            };
-
-            foreach (var item in items.Where(x => x.Published >= start && x.Published < end))
-                segment.Items.Add(item);
-
-            segments.Add(segment);
-
-            // note we want to build segments to the defined end of the query
-            if (end >= query.End)
-                break;
-            else
-            {
-                start = end;
-                end = end.AddPeriod(query.TimePeriod);
-            }
-        }
-        return segments.OrderBy(x => x.Start).ToArray();
+        return items;
     }
 }

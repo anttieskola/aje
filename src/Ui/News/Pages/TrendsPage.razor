@@ -25,13 +25,13 @@ else
 @code {
     private const string _canvasId = "canvasTrends";
     private IJSObjectReference? _js;
-    private int _width = 2000;
+    private int _width = 3000;
     private int _height = 1000;
     private int _segmentWidth => _segments.Length > 0 ? (_width - 20) / _segments.Length : 0;
     private int _maxCount => _segments.Max(x => x.TotalCount);
     private NewsPolarityTrendSegment[] _segments = new NewsPolarityTrendSegment[] { };
     private TimePeriod _timePeriod = TimePeriod.Day;
-    private DateTimeOffset _start = DateTimeOffset.UtcNow.Date.AddDays(-1);
+    private DateTimeOffset _start = DateTimeOffset.UtcNow.AddDays(-60);
     private DateTimeOffset _end = DateTimeOffset.UtcNow;
 
     private async Task Fetch()
