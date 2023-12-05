@@ -82,7 +82,7 @@ export function drawBoxes(
     ctx.fillStyle = "#dc2626";
     ctx.fillRect(startPosition, barAreaHeight - (oneHeight * (countNegative + countUnknown)), width, (oneHeight * countNegative));
 
-    // neutrals  orange-600 (#ea580c)
+    // neutrals orange-600 (#ea580c)
     ctx.fillStyle = "#ea580c";
     ctx.fillRect(startPosition, barAreaHeight - (oneHeight * (countNeutral + countNegative + countUnknown)), width, (oneHeight * countNeutral));
 
