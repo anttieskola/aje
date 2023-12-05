@@ -1,8 +1,37 @@
-﻿@if (Element != null)
+﻿@implements IAsyncDisposable
+@inject IJSRuntime JSRuntime
+@if (Element != null)
 {
-    <p>@Element.Text</p>
+    <p id="@_id">@Element.Text</p>
 }
 @code {
     [Parameter]
     public MarkdownTextElement? Element { get; set; }
+
+    private readonly Guid _id = Guid.NewGuid();
+
+    private IJSObjectReference? _js;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _js = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./Shared/MarkDownText.razor.js");
+        await _js.InvokeVoidAsync("renderMarkDownText", _id.ToString());
+    }
+
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        if (_js is not null)
+        {
+            try
+            {
+                await _js.DisposeAsync();
+                _js = null;
+            }
+            catch (JSDisconnectedException)
+            {
+                // We do not want to see this in logs, DisposeAsync call also throws exception if circuit lost
+                // https://github.com/dotnet/aspnetcore/issues/44180
+            }
+        }
+    }
 }
