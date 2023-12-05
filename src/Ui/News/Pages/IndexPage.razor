@@ -110,6 +110,7 @@
         else
             _language = a.Value.ToString();
 
+        _offset = 0;
         await UpdateQueryString();
         await InvokeAsync(() => Fetch());
     }
@@ -123,6 +124,7 @@
         else
             _polarity = a.Value.ToString();
 
+        _offset = 0;
         await UpdateQueryString();
         await InvokeAsync(() => Fetch());
     }
