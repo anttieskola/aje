@@ -5,7 +5,7 @@
 
 <PageTitle>articles</PageTitle>
 
-<div class="p-1 border-2 rounded-lg border-sky-600">
+<div class="p-1 border-2 rounded-lg border-sky-600 xl:w-2/3 lg:w-3/4 xl:ml-14 lg:ml-12 md:ml-10 xs:ml-0">
     <div class="lg:flex lg:p-1 md:flex md:p-1">
         <div class="lg:flex md:flex xs:flex">
             <div>
@@ -38,62 +38,62 @@
             <div>
                 @if (_isPreviousEnabled)
                 {
-                        <div class="mr-2">
-                            <button aria-label="previous" class="w-16 min-w-16 submitButton" @onclick="Previous">
-                                <Icon Name="arrow-left-square" Size="18" />
-                            </button>
-                        </div>
+                    <div class="mr-2">
+                        <button aria-label="previous" class="w-16 min-w-16 submitButton" @onclick="Previous">
+                            <Icon Name="arrow-left-square" Size="18" />
+                        </button>
+                    </div>
                 }
                 else
                 {
-                        <div class="mr-2">
-                            <button aria-label="previous" class="w-16 min-w-16 submitButton" disabled @onclick="Previous">
-                                <Icon Name="arrow-left-square" Size="18" />
-                            </button>
-                        </div>
+                    <div class="mr-2">
+                        <button aria-label="previous" class="w-16 min-w-16 submitButton" disabled @onclick="Previous">
+                            <Icon Name="arrow-left-square" Size="18" />
+                        </button>
+                    </div>
 
                 }
             </div>
             <div>
                 @if (_isNextEnabled)
                 {
-                        <div class="ml-2">
-                            <button aria-label="next" class="w-16 min-w-16 submitButton" @onclick="Next">
-                                <Icon Name="arrow-right-square" Size="18" />
-                            </button>
-                        </div>
+                    <div class="ml-2">
+                        <button aria-label="next" class="w-16 min-w-16 submitButton" @onclick="Next">
+                            <Icon Name="arrow-right-square" Size="18" />
+                        </button>
+                    </div>
                 }
                 else
                 {
-                        <div class="ml-2">
-                            <button aria-label="next" class="w-16 min-w-16 submitButton" disabled @onclick="Next">
-                                <Icon Name="arrow-right-square" Size="18" />
-                            </button>
-                        </div>
+                    <div class="ml-2">
+                        <button aria-label="next" class="w-16 min-w-16 submitButton" disabled @onclick="Next">
+                            <Icon Name="arrow-right-square" Size="18" />
+                        </button>
+                    </div>
                 }
             </div>
         </div>
     </div>
 </div>
 
-<table class="table-auto mt-1">
+<table class="table-auto mt-1 xl:ml-14 lg:ml-12 md:ml-10 xs:ml-0">
     <tbody>
         @foreach (var item in _headers.Items)
         {
-                <tr>
-                    <td>
-                        <SentimentIcon Polarity="@item.Polarity" IconSize="30" IconPadding="0" />
-                    </td>
-                    <td>
+            <tr>
+                <td>
+                    <SentimentIcon Polarity="@item.Polarity" IconSize="30" IconPadding="0" />
+                </td>
+                <td>
                     @{
                         var href = $"/article/{item.Id}";
                     }
-                        <NavLink href="@href">
+                    <NavLink href="@href">
                         @item.Title
-                        </NavLink>
-                    </td>
-                </tr>
-                <tr>
+                    </NavLink>
+                </td>
+            </tr>
+            <tr>
             <td class="p-1"></td>
         </tr>
         }
