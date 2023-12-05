@@ -1,9 +1,9 @@
-﻿<div class="fixed top-0 right-0 mt-1 mr-1">
+﻿@inject IJSRuntime JSRuntime
+
+<div class="fixed top-0 right-0 mt-1 mr-1">
     <nav>
-        <button type="button" class="submitButton" aria-label="go back">
-            <NavLink href="/">
-                <Icon Name="arrow-90deg-left" Size="24" Padding="0" />
-            </NavLink>
+        <button type="button" class="submitButton" aria-label="go back" @onclick="GoBack">
+            <Icon Name="arrow-90deg-left" Size="24" Padding="0" />
         </button>
     </nav>
 </div>
@@ -14,6 +14,10 @@
 }
 else
 {
+    /* TODO REMOVE */
+    <p class="mt-1">@Published.Ticks</p>
+    <p class="mt-1 mb-2">@Published</p>
+
     @foreach (var content in Model.Content)
     {
         switch (content)
@@ -31,12 +35,10 @@ else
     }
     <p class="italic text-center text-xs mt-2"><a href="@Model.Source">source</a></p>
 
-    <div class="flex flex-col items-center justify-center mt-1">
+    <div class="flex flex-col items-center justify-center mt-3">
         <nav>
-            <button type="button" class="submitButton" aria-label="go back">
-                <NavLink href="/">
-                    <Icon Name="arrow-90deg-left" Size="24" Padding="0" />
-                </NavLink>
+            <button type="button" class="submitButton" aria-label="go back" @onclick="GoBack">
+                <Icon Name="arrow-90deg-left" Size="24" Padding="0" />
             </button>
         </nav>
     </div>
@@ -48,5 +50,26 @@ else
 
     [Parameter]
     public Article? Model { get; set; }
+
+    private DateTimeOffset Published
+    {
+        get
+        {
+            if (Model == null)
+            {
+                return DateTimeOffset.MinValue;
+            }
+            else
+            {
+                return new DateTimeOffset(new DateTime(Model.Modified, DateTimeKind.Utc));
+            }
+        }
+    }
+
+    // Using JS API to go back we save our query string
+    private async Task GoBack()
+    {
+        await JSRuntime.InvokeVoidAsync("history.back");
+    }
 
 }

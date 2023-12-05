@@ -1,4 +1,5 @@
 ﻿global using AJE.Ui.News;
+global using AJE.Infra.DummyAi;
 global using AJE.Application;
 global using AJE.Domain;
 global using AJE.Domain.Ai;

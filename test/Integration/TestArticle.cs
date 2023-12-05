@@ -1,23 +1,14 @@
 ﻿using AJE.Domain.Entities;
-using AJE.Domain.Enums;
 
 namespace AJE.Test.Integration;
 
 public static class TestArticle
 {
-    public static Article Article_01(Guid id, string source)
+    public static EquatableList<MarkdownElement> Content
     {
-
-        return new Article
+        get
         {
-            Id = id,
-            Category = Category.BOGUS,
-            Title = "test",
-            Modified = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
-            Published = true,
-            Source = source,
-            Language = "en",
-            Content = new EquatableList<MarkdownElement>
+            return new EquatableList<MarkdownElement>
             {
                 new MarkdownHeaderElement{
                     Level = 1,
@@ -35,7 +26,7 @@ public static class TestArticle
                 {
                     Text = "This is another paragraph"
                 },
-            }
-        };
+            };
+        }
     }
 }

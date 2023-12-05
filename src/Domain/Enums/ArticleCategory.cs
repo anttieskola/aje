@@ -1,6 +1,6 @@
 ﻿namespace AJE.Domain.Enums;
 
-public enum Category
+public enum ArticleCategory
 {
     BOGUS = 1,
     NEWS = 2,

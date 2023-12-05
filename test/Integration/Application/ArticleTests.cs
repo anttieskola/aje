@@ -1,5 +1,6 @@
 ﻿using AJE.Domain.Commands;
 using AJE.Domain.Entities;
+using AJE.Domain.Enums;
 using AJE.Domain.Events;
 using AJE.Domain.Queries;
 using AJE.Infra.Redis.Indexes;
@@ -21,6 +22,23 @@ public class ArticleTests : IClassFixture<RedisFixture>
     private readonly Guid _idOk = new("00000000-0000-0000-0000-000000000001");
     private readonly Guid _idMissing = new("00000000-0000-0000-0000-000000000002");
 
+    private static Article LifeCycleTestArticle(Guid id, string source)
+    {
+        return new Article
+        {
+            Id = id,
+            Category = ArticleCategory.BOGUS,
+            Title = "daily test positive article",
+            Modified = DateTimeOffset.UtcNow.AddYears(-100).Ticks,
+            Published = true,
+            Source = source,
+            Language = "en",
+            Content = TestArticle.Content,
+            Polarity = Polarity.Positive,
+            PolarityVersion = 1
+        };
+    }
+
     [Fact]
     public async Task Lifecycle()
     {
@@ -28,7 +46,7 @@ public class ArticleTests : IClassFixture<RedisFixture>
         await _redisFixture.Database.KeyDeleteAsync(_index.RedisId(_idOk.ToString()));
         var source = "https://www.anttieskola.com";
         var publishHandler = new AddArticleCommandHandler(_redisFixture.ArticleRepository, new Mock<IArticleEventHandler>().Object);
-        var article = TestArticle.Article_01(_idOk, source);
+        var article = LifeCycleTestArticle(_idOk, source);
 
         // act: publish article
         var publishEvent = await publishHandler.Handle(new AddArticleCommand { Article = article }, CancellationToken.None);

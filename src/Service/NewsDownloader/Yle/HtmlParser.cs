@@ -141,17 +141,6 @@ public static class HtmlParser
                         }
                         break;
                     case "LivefeedBlock":
-                        {
-                            var feedId = (string?)c["livefeedId"];
-                            if (feedId != null)
-                            {
-                                elements.Add(new MarkdownTextElement
-                                {
-                                    Text = feedId,
-                                });
-                            }
-                        }
-                        break;
                     case "livefeed":
                         {
                             var feedId = (string?)c["livefeedId"];
@@ -176,11 +165,11 @@ public static class HtmlParser
         return new Article
         {
             Source = fullUrl,
-            Category = Category.NEWS,
+            Category = ArticleCategory.NEWS,
             Polarity = Polarity.Unknown,
             PolarityVersion = 0,
             // timestamps have no milliseconds so we need to parse it manually
-            Modified = DateTimeOffset.ParseExact(dateJsonModified, "yyyy-MM-ddTHH:mm:sszzz", CultureInfo.InvariantCulture).UtcTicks,
+            Modified = DateTimeOffset.ParseExact(dateJsonModified, "yyyy-MM-ddTHH:mm:sszzz", new CultureInfo("fi-FI")).UtcTicks,
             Title = titleElement.ToString(),
             Language = languageElement.ToString(),
             Published = true,

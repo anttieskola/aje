@@ -1,5 +1,4 @@
 ﻿using AJE.Infra.Redis.Indexes;
-using AJE.Service.NewsDownloader.Yle;
 
 namespace AJE.Test.Integration;
 
