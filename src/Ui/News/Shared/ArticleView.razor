@@ -1,6 +1,6 @@
 ﻿@inject IJSRuntime JSRuntime
 
-<div class="fixed top-0 right-0 mt-1 mr-1">
+<div class="fixed top-0 right-0 lg:mt-8 lg:mr-8 md:mt-4 md:mr-4 xs:mt-1 xs:mr-1">
     <nav>
         <button type="button" class="submitButton" aria-label="go back" @onclick="GoBack">
             <Icon Name="arrow-90deg-left" Size="24" Padding="0" />
@@ -14,23 +14,25 @@
 }
 else
 {
+    <div class="xl:w-3/4 lg:w-4/5 md:w-5/6 xs:w-full xl:m-10 lg:m-6 md:m-4 xs:m-1">
     @foreach (var content in Model.Content)
-    {
-        switch (content)
         {
-            case MarkdownHeaderElement header:
-                <MarkDownHeader Element="@header" />
-                break;
-            case MarkdownTextElement text:
-                <MarkDownText Element="@text" />
-                break;
-            default:
-                <p class="text-rose-600">Unknown content type</p>
-                break;
+            switch (content)
+            {
+                case MarkdownHeaderElement header:
+                    <MarkDownHeader Element="@header" />
+                    break;
+                case MarkdownTextElement text:
+                    <MarkDownText Element="@text" />
+                    break;
+                default:
+                    <p class="text-rose-600">Unknown content type</p>
+                    break;
+            }
         }
-    }
+    </div>
     <p class="italic text-center text-xs mt-2">published @Published</p>
-    <p class="italic text-center text-xs mt-2"><a href="@Model.Source">source</a></p>
+    <p class="italic text-center text-xs mt-2"><a target="_blank" href="@Model.Source">source</a></p>
     <div class="flex flex-col items-center justify-center mt-3">
         <nav>
             <button type="button" class="submitButton" aria-label="go back" @onclick="GoBack">
