@@ -94,6 +94,7 @@
         if (_js is not null)
         {
             await _js.DisposeAsync();
+            _js = null;
         }
     }
 }

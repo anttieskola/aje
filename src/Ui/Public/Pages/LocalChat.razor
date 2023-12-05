@@ -22,13 +22,21 @@
         </tr>
         <tr>
             <td><label>Username</label></td>
-            <td><InputText @bind-Value="_model!.UserName" /></td>
-            <td class="text-rose-600"><ValidationMessage For="() => _model!.UserName" /></td>
+            <td>
+                <InputText @bind-Value="_model!.UserName" />
+            </td>
+            <td class="text-rose-600">
+                <ValidationMessage For="() => _model!.UserName" />
+            </td>
         </tr>
         <tr>
             <td><label>Message</label></td>
-            <td><InputText @bind-Value="_model!.Message" /></td>
-            <td class="text-rose-600"><ValidationMessage For="() => _model!.Message" /></td>
+            <td>
+                <InputText @bind-Value="_model!.Message" />
+            </td>
+            <td class="text-rose-600">
+                <ValidationMessage For="() => _model!.Message" />
+            </td>
         </tr>
         <tr>
             <td></td>
@@ -50,8 +58,8 @@
         _editContext = new(_model);
 
         _hubConnection = new HubConnectionBuilder()
-            .WithUrl(Navigation.ToAbsoluteUri("/hublocalchat"))
-            .Build();
+        .WithUrl(Navigation.ToAbsoluteUri("/hublocalchat"))
+        .Build();
 
         _hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
         {
@@ -89,13 +97,14 @@
     }
 
     public bool IsConnected =>
-        _hubConnection?.State == HubConnectionState.Connected;
+    _hubConnection?.State == HubConnectionState.Connected;
 
     public async ValueTask DisposeAsync()
     {
         if (_hubConnection is not null)
         {
             await _hubConnection.DisposeAsync();
+            _hubConnection = null;
         }
     }
 }
