@@ -17,8 +17,10 @@ public class CheckArticleChatML : ChatMLCreator, ICheckArticle
 
     // update CURRENT_POLARITY_VERSION if system instructions change
     public static readonly string[] SystemInstructions = {
-            "You are an assistant that examines given context and determinate is it a real article, like news article or story about some event or a report of statistics",
-            "You must answer with single word yes or no, then add comma or line feed and reasoning for the answer"
+            "You are an assistant that examines given context and determinate is it a valid article or not",
+            "Valid articles are those that report news, events, facts or statistics",
+            "Valid articles must contain atleast 40 words",
+            "You response using single word YES or NO followed by reasoning for the answer"
         };
 
     public CheckArticleChatML() :
@@ -33,31 +35,17 @@ public class CheckArticleChatML : ChatMLCreator, ICheckArticle
 
         // remove possible line feed or space from the beginning
         text = text.TrimStart();
-        string answer;
         string reasoning;
-        if (text.Contains('\n'))
-        {
-            answer = text[..text.IndexOf('\n')];
-            reasoning = text[(text.IndexOf('\n') + 1)..];
-        }
-        else if (text.Contains(','))
-        {
-            answer = text[..text.IndexOf(',')];
-            reasoning = text[(text.IndexOf(',') + 1)..];
-        }
-        else
-        {
-            throw new AiException($"Invalid response:{text}");
-        }
-
         bool isValid;
-        if (answer.StartsWith("yes", StringComparison.OrdinalIgnoreCase))
+        if (text.StartsWith("yes", StringComparison.OrdinalIgnoreCase) || (text.Length > 30 && text[..30].Contains("yes", StringComparison.OrdinalIgnoreCase)))
         {
             isValid = true;
+            reasoning = text[3..];
         }
-        else if (answer.StartsWith("no", StringComparison.OrdinalIgnoreCase))
+        else if (text.StartsWith("no", StringComparison.OrdinalIgnoreCase) || (text.Length > 30 && text[..30].Contains("no", StringComparison.OrdinalIgnoreCase)))
         {
             isValid = false;
+            reasoning = text[2..].Trim();
         }
         else
         {

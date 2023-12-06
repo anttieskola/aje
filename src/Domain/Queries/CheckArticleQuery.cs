@@ -28,47 +28,58 @@ public class CheckArticleQueryHandler : IRequestHandler<CheckArticleQuery, Check
     {
         var context = _contextCreator.Create(query.Article);
         var prompt = _checkArticle.Context(context);
-        var request = new CompletionRequest
-        {
-            Prompt = prompt,
-            Temperature = 0.1,
-            Stop = _checkArticle.StopWords,
-        };
 
-        CompletionResponse response;
-        try
+        // could start with temperature 0.1 and increase it if no response
+        double temperature = 0.0;
+        while (temperature < 0.8)
         {
-            response = await _aiModel.CompletionAsync(request, cancellationToken);
-        }
-        catch (AiException aex)
-        {
-            // too large context must be valid article
-            if (aex.Message.Contains("Content is too large"))
+            temperature += 0.1;
+            var request = new CompletionRequest
             {
+                Prompt = prompt,
+                NumberOfTokensToKeep = 0,
+                NumberOfTokensToPredict = 4096,
+                Temperature = temperature,
+                Stop = _checkArticle.StopWords,
+            };
+
+            // Completion with AI
+            CompletionResponse response;
+            try
+            {
+                response = await _aiModel.CompletionAsync(request, cancellationToken);
+            }
+            catch (AiException aex)
+            {
+                // too large context must be valid article
+                if (aex.Message.Contains("Content is too large"))
+                {
+                    return new CheckArticleResult
+                    {
+                        Id = query.Article.Id,
+                        IsValid = true,
+                    };
+                }
+                continue;
+            }
+
+            // Try parse response
+            try
+            {
+                var result = _checkArticle.Parse(response.Content);
                 return new CheckArticleResult
                 {
                     Id = query.Article.Id,
-                    IsValid = true,
+                    IsValid = result.IsValid,
+                    Reasoning = result.Reasoning,
                 };
             }
-            throw;
-        }
-
-        try
-        {
-            var result = _checkArticle.Parse(response.Content);
-            return new CheckArticleResult
+            catch (AiException)
             {
-                Id = query.Article.Id,
-                IsValid = result.IsValid,
-                Reasoning = result.Reasoning,
-            };
+                await _aiLogger.LogAsync($"CheckArticle-{query.Article.Id}", request, response);
+            }
         }
-        catch (AiException)
-        {
-            await _aiLogger.LogAsync($"CheckArticle-{query.Article.Id}", request, response);
-            throw;
-        }
+        throw new AiException("Failed to check article");
     }
 
 }
