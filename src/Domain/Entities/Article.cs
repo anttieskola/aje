@@ -32,6 +32,9 @@ public record Article : ArticleHeader
     [JsonPropertyName("polarityVersion")]
     public int PolarityVersion { get; set; } = 0;
 
+    [JsonPropertyName("isValidated")]
+    public bool IsValidated { get; set; } = false;
+
     [JsonPropertyName("content")]
     public EquatableList<MarkdownElement> Content { get; set; } = EquatableList<MarkdownElement>.Empty;
 

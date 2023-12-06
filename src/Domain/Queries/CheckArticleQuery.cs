@@ -48,7 +48,7 @@ public class CheckArticleQueryHandler : IRequestHandler<CheckArticleQuery, Check
                 return new CheckArticleResult
                 {
                     Id = query.Article.Id,
-                    IsArticle = true,
+                    IsValid = true,
                 };
             }
             throw;
@@ -62,14 +62,14 @@ public class CheckArticleQueryHandler : IRequestHandler<CheckArticleQuery, Check
                 return new CheckArticleResult
                 {
                     Id = query.Article.Id,
-                    IsArticle = false,
+                    IsValid = false,
                     Reasoning = _checkArticle.ParseReasoning(response.Content),
                 };
             }
             return new CheckArticleResult
             {
                 Id = query.Article.Id,
-                IsArticle = true,
+                IsValid = true,
             };
         }
         catch (AiException)

@@ -46,6 +46,16 @@ public class ArticleRepository : IArticleRepository
         _logger.LogTrace("Updated article {Id}", article.Id);
     }
 
+    public async Task UpdateIsValidated(Guid id, bool isValidated)
+    {
+        var db = _connection.GetDatabase();
+        var redisId = _index.RedisId(id.ToString());
+
+        var setResult = await db.ExecuteAsync("JSON.SET", redisId, "$.isValidated", isValidated.ToString().ToLower());
+        if (setResult.ToString() != "OK")
+            throw new DataException($"failed to set IsValidated on article {redisId}");
+    }
+
     #endregion modifications
 
     #region queries
@@ -76,6 +86,8 @@ public class ArticleRepository : IArticleRepository
             builder.Conditions.Add(new QueryCondition { Expression = $"@polarity:[{(int)query.Polarity} {(int)query.Polarity}]" });
         if (query.MaxPolarityVersion != null)
             builder.Conditions.Add(new QueryCondition { Expression = $"@polarityVersion:[-inf {query.MaxPolarityVersion}]" });
+        if (query.IsValidated != null)
+            builder.Conditions.Add(new QueryCondition { Expression = $"@isValidated:{{{query.IsValidated}}}" });
         var queryString = builder.Build();
 
         var arguments = new string[] { _index.Name, queryString, "SORTBY", "modified", "DESC", "LIMIT", query.Offset.ToString(), query.PageSize.ToString() };

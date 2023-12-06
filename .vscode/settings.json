@@ -14,6 +14,18 @@
             "server": "/run/postgresql",
             "username": "antti",
             "password": ""
+        },
+        {
+            "database": "newsfixer",
+            "driver": "PostgreSQL",
+            "name": "newsfixer@localhost",
+            "pgOptions": {
+                "ssl": false
+            },
+            "previewLimit": 1000,
+            "server": "/run/postgresql",
+            "username": "antti",
+            "password": ""
         }
     ],
     "sonarlint.output.showAnalyzerLogs": true,

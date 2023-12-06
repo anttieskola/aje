@@ -5,11 +5,15 @@ var host = Host.CreateDefaultBuilder(args)
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json", false, true)
             .Build();
+        services.AddDbContext<NewsFixerContext>(options =>
+        {
+            options.UseNpgsql(config.GetConnectionString("NewsFixer"));
+        });
         services.AddApplication();
         services.AddDomain();
         services.AddAi(config);
         services.AddRedis(config);
-        // skeleton for upcoming fixer thread
+        services.AddHostedService<CheckArticleWorker>();
     })
     .ConfigureLogging(logging =>
     {

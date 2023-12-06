@@ -7,6 +7,7 @@ public record GetArticlesQuery : PaginatedQuery, IRequest<PaginatedList<Article>
     public string? Language { get; init; }
     public Polarity? Polarity { get; init; }
     public int? MaxPolarityVersion { get; init; }
+    public bool? IsValidated { get; init; }
 }
 
 public class GetArticlesQueryHandler : IRequestHandler<GetArticlesQuery, PaginatedList<Article>>

@@ -77,7 +77,7 @@ public class CheckArticleCommandHandlerTests : IClassFixture<HttpClientFixture>
         var command = new CheckArticleQuery { Article = _articleYes };
         var response = await handler.Handle(command, CancellationToken.None);
         Assert.NotNull(response);
-        Assert.True(response.IsArticle);
+        Assert.True(response.IsValid);
     }
 
     private readonly Article _articleNo01 = new()
@@ -110,7 +110,7 @@ public class CheckArticleCommandHandlerTests : IClassFixture<HttpClientFixture>
         var command = new CheckArticleQuery { Article = _articleNo01 };
         var response = await handler.Handle(command, CancellationToken.None);
         Assert.NotNull(response);
-        Assert.False(response.IsArticle);
+        Assert.False(response.IsValid);
         Assert.NotEmpty(response.Reasoning);
     }
 
@@ -144,7 +144,7 @@ public class CheckArticleCommandHandlerTests : IClassFixture<HttpClientFixture>
         var command = new CheckArticleQuery { Article = _articleNo02 };
         var response = await handler.Handle(command, CancellationToken.None);
         Assert.NotNull(response);
-        Assert.False(response.IsArticle);
+        Assert.False(response.IsValid);
         Assert.NotEmpty(response.Reasoning);
     }
 }

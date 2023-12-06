@@ -12,7 +12,7 @@ public class CheckArticleChatML : ChatMLCreator, ICheckArticle
 
     // update CURRENT_POLARITY_VERSION if system instructions change
     public static readonly string[] SystemInstructions = {
-            "You are an assistant that examines given context and determinate is it a news article or not",
+            "You are an assistant that examines given context and determinate is it a real article like news article or story about something or not",
             "You will respond using only one single word that is either yes or no then add line feed and resoning for your answer",
         };
 
