@@ -56,25 +56,17 @@ public class CheckArticleQueryHandler : IRequestHandler<CheckArticleQuery, Check
 
         try
         {
-            var isArticle = _checkArticle.Parse(response.Content);
-            if (!isArticle)
-            {
-                return new CheckArticleResult
-                {
-                    Id = query.Article.Id,
-                    IsValid = false,
-                    Reasoning = _checkArticle.ParseReasoning(response.Content),
-                };
-            }
+            var result = _checkArticle.Parse(response.Content);
             return new CheckArticleResult
             {
                 Id = query.Article.Id,
-                IsValid = true,
+                IsValid = result.IsValid,
+                Reasoning = result.Reasoning,
             };
         }
         catch (AiException)
         {
-            await _aiLogger.LogAsync($"CheckArticle-{query.Article.Id.ToString()}", request, response);
+            await _aiLogger.LogAsync($"CheckArticle-{query.Article.Id}", request, response);
             throw;
         }
     }

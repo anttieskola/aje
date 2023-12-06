@@ -1,9 +1,14 @@
 ﻿namespace AJE.Domain.Ai;
 
+public record CheckArticleChatMLResult
+{
+    public required bool IsValid { get; init; }
+    public required string Reasoning { get; init; }
+}
+
 public interface ICheckArticle : IPromptCreator
 {
-    bool Parse(string text);
-    string ParseReasoning(string text);
+    CheckArticleChatMLResult Parse(string text);
 }
 
 public class CheckArticleChatML : ChatMLCreator, ICheckArticle
@@ -12,8 +17,8 @@ public class CheckArticleChatML : ChatMLCreator, ICheckArticle
 
     // update CURRENT_POLARITY_VERSION if system instructions change
     public static readonly string[] SystemInstructions = {
-            "You are an assistant that examines given context and determinate is it a real article like news article or story about something or not",
-            "You will respond using only one single word that is either yes or no then add line feed and resoning for your answer",
+            "You are an assistant that examines given context and determinate is it a real article, like news article or story about some event or a report of statistics",
+            "You must answer with single word yes or no, then add comma or line feed and reasoning for the answer"
         };
 
     public CheckArticleChatML() :
@@ -21,30 +26,48 @@ public class CheckArticleChatML : ChatMLCreator, ICheckArticle
     {
     }
 
-    public bool Parse(string text)
+    public CheckArticleChatMLResult Parse(string text)
     {
-        if (text == null || !text.Contains('\n'))
-        {
+        if (text == null)
             throw new AiException($"Invalid response:{text}");
-        }
-        var toParse = text[..text.IndexOf('\n')];
-        if (toParse.Contains("yes", StringComparison.OrdinalIgnoreCase))
-        {
-            return true;
-        }
-        else if (toParse.Contains("no", StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-        throw new AiException($"Invalid response:{text}");
-    }
 
-    public string ParseReasoning(string text)
-    {
-        if (text == null || !text.Contains('\n'))
+        // remove possible line feed or space from the beginning
+        text = text.TrimStart();
+        string answer;
+        string reasoning;
+        if (text.Contains('\n'))
+        {
+            answer = text[..text.IndexOf('\n')];
+            reasoning = text[(text.IndexOf('\n') + 1)..];
+        }
+        else if (text.Contains(','))
+        {
+            answer = text[..text.IndexOf(',')];
+            reasoning = text[(text.IndexOf(',') + 1)..];
+        }
+        else
         {
             throw new AiException($"Invalid response:{text}");
         }
-        return text[(text.IndexOf('\n') + 1)..];
+
+        bool isValid;
+        if (answer.StartsWith("yes", StringComparison.OrdinalIgnoreCase))
+        {
+            isValid = true;
+        }
+        else if (answer.StartsWith("no", StringComparison.OrdinalIgnoreCase))
+        {
+            isValid = false;
+        }
+        else
+        {
+            throw new AiException($"Invalid response:{text}");
+        }
+
+        return new CheckArticleChatMLResult
+        {
+            IsValid = isValid,
+            Reasoning = reasoning,
+        };
     }
 }
