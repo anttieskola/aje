@@ -63,8 +63,6 @@ database
 	- I would run multiple different models on n-number of hosts
 	- Run prompts on each simultaneously and then combine results
 
-
-
 # Code architecture
 All is done using clean architecture / "domain based" programming. Most of all I want to
 thank [Jason Taylor](https://github.com/jasontaylordev/CleanArchitecture) for really great
@@ -109,7 +107,7 @@ List of current components and used software
 	- MChatter: Chat application with large language model
 	- Populator: Utility to fill Redis with bogus data
 - All code I write in C# (might do some in rust as went thrue the [book](https://doc.rust-lang.org/book/) a while ago)
-	- Currently using .Net 7.0 as had issues with 8.0 RC with blazor
+	- Originally used 7.0 as 8.0 RC had issues but now all code is 8.0
 - [Llama.cpp](https://github.com/ggerganov/llama.cpp) server
 	- Used to run large language models locally
 	- Models I use I get from [Hugginface](https://huggingface.co/)
@@ -161,6 +159,7 @@ Could someday learn to create docker containers and make one for each component.
 - Asp.net process is running in ports
 	- Ui.Public 5001
 	- Ui.News 5002
+	- Ui.Antai 5003
 - [WebSocket documentation](https://www.nginx.com/blog/websocket-nginx/)
 - TODO: Need separate certificate for news.anttieskola.com
 - TODO: How to configure server to support both sites
