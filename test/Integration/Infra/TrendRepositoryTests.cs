@@ -16,7 +16,7 @@ namespace AJE.Test.Integration;
 public class TrendRepositoryTests : IClassFixture<RedisFixture>
 {
     private readonly RedisFixture _redisFixture;
-    private readonly IRedisIndex _index = new ArticleIndex();
+    private readonly ArticleIndex _index = new();
     public TrendRepositoryTests(RedisFixture fixture)
     {
         _redisFixture = fixture;

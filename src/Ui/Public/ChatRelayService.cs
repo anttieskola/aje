@@ -43,6 +43,7 @@
         {
             var s = _connection.GetSubscriber();
             await s.SubscribeAsync(new RedisChannel(ChatConstants.CHANNEL, RedisChannel.PatternMode.Auto), HandleMessage);
+            _subscribed = true;
         }
 
         private void HandleMessage(RedisChannel channel, RedisValue value)

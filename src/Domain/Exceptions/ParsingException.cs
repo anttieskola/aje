@@ -1,6 +1,5 @@
 ﻿namespace AJE.Domain.Exceptions;
 
-[Serializable]
 public class ParsingException : Exception
 {
     public ParsingException(string? message)
@@ -10,11 +9,6 @@ public class ParsingException : Exception
 
     public ParsingException(string? message, Exception? innerException)
         : base(message, innerException)
-    {
-    }
-
-    protected ParsingException(SerializationInfo info, StreamingContext context)
-        : base(info, context)
     {
     }
 }

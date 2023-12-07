@@ -11,7 +11,7 @@ export function drawTitles(
     countNeutral,
     countPositive,
     countUnknown) {
-    var canvas = document.getElementById(canvasId);
+    const canvas = document.getElementById(canvasId);
     const ctx = canvas.getContext('2d');
 
     // bar title (timeperiod)
@@ -21,36 +21,33 @@ export function drawTitles(
     ctx.fillText(title, startPosition + 4, canvas.height);
 
     // calculations
-    var barAreaHeight = canvas.height - 20;
-    var oneHeight = barAreaHeight / maxCount;
+    const barAreaHeight = canvas.height - 20;
+    const oneHeight = barAreaHeight / maxCount;
 
     // count style stone 50 (#fafaf9)
     ctx.fillStyle = "#fafaf9";
 
     // unknown count
     if (countUnknown != 0) {
-        var unknownCenterY = barAreaHeight - (oneHeight * countUnknown / 2);
+        const unknownCenterY = barAreaHeight - (oneHeight * countUnknown / 2);
         ctx.fillText(countUnknown, startPosition + 10, unknownCenterY);
     }
 
     // negative count
     if (countNegative != 0) {
-        var negativeCenterY = barAreaHeight - (oneHeight * (countUnknown + (countNegative / 2)));
+        const negativeCenterY = barAreaHeight - (oneHeight * (countUnknown + (countNegative / 2)));
         ctx.fillText(countNegative, startPosition + 10, negativeCenterY);
     }
 
-    var negativeCenterY = barAreaHeight - (oneHeight * (countUnknown + (countNegative / 2)));
-    ctx.fillText(countNegative, startPosition + 10, negativeCenterY);
-
     // neutrals count
     if (countNeutral != 0) {
-        var neutralCenterY = barAreaHeight - (oneHeight * (countUnknown + countNegative + (countNeutral / 2)));
+        const neutralCenterY = barAreaHeight - (oneHeight * (countUnknown + countNegative + (countNeutral / 2)));
         ctx.fillText(countNeutral, startPosition + 10, neutralCenterY);
     }
 
     // positives count
     if (countPositive != 0) {
-        var positiveCenterY = barAreaHeight - (oneHeight * (countUnknown + countNegative + countNeutral + (countPositive / 2)));
+        const positiveCenterY = barAreaHeight - (oneHeight * (countUnknown + countNegative + countNeutral + (countPositive / 2)));
         ctx.fillText(countPositive, startPosition + 10, positiveCenterY);
     }
 }
@@ -68,11 +65,11 @@ export function drawBoxes(
     countNeutral,
     countPositive,
     countUnknown) {
-    var canvas = document.getElementById(canvasId);
+    const canvas = document.getElementById(canvasId);
     const ctx = canvas.getContext('2d');
     // calculations
-    var barAreaHeight = canvas.height - 20;
-    var oneHeight = barAreaHeight / maxCount;
+    const barAreaHeight = canvas.height - 20;
+    const oneHeight = barAreaHeight / maxCount;
 
     // unknowns slate-600 (#475569)
     ctx.fillStyle = "#475569";

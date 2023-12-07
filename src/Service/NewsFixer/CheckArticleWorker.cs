@@ -47,7 +47,7 @@ public class CheckArticleWorker : BackgroundService
     {
         using var scope = _scopeFactory.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<NewsFixerContext>();
-        var rows = context.Articles.Where(x => x.IsValid == true).AsAsyncEnumerable();
+        var rows = context.Articles.Where(x => x.IsValid).AsAsyncEnumerable();
 
         await foreach (var row in rows)
         {
@@ -56,7 +56,7 @@ public class CheckArticleWorker : BackgroundService
 
             // update article with saved IsValidated true value if it is not set
             var current = await _sender.Send(new GetArticleByIdQuery { Id = row.Id }, _cancellationToken);
-            if (current.IsValidated == false)
+            if (!current.IsValidated)
                 await _sender.Send(new UpdateArticleIsValidatedCommand { Id = row.Id, IsValidated = true }, _cancellationToken);
         }
     }
@@ -105,7 +105,7 @@ public class CheckArticleWorker : BackgroundService
         // db update
         using var scope = _scopeFactory.CreateScope();
         using var context = scope.ServiceProvider.GetRequiredService<NewsFixerContext>();
-        var entity = await context.Articles.AddAsync(new ArticleRow
+        await context.Articles.AddAsync(new ArticleRow
         {
             Id = article.Id,
             IsValid = result.IsValid,
@@ -117,11 +117,11 @@ public class CheckArticleWorker : BackgroundService
         if (result.IsValid)
         {
             await _sender.Send(new UpdateArticleIsValidatedCommand { Id = article.Id, IsValidated = true }, _cancellationToken);
-            _logger.LogInformation($"Article {article.Id} is valid");
+            _logger.LogInformation("Article {} is valid", article.Id);
         }
         else
         {
-            _logger.LogInformation($"Article {article.Id} is invalid: {result.Reasoning}");
+            _logger.LogInformation("Article {} is invalid: {}", article.Id, result.Reasoning);
         }
     }
 }

@@ -76,7 +76,17 @@ public class CompletionStream : IDisposable
         return sb.ToString();
     }
 
-    private static StringContent CreateContent(string input)
+    // We gotta allow the < and > ('\u003C', '\u003E') characters as llama.cpp won't decode anything
+    // for the model. It does not work to use AllowCharacters as if character is in the Global block list
+    // like these are there is no other way to allow them than to use UnsafeRelaxedJsonEscaping.
+    // https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/character-encoding
+    // We have to be carefull what input we allow to this class as it will be passed to the model.
+    private readonly JsonSerializerOptions _unsafeJsonSerializerOptions = new()
+    {
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+    };
+
+    private StringContent CreateContent(string input)
     {
         var request = new CompletionRequest
         {
@@ -87,18 +97,7 @@ public class CompletionStream : IDisposable
             NumberOfTokensToPredict = 256,
             NumberOfTokensToKeep = -1,
         };
-
-        // we gotta allow the < and > characters as llama.cpp won't decode
-        // even if we define the characters as allowed it still does not work
-        // only way is to use dangerous UnsafeRelaxedJsonEscaping
-        // Global block list characters can't be allowed like: AllowCharacters('\u003C', '\u003E')
-        // https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/character-encoding
-        var options = new JsonSerializerOptions
-        {
-            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-            //Encoder = JavaScriptEncoder.Create(encoderSettings),
-        };
-        var json = JsonSerializer.Serialize(request, options);
+        var json = JsonSerializer.Serialize(request, _unsafeJsonSerializerOptions);
         File.WriteAllText("/tmp/MChatter-request.json", json);
         return new StringContent(json, Encoding.UTF8, "application/json");
     }
