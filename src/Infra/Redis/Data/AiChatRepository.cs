@@ -2,7 +2,7 @@
 
 public class AiChatRepository : IAiChatRepository
 {
-    private readonly IRedisIndex _index = new AiChatIndex();
+    private readonly AiChatIndex _index = new();
     private readonly ILogger<AiChatRepository> _logger;
     private readonly IConnectionMultiplexer _connection;
 

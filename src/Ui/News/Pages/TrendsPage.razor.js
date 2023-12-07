@@ -3,7 +3,7 @@
 // 3. y coordinate
 // 4. max width of text (optional)
 export function drawLabels(canvasId, maxCount) {
-    var canvas = document.getElementById(canvasId);
+    const canvas = document.getElementById(canvasId);
     const ctx = canvas.getContext('2d');
     // max count
     // sky-600 (#0284c7)

@@ -24,7 +24,7 @@ public class AiChatTests : IClassFixture<HttpClientFixture>, IClassFixture<Redis
 #pragma warning restore xUnit1033
     private readonly HttpClientFixture _httpClientFixture;
     private readonly RedisFixture _redisFixture;
-    private readonly IRedisIndex _index = new AiChatIndex();
+    private readonly AiChatIndex _index = new();
 
     public AiChatTests(
         HttpClientFixture httpClientFixture,

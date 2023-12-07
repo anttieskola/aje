@@ -2,7 +2,7 @@
 
 public class ArticleRepository : IArticleRepository
 {
-    private readonly IRedisIndex _index = new ArticleIndex();
+    private readonly ArticleIndex _index = new();
     private readonly ILogger<ArticleRepository> _logger;
     private readonly IConnectionMultiplexer _connection;
 

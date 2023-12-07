@@ -178,7 +178,7 @@ public static class HtmlParser
     }
 
 
-    private static IEnumerable<MarkdownElement> ParseFeatureBlock(JsonArray pages)
+    private static List<MarkdownElement> ParseFeatureBlock(JsonArray pages)
     {
         var elements = new List<MarkdownElement>();
         foreach (var page in pages)

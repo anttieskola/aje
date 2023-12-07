@@ -1,6 +1,6 @@
 export function renderMarkDownText(elementId) {
-    var element = document.getElementById(elementId);
-    var text = element.innerHTML;
+    const element = document.getElementById(elementId);
+    let text = element.innerHTML;
     // magic with AI making regex:es
     // remove "\["" and "\]""
     text = text.replace(/\\\[/g, '');

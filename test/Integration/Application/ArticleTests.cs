@@ -13,7 +13,7 @@ namespace AJE.Test.Integration.Application;
 public class ArticleTests : IClassFixture<RedisFixture>
 {
     private readonly RedisFixture _redisFixture;
-    private readonly IRedisIndex _index = new ArticleIndex();
+    private readonly ArticleIndex _index = new();
     public ArticleTests(RedisFixture fixture)
     {
         _redisFixture = fixture;

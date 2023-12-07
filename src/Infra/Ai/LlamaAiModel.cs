@@ -12,6 +12,16 @@ public class LlamaAiModel : IAiModel
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly Uri _serverUri;
 
+    // We gotta allow the < and > ('\u003C', '\u003E') characters as llama.cpp won't decode anything
+    // for the model. It does not work to use AllowCharacters as if character is in the Global block list
+    // like these are there is no other way to allow them than to use UnsafeRelaxedJsonEscaping.
+    // https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/character-encoding
+    // We have to be carefull what input we allow to this class as it will be passed to the model.
+    private readonly JsonSerializerOptions _unsafeJsonSerializerOptions = new()
+    {
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+    };
+
     public LlamaAiModel(
         ILogger<LlamaAiModel> logger,
         LlamaConfiguration configuration,
@@ -53,8 +63,7 @@ public class LlamaAiModel : IAiModel
         if (!request.Stream)
             throw new ArgumentException($"Use {nameof(CompletionAsync)} when Stream disabled", nameof(request));
 
-        if (tokenCreatedCallback == null)
-            throw new ArgumentNullException(nameof(tokenCreatedCallback));
+        ArgumentNullException.ThrowIfNull(tokenCreatedCallback);
 
         await CheckContentIsNotTooLarge(request.Prompt, cancellationToken);
 
@@ -181,18 +190,9 @@ public class LlamaAiModel : IAiModel
         return await Task.FromResult(_configuration.MaxTokenCount);
     }
 
-    private static StringContent Serialize(object request)
+    private StringContent Serialize(object request)
     {
-        // We gotta allow the < and > ('\u003C', '\u003E') characters as llama.cpp won't decode anything
-        // for the model. It does not work to use AllowCharacters as if character is in the Global block list
-        // like these are there is no other way to allow them than to use UnsafeRelaxedJsonEscaping.
-        // https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/character-encoding
-        // We have to be carefull what input we allow to this class as it will be passed to the model.
-        var options = new JsonSerializerOptions
-        {
-            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-        };
-        var json = JsonSerializer.Serialize(request, options);
+        var json = JsonSerializer.Serialize(request, _unsafeJsonSerializerOptions);
         return new StringContent(json, Encoding.UTF8, "application/json");
     }
 }

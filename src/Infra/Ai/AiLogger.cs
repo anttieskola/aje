@@ -4,6 +4,7 @@ namespace AJE.Infra.Ai;
 public class AiLogger : IAiLogger
 {
     private readonly string _logFolder;
+    private readonly JsonSerializerOptions _jsonSerializerOptions = new() { WriteIndented = true };
 
     public AiLogger(LlamaConfiguration configuration)
     {
@@ -21,10 +22,10 @@ public class AiLogger : IAiLogger
     {
         await File.WriteAllTextAsync(
             Path.Combine(_logFolder, $"{fileNamePrefix}-request.json"),
-            JsonSerializer.Serialize(request, new JsonSerializerOptions { WriteIndented = true }));
+            JsonSerializer.Serialize(request, _jsonSerializerOptions));
 
         await File.WriteAllTextAsync(
             Path.Combine(_logFolder, $"{fileNamePrefix}-response.json"),
-            JsonSerializer.Serialize(response, new JsonSerializerOptions { WriteIndented = true }));
+            JsonSerializer.Serialize(response, _jsonSerializerOptions));
     }
 }
