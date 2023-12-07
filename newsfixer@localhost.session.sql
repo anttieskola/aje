@@ -1,2 +1,3 @@
 -- select * from pg_tables;
-select * from articles;
+select id, reasoning from articles
+where "isValid" = false;

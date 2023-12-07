@@ -77,12 +77,12 @@ For the component using EF & Database
 
 Postgresql package (required)
 ```xml
-<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.11" />
+<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.0" />
 ```
 
 Tools (not required now, as using globally installed tools)
 ```xml
-<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.13" />
+<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0" />
 ```
 
 ## Create DbContext
