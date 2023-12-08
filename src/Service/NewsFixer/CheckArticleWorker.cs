@@ -38,7 +38,7 @@ public class CheckArticleWorker : BackgroundService
             }
 
             // throttle
-            await Task.Delay(TimeSpan.FromSeconds(1), _cancellationToken);
+            await Task.Delay(TimeSpan.FromMilliseconds(200), _cancellationToken);
         }
     }
 

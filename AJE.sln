@@ -73,6 +73,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NewsFixer", "src\Service\Ne
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NewsWA", "src\Ui\NewsWA\NewsWA.csproj", "{6D0358D8-29EB-4A89-AC63-7346F73AE55E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PromptStudio", "src\Ui\PromptStudio\PromptStudio.csproj", "{7A20F6B1-52A8-4905-BC24-E6A13F0B6C36}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -147,6 +149,10 @@ Global
 		{6D0358D8-29EB-4A89-AC63-7346F73AE55E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6D0358D8-29EB-4A89-AC63-7346F73AE55E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6D0358D8-29EB-4A89-AC63-7346F73AE55E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A20F6B1-52A8-4905-BC24-E6A13F0B6C36}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A20F6B1-52A8-4905-BC24-E6A13F0B6C36}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A20F6B1-52A8-4905-BC24-E6A13F0B6C36}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A20F6B1-52A8-4905-BC24-E6A13F0B6C36}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -167,6 +173,7 @@ Global
 		{183EC170-D1CC-4048-A607-A4CE4A980409} = {485DBA67-D347-4513-8371-F1F22EE827FB}
 		{2AC925CC-2F9C-40F2-AB32-7FF8128E44FA} = {1F2CC064-FF62-4052-B834-31EF506C62F8}
 		{6D0358D8-29EB-4A89-AC63-7346F73AE55E} = {8ABB8C8E-04A6-48BD-815B-0DA9D4DA8E56}
+		{7A20F6B1-52A8-4905-BC24-E6A13F0B6C36} = {8ABB8C8E-04A6-48BD-815B-0DA9D4DA8E56}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7135E4BF-2488-4C17-B543-559F024C76FA}

@@ -78,6 +78,8 @@ public class CheckArticleQueryHandler : IRequestHandler<CheckArticleQuery, Check
             {
                 await _aiLogger.LogAsync($"CheckArticle-{query.Article.Id}", request, response);
             }
+            // small throttle between requests
+            await Task.Delay(TimeSpan.FromMilliseconds(200), cancellationToken);
         }
         throw new AiException("Failed to check article");
     }

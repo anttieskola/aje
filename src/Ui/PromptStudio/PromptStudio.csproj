@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <RootNamespace>AJE.Ui.PromptStudio</RootNamespace>
+    <AssemblyName>AJE.Ui.PromptStudio</AssemblyName>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Application\Application.csproj" />
+    <ProjectReference Include="..\..\Infra\Redis\Redis.csproj" />
+    <ProjectReference Include="..\..\Infra\Ai\Ai.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.StackExchangeRedis" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot/" />
+  </ItemGroup>
+
+  <Target Name="Build Tailwind" AfterTargets="PreBuildEvent">
+    <Exec Condition="'$(Configuration)' == 'Release'"
+      Command="npx tailwindcss -i tailwind.css --minify --output wwwroot/css/app.css" />
+  </Target>
+</Project>

@@ -1,0 +1,142 @@
+﻿/* https://tailwindcss.com/docs/ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    body {
+        @apply bg-green-950 dark:bg-black;
+        @apply text-stone-50 dark:text-green-500;
+        @apply font-mono;
+    }
+
+    div {
+        @apply shadow-gray-900 dark:shadow-cyan-200;
+    }
+
+    /* header */
+    h1 {
+        @apply text-3xl;
+    }
+
+    h2 {
+        @apply text-2xl;
+    }
+
+    h3 {
+        @apply text-xl;
+    }
+
+    h4 {
+        @apply text-lg;
+    }
+
+    h5 {
+        @apply text-base;
+    }
+
+    h6 {
+        @apply text-sm;
+    }
+
+    /* text */
+    p {}
+
+    /* link */
+    a {
+        @apply underline;
+    }
+
+    a:visited {
+        @apply text-blue-400;
+    }
+
+    /* list */
+    ul {
+        @apply list-disc list-inside;
+    }
+
+    ul>li {
+        @apply ml-1;
+    }
+
+    li:hover {}
+
+    /* inputs */
+    select {
+        @apply bg-slate-800;
+        @apply text-green-500;
+    }
+
+    progress {
+        @apply bg-slate-800;
+        @apply text-green-500;
+    }
+
+    textarea {
+        @apply bg-slate-800;
+        @apply text-green-500;
+    }
+
+    input {
+        @apply bg-slate-800;
+        @apply text-green-500;
+    }
+
+    input[type=button]:enabled,
+    input[type=reset]:enabled,
+    input[type=submit]:enabled {
+        @apply border-2 rounded;
+        @apply border-blue-600 hover:border-amber-300;
+        @apply transition-colors duration-200 ease-linear delay-100;
+    }
+
+    input[type=button]:disabled,
+    input[type=reset]:disabled,
+    input[type=submit]:disabled {
+        @apply border-gray-500;
+        @apply bg-gray-500;
+        @apply text-white;
+        @apply cursor-not-allowed;
+    }
+
+    input[type=reset]:enabled {
+        @apply text-white;
+        @apply bg-rose-600;
+        @apply hover:bg-gradient-to-b hover:from-amber-300 hover:to-pink-600;
+    }
+
+    input[type=submit]:enabled {
+        @apply text-white;
+        @apply bg-blue-600;
+        @apply hover:bg-gradient-to-b hover:from-amber-300 hover:to-indigo-600;
+    }
+}
+
+@layer components {
+    .menuButton {
+        @apply hover:text-white;
+        @apply border-4 rounded;
+        @apply border-2 rounded;
+        @apply border-blue-600 hover:border-amber-300;
+        @apply transition-colors duration-200 ease-linear delay-100;
+        @apply hover:bg-gradient-to-b hover:from-amber-300 hover:to-indigo-600;
+    }
+
+    .submitButton:enabled {
+        @apply border-2 rounded;
+        @apply border-blue-600 hover:border-amber-300;
+        @apply transition-colors duration-200 ease-linear delay-100;
+        @apply text-white;
+        @apply bg-blue-600;
+        @apply hover:bg-gradient-to-b hover:from-amber-300 hover:to-indigo-600;
+    }
+
+    .submitButton:disabled {
+        @apply border-gray-500;
+        @apply bg-gray-500;
+        @apply text-white;
+        @apply cursor-not-allowed;
+    }
+}
