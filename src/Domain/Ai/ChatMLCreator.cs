@@ -2,8 +2,12 @@
 
 public abstract class ChatMLCreator : IPromptCreator
 {
-    protected readonly string _entityName;
-    protected readonly string[] _systemInstructions;
+    protected string _entityName = "assistant";
+    protected string[] _systemInstructions = [];
+
+    protected ChatMLCreator()
+    {
+    }
 
     protected ChatMLCreator(string entityName, string[] systemInstructions)
     {

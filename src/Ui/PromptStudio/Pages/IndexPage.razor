@@ -2,16 +2,29 @@
 
 <PageTitle>PromptStudio</PageTitle>
 <div class="lg:mt-8 lg:ml-8">
-    <div class="lg:w-5/6 lg:mt-2">
-        <button class="w-full submitButton">Run</button>
+    <div class="lg:w-5/6 lg:mt-2 lg:flex">
+        <label for="entityName">EntityName</label>
+        <input id="entityName" class="lg:ml-2" type="text" value="assistant" />
+    </div>
+    <div class=" lg:w-5/6 lg:mt-2">
+        <div class="container">
+            <label for="systemInstructions">System instructions</label>
+        </div>
+        <textarea id="systemInstructions" cols="100" rows="5"></textarea>
     </div>
     <div class="lg:w-5/6 lg:mt-2">
-        <label for="systemInstructions">System instructions</label>
-        <textarea id="systemInstructions"></textarea>
+        <div class="container">
+            <label for="context">Context</label>
+        </div>
+        <textarea id="context" cols="100" rows="10"></textarea>
     </div>
-
-    <div class="lg:w-5/6 lg:mt-2">
-        <label for="context">Context</label>
-        <textarea id="context"></textarea>
+    <div class="lg:w-5/6 lg:mt-2 lg:flex lg:items-center lg:justify-center">
+        <button class="lg:w-5/6 lg:h-9 submitButton">Run</button>
+    </div>
+    <div class="lg-5/6 lg:mt-2">
+        <div class="container">
+            <label for="result">Result</label>
+        </div>
+        <textarea id="result" cols="100" rows="10" disabled></textarea>
     </div>
 </div>
