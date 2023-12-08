@@ -1,0 +1,49 @@
+﻿@page "/session/{SessionId:guid}"
+
+<PageTitle>Session ADD-ID-HERE</PageTitle>
+
+<div class="lg:mt-8 lg:ml-8">
+    <div class="lg:w-5/6 lg:mt-2 lg:flex">
+        <label for="entityName">EntityName</label>
+        <input id="entityName" class="lg:ml-2" type="text" value="assistant" />
+    </div>
+
+    <div class=" lg:w-5/6 lg:mt-2">
+        <div class="container">
+            <label for="systemInstructions">System instructions</label>
+        </div>
+        <textarea id="systemInstructions" cols="100" rows="5"></textarea>
+    </div>
+
+    <div class="lg:w-5/6 lg:mt-2">
+        <div class="container">
+            <label for="context">Context</label>
+        </div>
+        <div class="container">
+            <label for="articleId">Article Id</label>
+            <input id="articleId" type="text" />
+            <button class="submitButton">
+                Fetch
+            </button>
+        </div>
+        <textarea id="context" cols="100" rows="10"></textarea>
+    </div>
+
+
+
+    <div class="lg:w-5/6 lg:mt-2 lg:flex lg:items-center lg:justify-center">
+        <button class="lg:w-5/6 lg:h-9 submitButton">Run</button>
+    </div>
+
+    <div class="lg-5/6 lg:mt-2">
+        <div class="container">
+            <label for="result">Result</label>
+        </div>
+        <textarea id="result" cols="100" rows="10" disabled></textarea>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public Guid SessionId { get; set; }
+}

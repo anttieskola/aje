@@ -22,6 +22,7 @@ public class RedisService : IRedisService
     {
          new ArticleIndex(),
          new AiChatIndex(),
+         new PromptStudioIndex(),
     };
 
     public async Task Initialize()
