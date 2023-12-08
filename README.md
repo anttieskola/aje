@@ -102,6 +102,8 @@ List of current components and used software
 	- Using server rendered blazor as I want to learn to use it better and I think it is
 	fits my needs best
 - [Ui.News](./doc/todo.md) Currently optimized for news reading, development in progress
+- Ui.NewsWA is just a test to write same app using WebAssembly but this will need WebAPI project too
+	- Having issues that can't debug it properly and not sure are lifecycle methods triggering
 - [Ui.Antai](./doc/antai.md) UI for chat with me feature
 - Utilities (under Tests currently)
 	- MChatter: Chat application with large language model

@@ -65,6 +65,7 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        // Debugging not working
         if (firstRender)
         {
             System.Diagnostics.Debugger.Break();
@@ -74,6 +75,7 @@
 
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
     {
+        // Debugging not working
         System.Diagnostics.Debugger.Break();
         SetupButtons(e.Location);
     }
@@ -104,11 +106,14 @@
     private async Task ToggleTheme()
     {
         _darkMode = !_darkMode;
-        if (_js != null)
-        {
-            await _js.InvokeVoidAsync("toggleDarkMode");
-            StateHasChanged();
-        }
+
+        var isDarkModeOn = await JS.InvokeAsync<bool>("eval", "document.documentElement.classList.contains('dark')");
+        if (isDarkModeOn)
+            await JS.InvokeVoidAsync("eval", "document.documentElement.classList.remove('dark')");
+        else
+            await JS.InvokeVoidAsync("eval", "document.documentElement.classList.add('dark')");
+
+        StateHasChanged();
     }
     async ValueTask IAsyncDisposable.DisposeAsync()
     {
