@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <RootNamespace>AJE.Ui.NewsWA</RootNamespace>
+    <AssemblyName>AJE.Ui.NewsWA</AssemblyName>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <Target Name="Build Tailwind" AfterTargets="PreBuildEvent">
+    <Exec Condition="'$(Configuration)' == 'Release'"
+      Command="npx tailwindcss -i tailwind.css --minify --output wwwroot/css/app.css" />
+  </Target>
+
+</Project>
