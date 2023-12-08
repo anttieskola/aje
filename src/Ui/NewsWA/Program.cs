@@ -1,4 +1,4 @@
-using Plaa.Components;
+using NewsWA.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 

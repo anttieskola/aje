@@ -138,13 +138,13 @@
             }
         },
         {
-            "name": "Plaa",
+            "name": "Ui.NewsWA",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/src/Ui/Plaa/bin/Debug/net8.0/Plaa.dll",
+            "program": "${workspaceFolder}/src/Ui/NewsWA/bin/Debug/net8.0/NewsWA.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/src/Ui/Plaa",
+            "cwd": "${workspaceFolder}/src/Ui/NewsWA",
             "console": "internalConsole",
             "stopAtEntry": false,
             "serverReadyAction": {
