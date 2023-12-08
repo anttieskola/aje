@@ -142,7 +142,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/src/Ui/NewsWA/bin/Debug/net8.0/NewsWA.dll",
+            "program": "${workspaceFolder}/src/Ui/NewsWA/bin/Debug/net8.0/AJE.Ui.NewsWA.dll",
             "args": [],
             "cwd": "${workspaceFolder}/src/Ui/NewsWA",
             "console": "internalConsole",

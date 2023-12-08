@@ -1,4 +1,4 @@
-using NewsWA.Components;
+using AJE.Ui.NewsWA.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
