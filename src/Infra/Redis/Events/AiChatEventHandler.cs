@@ -2,7 +2,7 @@
 
 public class AiChatEventHandler : IAiChatEventHandler
 {
-    private readonly IRedisIndex _index = new AiChatIndex();
+    private readonly AiChatIndex _index = new AiChatIndex();
     private readonly IConnectionMultiplexer _connection;
     public AiChatEventHandler(IConnectionMultiplexer connection)
     {

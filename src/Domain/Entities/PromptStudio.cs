@@ -12,10 +12,10 @@ public record PromptStudioSession
     public required Guid SessionId { get; set; }
 
     [JsonPropertyName("runs")]
-    public EquatableList<PromptStudioSessionRun> Runs { get; set; } = [];
+    public EquatableList<PromptStudioRun> Runs { get; set; } = [];
 }
 
-public record PromptStudioSessionRun
+public record PromptStudioRun
 {
     [JsonPropertyName("runId")]
     public required Guid RunId { get; init; }

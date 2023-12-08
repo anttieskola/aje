@@ -35,7 +35,7 @@ public class PromptStudioRepositoryTests : IClassFixture<RedisFixture>
         Assert.Empty(session.Runs);
 
         // act add run
-        var run = new PromptStudioSessionRun
+        var run = new PromptStudioRun
         {
             RunId = Guid.NewGuid(),
             EntityName = "test",

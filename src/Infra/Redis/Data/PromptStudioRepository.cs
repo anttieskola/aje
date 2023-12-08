@@ -31,7 +31,7 @@ public class PromptStudioRepository : IPromptStudioRepository
         return session;
     }
 
-    public async Task<PromptStudioSession> AddRunAsync(Guid sessionId, PromptStudioSessionRun run)
+    public async Task<PromptStudioSession> AddRunAsync(Guid sessionId, PromptStudioRun run)
     {
         var db = _connection.GetDatabase();
         var redisId = _index.RedisId(sessionId.ToString());

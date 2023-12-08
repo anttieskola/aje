@@ -1,6 +1,9 @@
 ﻿namespace AJE.Domain.Events;
 
-public record PromptStudioSessionEvent
+[JsonDerivedType(typeof(PromptStudioStartEvent), "start")]
+[JsonDerivedType(typeof(PromptStudioRunTokenEvent), "token")]
+[JsonDerivedType(typeof(PromptStudioRunCompletedEvent), "run")]
+public record PromptStudioEvent
 {
     [JsonPropertyName("isTest")]
     public bool IsTest { get; init; } = false;
@@ -13,19 +16,25 @@ public record PromptStudioSessionEvent
 }
 
 #pragma warning disable S2094
-public record PromptStudioSessionStartedEvent : PromptStudioSessionEvent
+public record PromptStudioStartEvent : PromptStudioEvent
 {
 }
 #pragma warning restore S2094
 
-public record PromptStudioSessionSessionTokenEvent : PromptStudioSessionEvent
+public record PromptStudioRunTokenEvent : PromptStudioEvent
 {
+    [JsonPropertyName("runId")]
+    public required Guid RunId { get; init; }
+
     [JsonPropertyName("token")]
     public required string Token { get; init; }
 }
 
-public record PromptStudioSessionCompletedEvent : PromptStudioSessionEvent
+public record PromptStudioRunCompletedEvent : PromptStudioEvent
 {
+    [JsonPropertyName("runId")]
+    public required Guid RunId { get; init; }
+
     [JsonPropertyName("input")]
     public required string Input { get; init; }
 

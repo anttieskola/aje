@@ -15,6 +15,8 @@ public static class DependencyInjection
         services.AddSingleton<IAiChatRepository, AiChatRepository>();
         services.AddSingleton<IAiChatEventHandler, AiChatEventHandler>();
         services.AddSingleton<ITrendRepository, TrendRepository>();
+        services.AddSingleton<IPromptStudioRepository, PromptStudioRepository>();
+        services.AddSingleton<IPromptStudioEventHandler, PromptStudioEventHandler>();
         services.AddSingleton<IRedisService, RedisService>();
         return services;
     }
@@ -22,13 +24,13 @@ public static class DependencyInjection
     public static RedisConfiguration GetRedisConfiguration(this IConfigurationRoot config)
     {
         return (config.GetSection(nameof(RedisConfiguration)).Get<RedisConfiguration>())
-            ?? throw new SystemException(nameof(RedisConfiguration));
+            ?? throw new PlatformException(nameof(RedisConfiguration));
     }
 
     public static async Task InitializeRedis(this IServiceProvider provider)
     {
         var redis = provider.GetService<IRedisService>()
-            ?? throw new SystemException($"{nameof(IRedisService)} not found");
+            ?? throw new PlatformException($"{nameof(IRedisService)} not found");
         await redis.Initialize();
     }
 }

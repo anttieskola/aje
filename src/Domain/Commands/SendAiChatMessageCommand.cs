@@ -1,6 +1,4 @@
-﻿using AJE.Domain.Exceptions;
-
-namespace AJE.Domain.Commands;
+﻿namespace AJE.Domain.Commands;
 
 public record SendAiChatMessageCommand : IRequest<AiChatEvent>
 {
