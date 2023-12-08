@@ -1,0 +1,130 @@
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+@inject NavigationManager NavigationManager
+
+<div class="fixed bottom-0 right-0 xs:mb-1 xs:mr-1 md:mb-4 md:mr-4 lg:mb-8 lg:mr-8">
+    @if (_isTrendButtonVisible)
+    {
+        <div>
+            <button type="button" class="menuButton" aria-label="news trends">
+                <NavLink href="/trends" aria-label="news trends">
+                    <Icon Name="file-earmark-bar-graph" Padding=@IconPadding Size=@_iconSize />
+                </NavLink>
+            </button>
+        </div>
+    }
+    @if (_isListButtonVisible)
+    {
+        <div>
+            <button type="button" class="menuButton" aria-label="articles">
+                <NavLink href="/" aria-label="articles">
+                    <Icon Name="list-ul" Padding=@IconPadding Size=@_iconSize />
+                </NavLink>
+            </button>
+        </div>
+    }
+    @if (_isStreamButtonVisible)
+    {
+        <div>
+            <button type="button" class="menuButton" aria-label="stream articles">
+                <NavLink href="/stream" aria-label="stream articles">
+                    <Icon Name="camera-reels" Padding=@IconPadding Size=@_iconSize />
+                </NavLink>
+            </button>
+        </div>
+    }
+    <div class="mt-1">
+        <button type="button" @onclick="ToggleTheme" class="menuButton" aria-label="theme">
+            @if (_darkMode)
+            {
+                <Icon Name="sun-fill" Padding="@IconPadding" Size="@_iconSize" />
+            }
+            else
+            {
+                <Icon Name="moon-fill" Padding="@IconPadding" Size="@_iconSize" />
+            }
+        </button>
+    </div>
+</div>
+
+@code {
+    private bool _darkMode = false;
+    private IJSObjectReference? _js;
+    private bool _isTrendButtonVisible = false;
+    private bool _isStreamButtonVisible = false;
+    private bool _isListButtonVisible = false;
+    private int IconPadding => 2;
+    private int _iconSize => 32;
+
+    protected override void OnInitialized()
+    {
+        SetupButtons(NavigationManager.Uri);
+        NavigationManager.LocationChanged += OnLocationChanged;
+        StateHasChanged();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            System.Diagnostics.Debugger.Break();
+            _darkMode = await JS.InvokeAsync<bool>("eval", "window.matchMedia('(prefers-color-scheme: dark)').matches");
+        }
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        System.Diagnostics.Debugger.Break();
+        SetupButtons(e.Location);
+    }
+
+    private void SetupButtons(String uri)
+    {
+        if (uri.Contains("trends"))
+        {
+            _isTrendButtonVisible = false;
+            _isStreamButtonVisible = true;
+            _isListButtonVisible = true;
+        }
+        else if (uri.Contains("stream"))
+        {
+            _isTrendButtonVisible = true;
+            _isStreamButtonVisible = false;
+            _isListButtonVisible = true;
+        }
+        else
+        {
+            _isTrendButtonVisible = true;
+            _isStreamButtonVisible = true;
+            _isListButtonVisible = false;
+        }
+        InvokeAsync(StateHasChanged);
+    }
+
+    private async Task ToggleTheme()
+    {
+        _darkMode = !_darkMode;
+        if (_js != null)
+        {
+            await _js.InvokeVoidAsync("toggleDarkMode");
+            StateHasChanged();
+        }
+    }
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        if (_js is not null)
+        {
+            try
+            {
+                await _js.DisposeAsync();
+                _js = null;
+            }
+            catch (JSDisconnectedException)
+            {
+                // We do not want to see this in logs, DisposeAsync call also throws exception if circuit lost
+                // https://github.com/dotnet/aspnetcore/issues/44180
+            }
+        }
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+}
