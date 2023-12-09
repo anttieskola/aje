@@ -1,17 +1,17 @@
 ﻿namespace AJE.Domain.Commands;
 
-public record StartPromptStudioCommand : IRequest<PromptStudioStartEvent>
+public record PromptStudioStartCommand : IRequest<PromptStudioStartEvent>
 {
     public bool IsTest { get; init; } = false;
     public required Guid SessionId { get; init; }
 }
 
-public class StartPromptStudioCommandHandler : IRequestHandler<StartPromptStudioCommand, PromptStudioStartEvent>
+public class PromptStudioStartCommandHandler : IRequestHandler<PromptStudioStartCommand, PromptStudioStartEvent>
 {
     private readonly IPromptStudioRepository _promptStudioRepository;
     private readonly IPromptStudioEventHandler _promptStudioEventHandler;
 
-    public StartPromptStudioCommandHandler(
+    public PromptStudioStartCommandHandler(
         IPromptStudioRepository promptStudioRepository,
         IPromptStudioEventHandler promptStudioEventHandler)
     {
@@ -19,7 +19,7 @@ public class StartPromptStudioCommandHandler : IRequestHandler<StartPromptStudio
         _promptStudioEventHandler = promptStudioEventHandler;
     }
 
-    public async Task<PromptStudioStartEvent> Handle(StartPromptStudioCommand request, CancellationToken cancellationToken)
+    public async Task<PromptStudioStartEvent> Handle(PromptStudioStartCommand request, CancellationToken cancellationToken)
     {
         var options = new PromptStudioOptions
         {

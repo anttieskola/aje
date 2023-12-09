@@ -1,0 +1,58 @@
+﻿@inject ISender Sender
+@inject IConnectionMultiplexer Connection
+
+@if (Run == null)
+{
+    <p class="text-red-600">null run</p>
+}
+else
+{
+    <div class="xl:w-5/6 xl:mt-2">
+        <p>EntityName @Run.EntityName</p>
+    </div>
+
+    <div class="xl:w-5/6 xl:mt-2">
+        <div class="container">
+            <p>System instructions</p>
+        </div>
+        <div class="container">
+            <textarea cols="80" rows="5" value="@SystemInstructions" readonly></textarea>
+        </div>
+    </div>
+
+    <div class="xl:w-5/6 xl:mt-2">
+        <div class="container">
+            <p>Context</p>
+        </div>
+        <div class="container">
+            <textarea cols="80" rows="5" value="@Run.Context" readonly></textarea>
+        </div>
+    </div>
+
+    <div class="xl:w-5/6 xl:mt-2">
+        <div class="container">
+            <p>Result</p>
+        </div>
+        <div class="container">
+            <textarea cols="80" rows="5" value="@Run.Result" readonly></textarea>
+        </div>
+    </div>
+
+    <p>Tokens @Run.NumberOfTokensEvaluated / @Run.NumberOfTokensContext</p>
+    <p>Model @Run.Model</p>
+}
+@code {
+
+    [Parameter]
+    public PromptStudioRun? Run { get; set; }
+
+    private string SystemInstructions{
+        get
+        {
+            if (Run == null)
+                return string.Empty;
+
+            else return string.Join("\n", Run.SystemInstructions);
+        }
+    }
+}

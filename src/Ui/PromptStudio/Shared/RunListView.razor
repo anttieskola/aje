@@ -1,0 +1,70 @@
+﻿@inject ISender Sender
+@inject IConnectionMultiplexer Connection
+
+<div class="xl:mt-4 xl:ml-8 xl:w-full">
+    <label for="runs">Past runs</label>
+    <select id="runs" value="@_selectedRunId" @onchange="OnSelectChange">
+        @foreach (var run in _runs)
+        {
+            <option>@run.RunId</option>
+        }
+    </select>
+
+    @if(_selectedRunId != Guid.Empty)
+    {
+        <RunView Run="@_runs.FirstOrDefault(r => r.RunId == _selectedRunId)" />
+    }
+</div>
+
+@code {
+
+    [Parameter]
+    public Guid SessionId { get; set; }
+
+    private readonly PromptStudioIndex _index = new PromptStudioIndex();
+    private EquatableList<PromptStudioRun> _runs = EquatableList<PromptStudioRun>.Empty;
+    private Guid _selectedRunId = Guid.Empty;
+    protected override async Task OnInitializedAsync()
+    {
+        var pubsub = Connection.GetSubscriber();
+        await pubsub.SubscribeAsync(_index.Channel, OnMessage);
+        await Refresh();
+    }
+
+    private void OnMessage(RedisChannel channel, RedisValue message)
+    {
+        if (message.HasValue)
+        {
+            var msg = JsonSerializer.Deserialize<PromptStudioEvent>(message.ToString());
+            var runCompletedEvent = msg as PromptStudioRunCompletedEvent;
+            if (runCompletedEvent != null && runCompletedEvent.SessionId == SessionId)
+            {
+                InvokeAsync(Refresh);
+            }
+        }
+    }
+
+    private void OnSelectChange(ChangeEventArgs e)
+    {
+        if (e != null && e.Value != null)
+        {
+            if (Guid.TryParseExact(e.Value.ToString(), "D", out var runId))
+            {
+                _selectedRunId = runId;
+                StateHasChanged();
+            }
+        }
+    }
+
+    private async Task Refresh()
+    {
+        var session = await Sender.Send(new GetPromptStudioSessionQuery { SessionId = SessionId });
+        _runs = session.Runs;
+
+        // switch selected if nothing selected
+        if (_selectedRunId == Guid.Empty)
+            _selectedRunId = _runs.LastOrDefault()?.RunId ?? Guid.Empty;
+
+        StateHasChanged();
+    }
+}

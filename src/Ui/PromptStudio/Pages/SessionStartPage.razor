@@ -2,28 +2,30 @@
 @inject NavigationManager NavigationManager
 @inject ISender Sender
 
-<PageTitle>Antai - Start</PageTitle>
+<PageTitle>PromptStudio - Start session...</PageTitle>
 
-<p>@_message</p>
+<div class="w-5/6 mt-8 items-center justify-center">
+    <p class="text-center text-sky-600">@_message</p>
+</div>
 
 @code {
 
-    private string _message = "Creating new session...";
+    private string _message = "Starting new session...";
     protected override async Task OnInitializedAsync()
     {
         // using delays to present what is happening to the user
         await Task.Delay(TimeSpan.FromMilliseconds(200));
-        var chat = await Sender.Send(new StartAiChatCommand { Id = Guid.NewGuid() });
-        if (chat != null)
+        var session = await Sender.Send(new PromptStudioStartCommand { SessionId = Guid.NewGuid() });
+        if (session != null)
         {
-            _message = $"Chat created with id:{chat.ChatId}. Redirecting...";
+            _message = $"Session created with id:{session.SessionId}. Redirecting...";
             StateHasChanged();
             await Task.Delay(TimeSpan.FromMilliseconds(200));
-            NavigationManager.NavigateTo($"/chat/{chat.ChatId}");
+            NavigationManager.NavigateTo($"/session/{session.SessionId}");
         }
         else
         {
-            _message = "Error creating chat";
+            _message = "Error creating session";
         }
     }
 }

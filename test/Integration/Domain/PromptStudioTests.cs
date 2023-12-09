@@ -43,8 +43,8 @@ public class PromptStudioTests : IClassFixture<HttpClientFixture>, IClassFixture
         var promptStudioEventHandler = new PromptStudioEventHandler(_redisFixture.Connection);
         var aiModel = new LlamaAiModel(new Mock<ILogger<LlamaAiModel>>().Object, configuration, _httpClientFixture.HttpClientFactory);
 
-        var startHandler = new StartPromptStudioCommandHandler(promptStudioRepository, promptStudioEventHandler);
-        var runHandler = new RunPromptStudioCommandHandler(promptStudioRepository, promptStudioEventHandler, aiModel);
+        var startHandler = new PromptStudioStartCommandHandler(promptStudioRepository, promptStudioEventHandler);
+        var runHandler = new PromptStudioRunCommandHandler(promptStudioRepository, promptStudioEventHandler, aiModel);
         var tokens = new StringBuilder();
         var startEvents = new List<PromptStudioStartEvent>();
         var runEvents = new List<PromptStudioRunCompletedEvent>();
@@ -67,7 +67,7 @@ public class PromptStudioTests : IClassFixture<HttpClientFixture>, IClassFixture
         }
 
         // act start session
-        var startEvent = await startHandler.Handle(new StartPromptStudioCommand
+        var startEvent = await startHandler.Handle(new PromptStudioStartCommand
         {
             IsTest = true,
             SessionId = _idPromptStudioSession,
@@ -76,7 +76,7 @@ public class PromptStudioTests : IClassFixture<HttpClientFixture>, IClassFixture
         Assert.Equal(_idPromptStudioSession, startEvent.SessionId);
 
         // do a run
-        var runEvent = await runHandler.Handle(new RunPromptStudioCommand
+        var runEvent = await runHandler.Handle(new PromptStudioRunCommand
         {
             IsTest = true,
             SessionId = _idPromptStudioSession,

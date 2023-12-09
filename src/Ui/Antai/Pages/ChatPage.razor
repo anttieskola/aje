@@ -50,7 +50,7 @@ else
     [Parameter]
     public Guid ChatId { get; set; }
 
-    private IRedisIndex _index = new AiChatIndex();
+    private AiChatIndex _index = new AiChatIndex();
     private AiChat? _chat;
 
     private AiChatInteractionEntry? _lastInteraction

@@ -1,49 +1,198 @@
 ﻿@page "/session/{SessionId:guid}"
+@inject NavigationManager NavigationManager
+@inject ISender Sender
+@inject IConnectionMultiplexer Connection
+@inject IContextCreator<Article> ArticleContextCreator
 
-<PageTitle>Session ADD-ID-HERE</PageTitle>
-
-<div class="lg:mt-8 lg:ml-8">
-    <div class="lg:w-5/6 lg:mt-2 lg:flex">
-        <label for="entityName">EntityName</label>
-        <input id="entityName" class="lg:ml-2" type="text" value="assistant" />
-    </div>
-
-    <div class=" lg:w-5/6 lg:mt-2">
-        <div class="container">
-            <label for="systemInstructions">System instructions</label>
-        </div>
-        <textarea id="systemInstructions" cols="100" rows="5"></textarea>
-    </div>
-
-    <div class="lg:w-5/6 lg:mt-2">
-        <div class="container">
-            <label for="context">Context</label>
-        </div>
-        <div class="container">
-            <label for="articleId">Article Id</label>
-            <input id="articleId" type="text" />
-            <button class="submitButton">
-                Fetch
-            </button>
-        </div>
-        <textarea id="context" cols="100" rows="10"></textarea>
-    </div>
-
-
-
-    <div class="lg:w-5/6 lg:mt-2 lg:flex lg:items-center lg:justify-center">
-        <button class="lg:w-5/6 lg:h-9 submitButton">Run</button>
-    </div>
-
-    <div class="lg-5/6 lg:mt-2">
-        <div class="container">
-            <label for="result">Result</label>
-        </div>
-        <textarea id="result" cols="100" rows="10" disabled></textarea>
-    </div>
+@if (_session == null)
+{
+    <PageTitle>Loading...</PageTitle>
+    <div class="w-5/6 mt-8 items-center justify-center">
+    <p class="text-center text-sky-600">Loading...</p>
 </div>
+}
+else
+{
+    <PageTitle>Session @_session.SessionId</PageTitle>
+
+    <div class="xl:flex">
+        <div class="xl:mt-4 xl:ml-4">
+            <div class="xl:w-5/6 xl:flex">
+                <label for="entityName" class="xl:w-48">EntityName</label>
+                <input id="entityName" class="xl:ml-2" type="text" @bind="_entityName" />
+            </div>
+
+            <div class="xl:w-5/6 xl:flex">
+                <label for="temperature" class="xl:w-48">Temperature</label>
+                <input id="temperature" class="xl:ml-2" type="number" step="0.1" @bind="_temperature" />
+            </div>
+
+            <div class="xl:w-5/6 xl:flex">
+                <label for="entityName" class="xl:w-48">Max tokens</label>
+                <input id="entityName" class="xl:ml-2" type="number" step="1" min="1" max="8096" @bind="_numberOfTokensToPredict" />
+            </div>
+
+            <div class=" xl:w-5/6 xl:mt-2">
+                <div class="container">
+                    <label for="systemInstructions">System instructions</label>
+                </div>
+                <div class="container">
+                    <textarea id="systemInstructions" cols="80" rows="8" @bind="_systemInstructions"></textarea>
+                </div>
+            </div>
+
+            <div class="xl:w-5/6 xl:mt-2">
+                <div class="container">
+                    <label for="context">Context</label>
+                </div>
+                @if (!string.IsNullOrEmpty(_articleIdError))
+                {
+                    <div class="container">
+                        <p class="text-red-600">@_articleIdError</p>
+                    </div>
+                }
+                <div class="flex">
+                    <label for="articleId" class="xl:w-48">Article Id</label>
+                    <input id="articleId" class="xl:w-96 xl:ml-2" type="text" @bind="_articleId" />
+                    <button class="submitButton xl:w-24 xl:ml-2" @onclick="FetchArticle">
+                        Fetch
+                    </button>
+                </div>
+                <div class="container xl:mt-2">
+                    <textarea id="context" cols="80" rows="8" @bind="_context"></textarea>
+                </div>
+            </div>
+
+            <div class="xl:w-5/6 xl:mt-2">
+                <button class="xl:w-32 xl:h-9 submitButton" @onclick="Run">Run</button>
+            </div>
+
+            @if (_errors.Count > 0)
+            {
+                <div class="xl:w-5/6 xl:mt-2">
+                    @foreach (var error in _errors)
+                    {
+                        <p class="text-red-600">@error</p>
+                    }
+                </div>
+            }
+            <div class="xl:w-5/6 xl:mt-2">
+                <div class="container">
+                    @if(_activeRunId != Guid.Empty)
+                    {
+                        <label for="context">Output of @_activeRunId</label>
+                    }
+                    else
+                    {
+                        <label for="context">Output</label>
+                    }
+                </div>
+                <div class="container">
+                    <textarea id="output" cols="80" rows="8" @bind="_output" disabled></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="xl">
+            <RunListView SessionId="@SessionId" />
+        </div>
+    </div>
+}
 
 @code {
     [Parameter]
     public Guid SessionId { get; set; }
+
+    private readonly PromptStudioIndex _index = new PromptStudioIndex();
+
+    private PromptStudioSession? _session;
+
+    private string _entityName = "assistant";
+    private double _temperature = 0.8;
+    private int _numberOfTokensToPredict = 2048;
+    private string _systemInstructions = string.Empty;
+    private string _articleId = string.Empty;
+    private string _articleIdError = string.Empty;
+    private string _context = string.Empty;
+    private string _output = string.Empty;
+    private List<string> _errors = new List<string>();
+    private Guid _activeRunId = Guid.Empty;
+    protected override async Task OnInitializedAsync()
+    {
+        var pubsub = Connection.GetSubscriber();
+        await pubsub.SubscribeAsync(_index.Channel, OnMessage);
+        await Refresh();
+    }
+
+    private void OnMessage(RedisChannel channel, RedisValue message)
+    {
+        if (message.HasValue)
+        {
+            var msg = JsonSerializer.Deserialize<PromptStudioEvent>(message.ToString());
+            var tokenEvent = msg as PromptStudioRunTokenEvent;
+            if (tokenEvent != null && tokenEvent.RunId == _activeRunId)
+            {
+                _output += tokenEvent.Token;
+                InvokeAsync(StateHasChanged);
+            }
+        }
+    }
+
+    private async Task Refresh()
+    {
+        // using delays to present what is happening to the user
+        await Task.Delay(TimeSpan.FromMilliseconds(200));
+        _session = await Sender.Send(new GetPromptStudioSessionQuery { SessionId = SessionId });
+        StateHasChanged();
+    }
+
+    private async Task Run()
+    {
+        // validate form
+        _articleIdError = string.Empty;
+        _errors.Clear();
+        if (string.IsNullOrEmpty(_entityName))
+            _errors.Add("EntityName is required");
+        if (string.IsNullOrEmpty(_systemInstructions))
+            _errors.Add("System instructions is required");
+        if (string.IsNullOrEmpty(_context))
+            _errors.Add("Context is required");
+        if (_errors.Count > 0)
+        {
+            StateHasChanged();
+            return;
+        }
+
+        // reset and pick new run id
+        _activeRunId = Guid.NewGuid();
+        _output = string.Empty;
+        StateHasChanged();
+
+        var systemInstructions = _systemInstructions.Split("\n").ToArray();
+        var completedEvent = await Sender.Send(new PromptStudioRunCommand
+        {
+            SessionId = SessionId,
+            RunId = _activeRunId,
+            EntityName = _entityName,
+            SystemInstructions = systemInstructions,
+            Context = _context,
+            Temperature = _temperature,
+            NumberOfTokensToPredict = _numberOfTokensToPredict
+        }, CancellationToken.None);
+    }
+
+    private async Task FetchArticle()
+    {
+        _articleIdError = string.Empty;
+        if (Guid.TryParseExact(_articleId, "D", out var articleId))
+        {
+            var article = await Sender.Send(new GetArticleByIdQuery { Id = articleId }, CancellationToken.None);
+            _context = ArticleContextCreator.Create(article);
+        }
+        else
+        {
+            _articleIdError = "Invalid article id";
+            StateHasChanged();
+        }
+    }
 }

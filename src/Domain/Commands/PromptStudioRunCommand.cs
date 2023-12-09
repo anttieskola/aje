@@ -1,6 +1,6 @@
 ﻿namespace AJE.Domain.Commands;
 
-public record RunPromptStudioCommand : IRequest<PromptStudioRunCompletedEvent>
+public record PromptStudioRunCommand : IRequest<PromptStudioRunCompletedEvent>
 {
     public bool IsTest { get; init; } = false;
     public required Guid SessionId { get; init; }
@@ -12,7 +12,7 @@ public record RunPromptStudioCommand : IRequest<PromptStudioRunCompletedEvent>
     public required int NumberOfTokensToPredict { get; init; }
 }
 
-public class RunPromptStudioCommandHandler : IRequestHandler<RunPromptStudioCommand, PromptStudioRunCompletedEvent>
+public class PromptStudioRunCommandHandler : IRequestHandler<PromptStudioRunCommand, PromptStudioRunCompletedEvent>
 {
     private readonly IPromptStudioRepository _promptStudioRepository;
     private readonly IPromptStudioEventHandler _promptStudioEventHandler;
@@ -20,7 +20,7 @@ public class RunPromptStudioCommandHandler : IRequestHandler<RunPromptStudioComm
     private readonly PromptStudioChatML _promptStudioChatML = new();
     private readonly IAiModel _aiModel;
 
-    public RunPromptStudioCommandHandler(
+    public PromptStudioRunCommandHandler(
         IPromptStudioRepository promptStudioRepository,
         IPromptStudioEventHandler promptStudioEventHandler,
         IAiModel aiModel)
@@ -30,7 +30,7 @@ public class RunPromptStudioCommandHandler : IRequestHandler<RunPromptStudioComm
         _aiModel = aiModel;
     }
 
-    public async Task<PromptStudioRunCompletedEvent> Handle(RunPromptStudioCommand command, CancellationToken cancellationToken)
+    public async Task<PromptStudioRunCompletedEvent> Handle(PromptStudioRunCommand command, CancellationToken cancellationToken)
     {
         // get session
         var session = await _promptStudioRepository.GetAsync(command.SessionId)
