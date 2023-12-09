@@ -71,7 +71,7 @@ public class ArticleRepository : IArticleRepository
         return article ?? throw new DataException($"invalid value in key {redisId}");
     }
 
-    public async Task<PaginatedList<Article>> GetAsync(GetArticlesQuery query)
+    public async Task<PaginatedList<Article>> GetAsync(ArticleGetManyQuery query)
     {
         var db = _connection.GetDatabase();
 
@@ -124,7 +124,7 @@ public class ArticleRepository : IArticleRepository
         throw new KeyNotFoundException($"Article with source {source} not found");
     }
 
-    public async Task<PaginatedList<ArticleHeader>> GetHeadersAsync(GetArticleHeadersQuery query)
+    public async Task<PaginatedList<ArticleHeader>> GetHeadersAsync(ArticleGetHeadersQuery query)
     {
         var db = _connection.GetDatabase();
 

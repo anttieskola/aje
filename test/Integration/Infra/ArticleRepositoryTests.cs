@@ -96,7 +96,7 @@ public class ArticleRepositoryTests : IClassFixture<RedisFixture>
              _redisFixture.Connection);
 
         // act (test run paraller so there can be many invalid articles)
-        var result = await repository.GetAsync(new GetArticlesQuery
+        var result = await repository.GetAsync(new ArticleGetManyQuery
         {
             Category = ArticleCategory.BOGUS,
             IsValidated = false,
@@ -109,7 +109,7 @@ public class ArticleRepositoryTests : IClassFixture<RedisFixture>
         Assert.True(article == articleCopy);
 
         await repository.UpdateIsValidated(_idForIsValidated, true);
-        result = await repository.GetAsync(new GetArticlesQuery
+        result = await repository.GetAsync(new ArticleGetManyQuery
         {
             Category = ArticleCategory.BOGUS,
             IsValidated = false,

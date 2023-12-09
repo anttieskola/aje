@@ -222,9 +222,9 @@ public class TrendRepositoryTests : IClassFixture<RedisFixture>
             await publishHandler.Handle(new ArticleAddCommand { Article = DaylyArticle_Unknown(idUnknown, "daily unknown") }, CancellationToken.None);
             await publishHandler.Handle(new ArticleAddCommand { Article = DaylyArticle_NoPolarity(idNoPolarity, "daily nopolarity") }, CancellationToken.None);
 
-            var handler = new GetArticleSentimentPolarityTrendsQueryHandler(new TrendRepository(new Mock<ILogger<TrendRepository>>().Object, _redisFixture.Connection));
+            var handler = new ArticleGetSentimentPolarityTrendsQueryHandler(new TrendRepository(new Mock<ILogger<TrendRepository>>().Object, _redisFixture.Connection));
             // query last six days + today
-            var results = await handler.Handle(new GetArticleSentimentPolarityTrendsQuery
+            var results = await handler.Handle(new ArticleGetSentimentPolarityTrendsQuery
             {
                 ArticleCategory = ArticleCategory.BOGUS,
                 TimePeriod = TimePeriod.Day,
@@ -269,9 +269,9 @@ public class TrendRepositoryTests : IClassFixture<RedisFixture>
             await publishHandler.Handle(new ArticleAddCommand { Article = HourlyArticle_Unknown(idUnknown, "hourly unknown") }, CancellationToken.None);
             await publishHandler.Handle(new ArticleAddCommand { Article = HourlyArticle_NoPolarity(idNoPolarity, "hourly nopolarity") }, CancellationToken.None);
 
-            var handler = new GetArticleSentimentPolarityTrendsQueryHandler(new TrendRepository(new Mock<ILogger<TrendRepository>>().Object, _redisFixture.Connection));
+            var handler = new ArticleGetSentimentPolarityTrendsQueryHandler(new TrendRepository(new Mock<ILogger<TrendRepository>>().Object, _redisFixture.Connection));
             // query last six days + today
-            var results = await handler.Handle(new GetArticleSentimentPolarityTrendsQuery
+            var results = await handler.Handle(new ArticleGetSentimentPolarityTrendsQuery
             {
                 ArticleCategory = ArticleCategory.BOGUS,
                 TimePeriod = TimePeriod.Hour,

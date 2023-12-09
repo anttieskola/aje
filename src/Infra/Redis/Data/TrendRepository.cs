@@ -16,7 +16,7 @@ public class TrendRepository : ITrendRepository
         _connection = connection;
     }
 
-    public async Task<NewsPolarityTrendSegment[]> GetArticleSentimentPolarityTrendsAsync(GetArticleSentimentPolarityTrendsQuery query, CancellationToken cancellationToken)
+    public async Task<NewsPolarityTrendSegment[]> GetArticleSentimentPolarityTrendsAsync(ArticleGetSentimentPolarityTrendsQuery query, CancellationToken cancellationToken)
     {
         // Adjust start time
         var queryStart = query.Start;

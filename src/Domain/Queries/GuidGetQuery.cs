@@ -22,7 +22,7 @@ public static class GuidCharacter
 /// <summary>
 ///
 /// </summary>
-public record GetGuidQuery : IRequest<Guid>, IValidatableObject
+public record GuidGetQuery : IRequest<Guid>, IValidatableObject
 {
     /// <summary>
     /// Must be 8 characters long, valid characters are 0-9 and a-f
@@ -65,9 +65,9 @@ public record GetGuidQuery : IRequest<Guid>, IValidatableObject
     }
 }
 
-public class GetGuidQueryHandler : IRequestHandler<GetGuidQuery, Guid>
+public class GuidGetQueryHandler : IRequestHandler<GuidGetQuery, Guid>
 {
-    public Task<Guid> Handle(GetGuidQuery request, CancellationToken cancellationToken)
+    public Task<Guid> Handle(GuidGetQuery request, CancellationToken cancellationToken)
     {
         Validator.ValidateObject(request, new ValidationContext(request), true);
         var sb = new StringBuilder();

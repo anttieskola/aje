@@ -6,7 +6,7 @@ using AJE.Domain.Events;
 
 namespace AJE.Test.Unit.Domain.Commands;
 
-public class AddArticleCommandHandlerTests
+public class ArticleAddCommandHandlerTests
 {
     private static Article TestArticle =>
         new()

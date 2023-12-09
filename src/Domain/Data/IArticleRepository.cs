@@ -6,8 +6,8 @@ public interface IArticleRepository
     Task UpdateAsync(Article article);
     Task UpdateIsValidated(Guid id, bool isValidated);
     Task<Article> GetAsync(Guid id);
-    Task<PaginatedList<Article>> GetAsync(GetArticlesQuery query);
+    Task<PaginatedList<Article>> GetAsync(ArticleGetManyQuery query);
     Task<Article> GetBySourceAsync(string source);
-    Task<PaginatedList<ArticleHeader>> GetHeadersAsync(GetArticleHeadersQuery query);
+    Task<PaginatedList<ArticleHeader>> GetHeadersAsync(ArticleGetHeadersQuery query);
     Task<bool> ExistsAsync(string source);
 }

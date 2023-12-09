@@ -1,18 +1,18 @@
 ﻿namespace AJE.Domain;
 
-public record CheckArticleQuery : IRequest<CheckArticleResult>
+public record ArticleCheckQuery : IRequest<CheckArticleResult>
 {
     public required Article Article { get; init; }
 }
 
-public class CheckArticleQueryHandler : IRequestHandler<CheckArticleQuery, CheckArticleResult>
+public class ArticleCheckQueryHandler : IRequestHandler<ArticleCheckQuery, CheckArticleResult>
 {
     private readonly IContextCreator<Article> _contextCreator;
     private readonly ICheckArticle _checkArticle;
     private readonly IAiModel _aiModel;
     private readonly IAiLogger _aiLogger;
 
-    public CheckArticleQueryHandler(
+    public ArticleCheckQueryHandler(
         IContextCreator<Article> contextCreator,
         ICheckArticle checkArticle,
         IAiModel aiModel,
@@ -24,7 +24,7 @@ public class CheckArticleQueryHandler : IRequestHandler<CheckArticleQuery, Check
         _aiLogger = aiLogger;
     }
 
-    public async Task<CheckArticleResult> Handle(CheckArticleQuery query, CancellationToken cancellationToken)
+    public async Task<CheckArticleResult> Handle(ArticleCheckQuery query, CancellationToken cancellationToken)
     {
         var context = _contextCreator.Create(query.Article);
         var prompt = _checkArticle.Context(context);

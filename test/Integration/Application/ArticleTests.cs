@@ -59,8 +59,8 @@ public class ArticleTests : IClassFixture<RedisFixture>
         Assert.True(exists);
 
         // act: get article
-        var articleHandler = new GetArticleByIdQueryHandler(_redisFixture.ArticleRepository);
-        var copy = await articleHandler.Handle(new GetArticleByIdQuery { Id = _idOk }, CancellationToken.None);
+        var articleHandler = new ArticleGetByIdQueryHandler(_redisFixture.ArticleRepository);
+        var copy = await articleHandler.Handle(new ArticleGetByIdQuery { Id = _idOk }, CancellationToken.None);
 
         // check article
         Assert.NotNull(copy);
@@ -92,20 +92,20 @@ public class ArticleTests : IClassFixture<RedisFixture>
         Assert.Equal("This is another paragraph", p2.Text);
 
         // act: get article headers (paged)
-        var headersHandler = new GetArticleHeadersQueryHandler(_redisFixture.ArticleRepository);
-        var headers = await headersHandler.Handle(new GetArticleHeadersQuery { Offset = 0, PageSize = 10 }, CancellationToken.None);
+        var headersHandler = new ArticleGetHeadersQueryHandler(_redisFixture.ArticleRepository);
+        var headers = await headersHandler.Handle(new ArticleGetHeadersQuery { Offset = 0, PageSize = 10 }, CancellationToken.None);
         Assert.NotNull(headers);
         Assert.NotEmpty(headers.Items);
 
         // act: get articles (paged)
-        var articlesHandler = new GetArticlesQueryHandler(_redisFixture.ArticleRepository);
-        var articles = await articlesHandler.Handle(new GetArticlesQuery { Offset = 0, PageSize = 10 }, CancellationToken.None);
+        var articlesHandler = new ArticleGetManyQueryHandler(_redisFixture.ArticleRepository);
+        var articles = await articlesHandler.Handle(new ArticleGetManyQuery { Offset = 0, PageSize = 10 }, CancellationToken.None);
         Assert.NotNull(articles);
         Assert.NotEmpty(articles.Items);
 
         // act: get by source
-        var getBySourceHandler = new GetArticleBySourceQueryHandler(_redisFixture.ArticleRepository);
-        var articleBySource = await getBySourceHandler.Handle(new GetArticleBySourceQuery { Source = source }, CancellationToken.None);
+        var getBySourceHandler = new ArticleGetBySourceQueryHandler(_redisFixture.ArticleRepository);
+        var articleBySource = await getBySourceHandler.Handle(new ArticleGetBySourceQuery { Source = source }, CancellationToken.None);
         Assert.NotNull(articleBySource);
 
         // clean
@@ -117,13 +117,13 @@ public class ArticleTests : IClassFixture<RedisFixture>
     public async Task GetArticleQuery_Missing()
     {
         // arrange
-        var getHandler = new GetArticleByIdQueryHandler(_redisFixture.ArticleRepository);
+        var getHandler = new ArticleGetByIdQueryHandler(_redisFixture.ArticleRepository);
         await _redisFixture.Database.KeyDeleteAsync(_index.RedisId(_idMissing.ToString()));
 
         // act
         await Assert.ThrowsAsync<KeyNotFoundException>(async () =>
         {
-            await getHandler.Handle(new GetArticleByIdQuery { Id = _idMissing }, CancellationToken.None);
+            await getHandler.Handle(new ArticleGetByIdQuery { Id = _idMissing }, CancellationToken.None);
         });
     }
 }

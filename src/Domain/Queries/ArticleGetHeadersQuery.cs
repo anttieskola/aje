@@ -1,6 +1,6 @@
 ﻿namespace AJE.Domain.Queries;
 
-public record GetArticleHeadersQuery : PaginatedQuery, IRequest<PaginatedList<ArticleHeader>>
+public record ArticleGetHeadersQuery : PaginatedQuery, IRequest<PaginatedList<ArticleHeader>>
 {
     public ArticleCategory? Category { get; init; }
     public bool? Published { get; init; }
@@ -9,16 +9,16 @@ public record GetArticleHeadersQuery : PaginatedQuery, IRequest<PaginatedList<Ar
     public int? MaxPolarityVersion { get; init; }
 }
 
-public class GetArticleHeadersQueryHandler : IRequestHandler<GetArticleHeadersQuery, PaginatedList<ArticleHeader>>
+public class ArticleGetHeadersQueryHandler : IRequestHandler<ArticleGetHeadersQuery, PaginatedList<ArticleHeader>>
 {
     private readonly IArticleRepository _repository;
 
-    public GetArticleHeadersQueryHandler(IArticleRepository repository)
+    public ArticleGetHeadersQueryHandler(IArticleRepository repository)
     {
         _repository = repository;
     }
 
-    public async Task<PaginatedList<ArticleHeader>> Handle(GetArticleHeadersQuery request, CancellationToken cancellationToken)
+    public async Task<PaginatedList<ArticleHeader>> Handle(ArticleGetHeadersQuery request, CancellationToken cancellationToken)
     {
         return await _repository.GetHeadersAsync(request);
     }

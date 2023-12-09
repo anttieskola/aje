@@ -10,11 +10,11 @@ namespace AJE.Test.Integration.Domain;
 /// <summary>
 /// Tests require a llama.cpp server running in localhost:8080
 /// </summary>
-public class GetArticlePolarityCommandHandlerTests : IClassFixture<HttpClientFixture>
+public class ArticleGetPolarityCommandHandlerTests : IClassFixture<HttpClientFixture>
 {
     private readonly HttpClientFixture _fixture;
 
-    public GetArticlePolarityCommandHandlerTests(HttpClientFixture fixture)
+    public ArticleGetPolarityCommandHandlerTests(HttpClientFixture fixture)
     {
         _fixture = fixture;
     }
@@ -87,12 +87,12 @@ public class GetArticlePolarityCommandHandlerTests : IClassFixture<HttpClientFix
         var article = JsonSerializer.Deserialize<Article>(_article);
         Assert.NotNull(article);
         var configuration = new LlamaConfiguration { Host = TestConstants.LlamaAddress, LogFolder = "/tmp" };
-        var handler = new GetArticleSentimentPolarityQueryHandler(
+        var handler = new ArticleGetSentimentPolarityQueryHandler(
             new ArticleContextCreator(new MarkDownSimplifier()),
             new PolarityChatML(),
             new LlamaAiModel(new Mock<ILogger<LlamaAiModel>>().Object, configuration, _fixture.HttpClientFactory),
             new AiLogger(configuration));
-        var command = new GetArticleSentimentPolarityQuery { Article = article };
+        var command = new ArticleGetSentimentPolarityQuery { Article = article };
         var response = await handler.Handle(command, CancellationToken.None);
         Assert.NotNull(response);
     }

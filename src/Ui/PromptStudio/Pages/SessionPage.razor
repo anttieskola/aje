@@ -142,7 +142,7 @@ else
     {
         // using delays to present what is happening to the user
         await Task.Delay(TimeSpan.FromMilliseconds(200));
-        _session = await Sender.Send(new GetPromptStudioSessionQuery { SessionId = SessionId });
+        _session = await Sender.Send(new PromptStudioGetSessionQuery { SessionId = SessionId });
         StateHasChanged();
     }
 
@@ -186,7 +186,7 @@ else
         _articleIdError = string.Empty;
         if (Guid.TryParseExact(_articleId, "D", out var articleId))
         {
-            var article = await Sender.Send(new GetArticleByIdQuery { Id = articleId }, CancellationToken.None);
+            var article = await Sender.Send(new ArticleGetByIdQuery { Id = articleId }, CancellationToken.None);
             _context = ArticleContextCreator.Create(article);
         }
         else

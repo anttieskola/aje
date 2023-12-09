@@ -78,7 +78,7 @@
 
     private async Task QueueLatest()
     {
-        var headers = await Sender.Send(new GetArticleHeadersQuery { Offset = 0, PageSize = LatestCount });
+        var headers = await Sender.Send(new ArticleGetHeadersQuery { Offset = 0, PageSize = LatestCount });
         foreach (var header in headers.Items)
             _queue.Enqueue(header.Id);
     }
@@ -116,7 +116,7 @@
 
     private async Task Load(Guid id)
     {
-        _article = await Sender.Send(new GetArticleByIdQuery { Id = id });
+        _article = await Sender.Send(new ArticleGetByIdQuery { Id = id });
         StateHasChanged();
     }
 

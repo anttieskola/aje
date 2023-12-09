@@ -2,7 +2,7 @@
 using ValidationException = System.ComponentModel.DataAnnotations.ValidationException;
 
 namespace AJE.Test.Unit.Domain.Queries;
-public class GetGuidQueryTests
+public class GuidGetQueryTests
 {
     [Theory]
     [InlineData('0', true)]
@@ -36,24 +36,24 @@ public class GetGuidQueryTests
     [Fact]
     public async Task Fail()
     {
-        var handler = new GetGuidQueryHandler();
+        var handler = new GuidGetQueryHandler();
 
         // category
-        var e = await Assert.ThrowsAsync<ValidationException>(() => handler.Handle(new GetGuidQuery
+        var e = await Assert.ThrowsAsync<ValidationException>(() => handler.Handle(new GuidGetQuery
         {
             Category = string.Empty,
             UniqueString = "https://yle.fi/a/74-20025030",
         }, CancellationToken.None));
         e.Message.Contains("Category is required");
 
-        e = await Assert.ThrowsAsync<ValidationException>(() => handler.Handle(new GetGuidQuery
+        e = await Assert.ThrowsAsync<ValidationException>(() => handler.Handle(new GuidGetQuery
         {
             Category = "1000000",
             UniqueString = "https://yle.fi/a/74-20025030",
         }, CancellationToken.None));
         e.Message.Contains("Category must be 8 characters long");
 
-        e = await Assert.ThrowsAsync<ValidationException>(() => handler.Handle(new GetGuidQuery
+        e = await Assert.ThrowsAsync<ValidationException>(() => handler.Handle(new GuidGetQuery
         {
             Category = "1000000X",
             UniqueString = string.Empty,
@@ -61,14 +61,14 @@ public class GetGuidQueryTests
         e.Message.Contains("Category must be 8 characters long");
 
         // unique string
-        e = await Assert.ThrowsAsync<ValidationException>(() => handler.Handle(new GetGuidQuery
+        e = await Assert.ThrowsAsync<ValidationException>(() => handler.Handle(new GuidGetQuery
         {
             Category = "10000000",
             UniqueString = string.Empty,
         }, CancellationToken.None));
         e.Message.Contains("UniqueString is required");
 
-        e = await Assert.ThrowsAsync<ValidationException>(() => handler.Handle(new GetGuidQuery
+        e = await Assert.ThrowsAsync<ValidationException>(() => handler.Handle(new GuidGetQuery
         {
             Category = "10000000",
             UniqueString = "abcdef1",
@@ -79,22 +79,22 @@ public class GetGuidQueryTests
     [Fact]
     public async Task Ok()
     {
-        var handler = new GetGuidQueryHandler();
-        var result = await handler.Handle(new GetGuidQuery
+        var handler = new GuidGetQueryHandler();
+        var result = await handler.Handle(new GuidGetQuery
         {
             Category = "10000000",
             UniqueString = "https://yle.fi/a/74-20025030",
         }, CancellationToken.None);
         Assert.Equal(Guid.ParseExact("10000000-efa7-4200-2503-000000000000", "D"), result);
 
-        result = await handler.Handle(new GetGuidQuery
+        result = await handler.Handle(new GuidGetQuery
         {
             Category = "10000000",
             UniqueString = "https://yle.fi/a/3-8960573",
         }, CancellationToken.None);
         Assert.Equal(Guid.ParseExact("10000000-efa3-8960-5730-000000000000", "D"), result);
 
-        result = await handler.Handle(new GetGuidQuery
+        result = await handler.Handle(new GuidGetQuery
         {
             Category = "20000000",
             UniqueString = "https://news.anttieskola.com/123456789012",

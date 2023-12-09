@@ -45,7 +45,7 @@ else
 
     private async Task Fetch()
     {
-        _segments = await Sender.Send(new GetArticleSentimentPolarityTrendsQuery
+        _segments = await Sender.Send(new ArticleGetSentimentPolarityTrendsQuery
             {
                 ArticleCategory = ArticleCategory.NEWS,
                 TimePeriod = _timePeriod,

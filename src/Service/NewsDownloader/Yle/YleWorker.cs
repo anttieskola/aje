@@ -48,7 +48,7 @@ public class YleWorker : BackgroundService
 
     private async Task<Guid> CreateId(string source)
     {
-        return await _sender.Send(new GetGuidQuery
+        return await _sender.Send(new GuidGetQuery
         {
             Category = _guidCategory,
             UniqueString = source,

@@ -2,5 +2,5 @@
 
 public interface ITrendRepository
 {
-    Task<NewsPolarityTrendSegment[]> GetArticleSentimentPolarityTrendsAsync(GetArticleSentimentPolarityTrendsQuery query, CancellationToken cancellationToken);
+    Task<NewsPolarityTrendSegment[]> GetArticleSentimentPolarityTrendsAsync(ArticleGetSentimentPolarityTrendsQuery query, CancellationToken cancellationToken);
 }

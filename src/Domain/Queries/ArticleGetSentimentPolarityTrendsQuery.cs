@@ -1,6 +1,6 @@
 ﻿namespace AJE.Domain.Queries;
 
-public record GetArticleSentimentPolarityTrendsQuery : IRequest<NewsPolarityTrendSegment[]>
+public record ArticleGetSentimentPolarityTrendsQuery : IRequest<NewsPolarityTrendSegment[]>
 {
     public required ArticleCategory ArticleCategory { get; init; }
     public required TimePeriod TimePeriod { get; init; }
@@ -8,16 +8,16 @@ public record GetArticleSentimentPolarityTrendsQuery : IRequest<NewsPolarityTren
     public required DateTimeOffset End { get; init; }
 }
 
-public class GetArticleSentimentPolarityTrendsQueryHandler : IRequestHandler<GetArticleSentimentPolarityTrendsQuery, NewsPolarityTrendSegment[]>
+public class ArticleGetSentimentPolarityTrendsQueryHandler : IRequestHandler<ArticleGetSentimentPolarityTrendsQuery, NewsPolarityTrendSegment[]>
 {
     private readonly ITrendRepository _trendRepository;
 
-    public GetArticleSentimentPolarityTrendsQueryHandler(ITrendRepository trendRepository)
+    public ArticleGetSentimentPolarityTrendsQueryHandler(ITrendRepository trendRepository)
     {
         _trendRepository = trendRepository;
     }
 
-    public async Task<NewsPolarityTrendSegment[]> Handle(GetArticleSentimentPolarityTrendsQuery request, CancellationToken cancellationToken)
+    public async Task<NewsPolarityTrendSegment[]> Handle(ArticleGetSentimentPolarityTrendsQuery request, CancellationToken cancellationToken)
     {
         return await _trendRepository.GetArticleSentimentPolarityTrendsAsync(request, cancellationToken);
     }

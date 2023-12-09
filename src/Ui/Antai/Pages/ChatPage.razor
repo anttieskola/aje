@@ -95,7 +95,7 @@ else
 
     private async Task Refresh()
     {
-        _chat = await Sender.Send(new GetAiChatQuery { Id = ChatId });
+        _chat = await Sender.Send(new AiChatGetQuery { Id = ChatId });
         StateHasChanged();
     }
 }

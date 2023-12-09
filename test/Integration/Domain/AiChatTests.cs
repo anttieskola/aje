@@ -49,7 +49,7 @@ public class AiChatTests : IClassFixture<HttpClientFixture>, IClassFixture<Redis
         var antai = new AntaiChatML();
         var startHandler = new AiChatStartCommandHandler(aiChatRepository, aiEventHandler);
         var sendHandler = new AiChatSendMessageCommandHandler(aiChatRepository, aiEventHandler, antai, aiModel);
-        var getHandler = new GetAiChatQueryHandler(aiChatRepository);
+        var getHandler = new AiChatGetQueryHandler(aiChatRepository);
 
         var tokens = new StringBuilder();
         var startEvents = new List<AiChatStartedEvent>();
@@ -99,7 +99,7 @@ public class AiChatTests : IClassFixture<HttpClientFixture>, IClassFixture<Redis
         Assert.Contains("IntegrationTest", tokens.ToString());
 
         // Get chat
-        var chat = await getHandler.Handle(new GetAiChatQuery { Id = _idChat }, CancellationToken.None);
+        var chat = await getHandler.Handle(new AiChatGetQuery { Id = _idChat }, CancellationToken.None);
         Assert.NotNull(chat);
         Assert.Equal(_idChat, chat.ChatId);
         Assert.Equal(2, chat.Interactions.Count);

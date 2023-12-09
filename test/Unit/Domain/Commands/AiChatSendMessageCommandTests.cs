@@ -6,7 +6,7 @@ using AJE.Domain.Events;
 
 namespace AJE.Test.Unit.Domain.Commands;
 
-public class SendAiChatMessageCommandTests
+public class AiChatSendMessageCommandTests
 {
     [Fact]
     public async Task Ok()

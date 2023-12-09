@@ -4,7 +4,7 @@ using AJE.Domain.Queries;
 
 namespace AJE.Test.Unit.Domain.Queries;
 
-public class GetAiChatQueryHandlerTests
+public class AiChatGetQueryHandlerTests
 {
     [Fact]
     public void Ok()
@@ -29,10 +29,10 @@ public class GetAiChatQueryHandlerTests
                 }
             }
         });
-        var handler = new GetAiChatQueryHandler(mockAiChatRepository.Object);
+        var handler = new AiChatGetQueryHandler(mockAiChatRepository.Object);
 
         // act
-        var result = handler.Handle(new GetAiChatQuery { Id = myId }, CancellationToken.None).Result;
+        var result = handler.Handle(new AiChatGetQuery { Id = myId }, CancellationToken.None).Result;
 
         // assert
         Assert.NotNull(result);

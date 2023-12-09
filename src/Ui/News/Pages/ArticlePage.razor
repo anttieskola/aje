@@ -27,7 +27,7 @@
 
     private async Task Load(Guid id)
     {
-        _article = await Sender.Send(new GetArticleByIdQuery { Id = id });
+        _article = await Sender.Send(new ArticleGetByIdQuery { Id = id });
         StateHasChanged();
     }
 }

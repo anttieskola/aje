@@ -58,7 +58,7 @@
 
     private async Task Refresh()
     {
-        var session = await Sender.Send(new GetPromptStudioSessionQuery { SessionId = SessionId });
+        var session = await Sender.Send(new PromptStudioGetSessionQuery { SessionId = SessionId });
         _runs = session.Runs;
 
         // switch selected if nothing selected

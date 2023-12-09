@@ -55,7 +55,7 @@ public class CheckArticleWorker : BackgroundService
                 break;
 
             // update article with saved IsValidated true value if it is not set
-            var current = await _sender.Send(new GetArticleByIdQuery { Id = row.Id }, _cancellationToken);
+            var current = await _sender.Send(new ArticleGetByIdQuery { Id = row.Id }, _cancellationToken);
             if (!current.IsValidated)
                 await _sender.Send(new ArticleUpdateIsValidatedCommand { Id = row.Id, IsValidated = true }, _cancellationToken);
         }
@@ -75,7 +75,7 @@ public class CheckArticleWorker : BackgroundService
         var offset = 0;
         while (true)
         {
-            var query = new GetArticlesQuery
+            var query = new ArticleGetManyQuery
             {
                 Category = ArticleCategory.NEWS,
                 Offset = offset,
@@ -100,7 +100,7 @@ public class CheckArticleWorker : BackgroundService
     private async Task CheckArticleASync(Article article)
     {
         // ask AI
-        var result = await _sender.Send(new CheckArticleQuery { Article = article }, _cancellationToken);
+        var result = await _sender.Send(new ArticleCheckQuery { Article = article }, _cancellationToken);
 
         // db update
         using var scope = _scopeFactory.CreateScope();

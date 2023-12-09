@@ -174,7 +174,7 @@
 
     private async Task Fetch()
     {
-        _headers = await Sender.Send(new GetArticleHeadersQuery
+        _headers = await Sender.Send(new ArticleGetHeadersQuery
             {
                 Offset = _offset,
                 PageSize = _pageSize,

@@ -10,11 +10,11 @@ namespace AJE.Test.Integration.Domain;
 /// <summary>
 /// Tests require a llama.cpp server running in localhost:8080
 /// </summary>
-public class CheckArticleCommandHandlerTests : IClassFixture<HttpClientFixture>
+public class ArticleCheckCommandHandlerTests : IClassFixture<HttpClientFixture>
 {
     private readonly HttpClientFixture _fixture;
 
-    public CheckArticleCommandHandlerTests(HttpClientFixture fixture)
+    public ArticleCheckCommandHandlerTests(HttpClientFixture fixture)
     {
         _fixture = fixture;
     }
@@ -69,12 +69,12 @@ public class CheckArticleCommandHandlerTests : IClassFixture<HttpClientFixture>
     public async Task Yes()
     {
         var configuration = new LlamaConfiguration { Host = TestConstants.LlamaAddress, LogFolder = "/tmp" };
-        var handler = new CheckArticleQueryHandler(
+        var handler = new ArticleCheckQueryHandler(
             new ArticleContextCreator(new MarkDownSimplifier()),
             new CheckArticleChatML(),
             new LlamaAiModel(new Mock<ILogger<LlamaAiModel>>().Object, configuration, _fixture.HttpClientFactory),
             new AiLogger(configuration));
-        var command = new CheckArticleQuery { Article = _articleYes };
+        var command = new ArticleCheckQuery { Article = _articleYes };
         var response = await handler.Handle(command, CancellationToken.None);
         Assert.NotNull(response);
         Assert.True(response.IsValid);
@@ -102,12 +102,12 @@ public class CheckArticleCommandHandlerTests : IClassFixture<HttpClientFixture>
     public async Task No01()
     {
         var configuration = new LlamaConfiguration { Host = TestConstants.LlamaAddress, LogFolder = "/tmp" };
-        var handler = new CheckArticleQueryHandler(
+        var handler = new ArticleCheckQueryHandler(
             new ArticleContextCreator(new MarkDownSimplifier()),
             new CheckArticleChatML(),
             new LlamaAiModel(new Mock<ILogger<LlamaAiModel>>().Object, configuration, _fixture.HttpClientFactory),
             new AiLogger(configuration));
-        var command = new CheckArticleQuery { Article = _articleNo01 };
+        var command = new ArticleCheckQuery { Article = _articleNo01 };
         var response = await handler.Handle(command, CancellationToken.None);
         Assert.NotNull(response);
         Assert.False(response.IsValid);
@@ -136,12 +136,12 @@ public class CheckArticleCommandHandlerTests : IClassFixture<HttpClientFixture>
     public async Task No02()
     {
         var configuration = new LlamaConfiguration { Host = TestConstants.LlamaAddress, LogFolder = "/tmp" };
-        var handler = new CheckArticleQueryHandler(
+        var handler = new ArticleCheckQueryHandler(
             new ArticleContextCreator(new MarkDownSimplifier()),
             new CheckArticleChatML(),
             new LlamaAiModel(new Mock<ILogger<LlamaAiModel>>().Object, configuration, _fixture.HttpClientFactory),
             new AiLogger(configuration));
-        var command = new CheckArticleQuery { Article = _articleNo02 };
+        var command = new ArticleCheckQuery { Article = _articleNo02 };
         var response = await handler.Handle(command, CancellationToken.None);
         Assert.NotNull(response);
         Assert.False(response.IsValid);

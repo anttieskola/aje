@@ -52,7 +52,7 @@ public class SentimentPolarityWorker : BackgroundService
                 break;
 
             // update article with saved polarity if they are missing
-            var current = await _sender.Send(new GetArticleBySourceQuery { Source = row.Source }, _cancellationToken);
+            var current = await _sender.Send(new ArticleGetBySourceQuery { Source = row.Source }, _cancellationToken);
             if (current != null && current.PolarityVersion < row.PolarityVersion)
             {
                 current.Polarity = row.Polarity;
@@ -68,10 +68,10 @@ public class SentimentPolarityWorker : BackgroundService
     {
         // get latest article that has not been analyzed
         // or has been analyzed with older polarity version
-        var query = new GetArticlesQuery
+        var query = new ArticleGetManyQuery
         {
             Category = ArticleCategory.NEWS,
-            MaxPolarityVersion = GetArticleSentimentPolarityQuery.CURRENT_POLARITY_VERSION - 1,
+            MaxPolarityVersion = ArticleGetSentimentPolarityQuery.CURRENT_POLARITY_VERSION - 1,
             Offset = 0,
             PageSize = 1
         };
@@ -80,7 +80,7 @@ public class SentimentPolarityWorker : BackgroundService
         {
             // analyze article "sentiment" polarity
             var article = results.Items.First();
-            var command = new GetArticleSentimentPolarityQuery { Article = article };
+            var command = new ArticleGetSentimentPolarityQuery { Article = article };
             var polarityEvent = await _sender.Send(command, _cancellationToken);
 
             // save result to database

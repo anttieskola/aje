@@ -1,6 +1,6 @@
 ﻿namespace AJE.Domain.Queries;
 
-public record GetArticleSentimentPolarityQuery : IRequest<ArticleSentimentPolarity>
+public record ArticleGetSentimentPolarityQuery : IRequest<ArticleSentimentPolarity>
 {
     /// <summary>
     /// Current of the polarity model & prompt settings
@@ -9,14 +9,14 @@ public record GetArticleSentimentPolarityQuery : IRequest<ArticleSentimentPolari
     public required Article Article { get; init; }
 }
 
-public class GetArticleSentimentPolarityQueryHandler : IRequestHandler<GetArticleSentimentPolarityQuery, ArticleSentimentPolarity>
+public class ArticleGetSentimentPolarityQueryHandler : IRequestHandler<ArticleGetSentimentPolarityQuery, ArticleSentimentPolarity>
 {
     private readonly IContextCreator<Article> _contextCreator;
     private readonly IPolarity _polarity;
     private readonly IAiModel _aiModel;
     private readonly IAiLogger _aiLogger;
 
-    public GetArticleSentimentPolarityQueryHandler(
+    public ArticleGetSentimentPolarityQueryHandler(
         IContextCreator<Article> contextCreator,
         IPolarity polarity,
         IAiModel aiModel,
@@ -28,7 +28,7 @@ public class GetArticleSentimentPolarityQueryHandler : IRequestHandler<GetArticl
         _aiLogger = aiLogger;
     }
 
-    public async Task<ArticleSentimentPolarity> Handle(GetArticleSentimentPolarityQuery query, CancellationToken cancellationToken)
+    public async Task<ArticleSentimentPolarity> Handle(ArticleGetSentimentPolarityQuery query, CancellationToken cancellationToken)
     {
         var context = _contextCreator.Create(query.Article);
         var prompt = _polarity.Context(context);
@@ -57,7 +57,7 @@ public class GetArticleSentimentPolarityQueryHandler : IRequestHandler<GetArticl
             Timestamp = DateTimeOffset.UtcNow,
             Source = query.Article.Source,
             Polarity = polarity,
-            PolarityVersion = GetArticleSentimentPolarityQuery.CURRENT_POLARITY_VERSION,
+            PolarityVersion = ArticleGetSentimentPolarityQuery.CURRENT_POLARITY_VERSION,
         };
     }
 }
