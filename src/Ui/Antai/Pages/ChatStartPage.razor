@@ -13,7 +13,7 @@
     {
         // using delays to present what is happening to the user
         await Task.Delay(TimeSpan.FromMilliseconds(200));
-        var chat = await Sender.Send(new StartAiChatCommand { Id = Guid.NewGuid() });
+        var chat = await Sender.Send(new AiChatStartCommand { Id = Guid.NewGuid() });
         if (chat != null)
         {
             _message = $"Chat created with id:{chat.ChatId}. Redirecting...";

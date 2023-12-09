@@ -57,7 +57,7 @@ public class SentimentPolarityWorker : BackgroundService
             {
                 current.Polarity = row.Polarity;
                 current.PolarityVersion = row.PolarityVersion;
-                await _sender.Send(new UpdateArticleCommand { Article = current }, _cancellationToken);
+                await _sender.Send(new ArticleUpdateCommand { Article = current }, _cancellationToken);
             }
         }
     }
@@ -97,7 +97,7 @@ public class SentimentPolarityWorker : BackgroundService
             // update article with new polarity
             article.Polarity = polarityEvent.Polarity;
             article.PolarityVersion = polarityEvent.PolarityVersion;
-            var updateCommand = new UpdateArticleCommand { Article = article };
+            var updateCommand = new ArticleUpdateCommand { Article = article };
             await _sender.Send(updateCommand, _cancellationToken);
             _logger.LogInformation("Updated Article {} with polarity {}", article.Source, article.Polarity);
         }

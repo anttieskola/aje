@@ -215,12 +215,12 @@ public class TrendRepositoryTests : IClassFixture<RedisFixture>
             await _redisFixture.Database.KeyDeleteAsync(_index.RedisId(idNoPolarity.ToString()));
 
             // arrange
-            var publishHandler = new AddArticleCommandHandler(_redisFixture.ArticleRepository, new Mock<IArticleEventHandler>().Object);
-            await publishHandler.Handle(new AddArticleCommand { Article = DaylyArticle_Negative(idNegate, "daily negative") }, CancellationToken.None);
-            await publishHandler.Handle(new AddArticleCommand { Article = DaylyArticle_Neutral(idNeutral, "daily neutral") }, CancellationToken.None);
-            await publishHandler.Handle(new AddArticleCommand { Article = DaylyArticle_Positive(idPositive, "daily positive") }, CancellationToken.None);
-            await publishHandler.Handle(new AddArticleCommand { Article = DaylyArticle_Unknown(idUnknown, "daily unknown") }, CancellationToken.None);
-            await publishHandler.Handle(new AddArticleCommand { Article = DaylyArticle_NoPolarity(idNoPolarity, "daily nopolarity") }, CancellationToken.None);
+            var publishHandler = new ArticleAddCommandHandler(_redisFixture.ArticleRepository, new Mock<IArticleEventHandler>().Object);
+            await publishHandler.Handle(new ArticleAddCommand { Article = DaylyArticle_Negative(idNegate, "daily negative") }, CancellationToken.None);
+            await publishHandler.Handle(new ArticleAddCommand { Article = DaylyArticle_Neutral(idNeutral, "daily neutral") }, CancellationToken.None);
+            await publishHandler.Handle(new ArticleAddCommand { Article = DaylyArticle_Positive(idPositive, "daily positive") }, CancellationToken.None);
+            await publishHandler.Handle(new ArticleAddCommand { Article = DaylyArticle_Unknown(idUnknown, "daily unknown") }, CancellationToken.None);
+            await publishHandler.Handle(new ArticleAddCommand { Article = DaylyArticle_NoPolarity(idNoPolarity, "daily nopolarity") }, CancellationToken.None);
 
             var handler = new GetArticleSentimentPolarityTrendsQueryHandler(new TrendRepository(new Mock<ILogger<TrendRepository>>().Object, _redisFixture.Connection));
             // query last six days + today
@@ -262,12 +262,12 @@ public class TrendRepositoryTests : IClassFixture<RedisFixture>
             await _redisFixture.Database.KeyDeleteAsync(_index.RedisId(idNoPolarity.ToString()));
 
             // arrange
-            var publishHandler = new AddArticleCommandHandler(_redisFixture.ArticleRepository, new Mock<IArticleEventHandler>().Object);
-            await publishHandler.Handle(new AddArticleCommand { Article = HourlyArticle_Negative(idNegate, "hourly negative") }, CancellationToken.None);
-            await publishHandler.Handle(new AddArticleCommand { Article = HourlyArticle_Neutral(idNeutral, "hourly neutral") }, CancellationToken.None);
-            await publishHandler.Handle(new AddArticleCommand { Article = HourlyArticle_Positive(idPositive, "hourly positive") }, CancellationToken.None);
-            await publishHandler.Handle(new AddArticleCommand { Article = HourlyArticle_Unknown(idUnknown, "hourly unknown") }, CancellationToken.None);
-            await publishHandler.Handle(new AddArticleCommand { Article = HourlyArticle_NoPolarity(idNoPolarity, "hourly nopolarity") }, CancellationToken.None);
+            var publishHandler = new ArticleAddCommandHandler(_redisFixture.ArticleRepository, new Mock<IArticleEventHandler>().Object);
+            await publishHandler.Handle(new ArticleAddCommand { Article = HourlyArticle_Negative(idNegate, "hourly negative") }, CancellationToken.None);
+            await publishHandler.Handle(new ArticleAddCommand { Article = HourlyArticle_Neutral(idNeutral, "hourly neutral") }, CancellationToken.None);
+            await publishHandler.Handle(new ArticleAddCommand { Article = HourlyArticle_Positive(idPositive, "hourly positive") }, CancellationToken.None);
+            await publishHandler.Handle(new ArticleAddCommand { Article = HourlyArticle_Unknown(idUnknown, "hourly unknown") }, CancellationToken.None);
+            await publishHandler.Handle(new ArticleAddCommand { Article = HourlyArticle_NoPolarity(idNoPolarity, "hourly nopolarity") }, CancellationToken.None);
 
             var handler = new GetArticleSentimentPolarityTrendsQueryHandler(new TrendRepository(new Mock<ILogger<TrendRepository>>().Object, _redisFixture.Connection));
             // query last six days + today

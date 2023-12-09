@@ -44,9 +44,9 @@ public class ArticleRepositoryTests : IClassFixture<RedisFixture>
     {
         // arrange
         await _redisFixture.Database.KeyDeleteAsync(_index.RedisId(_idForOk.ToString()));
-        var publishHandler = new AddArticleCommandHandler(_redisFixture.ArticleRepository, new Mock<IArticleEventHandler>().Object);
+        var publishHandler = new ArticleAddCommandHandler(_redisFixture.ArticleRepository, new Mock<IArticleEventHandler>().Object);
         var article = TestArticleForOk();
-        var publishEvent = await publishHandler.Handle(new AddArticleCommand { Article = article }, CancellationToken.None);
+        var publishEvent = await publishHandler.Handle(new ArticleAddCommand { Article = article }, CancellationToken.None);
         Assert.NotNull(publishEvent);
         Assert.Equal(_idForOk, publishEvent.Id);
 
@@ -85,9 +85,9 @@ public class ArticleRepositoryTests : IClassFixture<RedisFixture>
     public async Task IsValidated()
     {
         await _redisFixture.Database.KeyDeleteAsync(_index.RedisId(_idForIsValidated.ToString()));
-        var publishHandler = new AddArticleCommandHandler(_redisFixture.ArticleRepository, new Mock<IArticleEventHandler>().Object);
+        var publishHandler = new ArticleAddCommandHandler(_redisFixture.ArticleRepository, new Mock<IArticleEventHandler>().Object);
         var article = TestArticleForIsValidated();
-        var publishEvent = await publishHandler.Handle(new AddArticleCommand { Article = article }, CancellationToken.None);
+        var publishEvent = await publishHandler.Handle(new ArticleAddCommand { Article = article }, CancellationToken.None);
         Assert.NotNull(publishEvent);
         Assert.Equal(_idForIsValidated, publishEvent.Id);
 

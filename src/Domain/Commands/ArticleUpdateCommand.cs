@@ -1,16 +1,16 @@
 ﻿namespace AJE.Domain.Commands;
 
-public record AddArticleCommand : IRequest<ArticleAddedEvent>
+public class ArticleUpdateCommand : IRequest<ArticleUpdatedEvent>
 {
     public required Article Article { get; init; }
 }
 
-public class AddArticleCommandHandler : IRequestHandler<AddArticleCommand, ArticleAddedEvent>
+public class ArticleUpdateCommandHandler : IRequestHandler<ArticleUpdateCommand, ArticleUpdatedEvent>
 {
     private readonly IArticleRepository _articleRepository;
     private readonly IArticleEventHandler _articleEventHandler;
 
-    public AddArticleCommandHandler(
+    public ArticleUpdateCommandHandler(
         IArticleRepository articleRepository,
         IArticleEventHandler articleEventHandler)
     {
@@ -18,14 +18,15 @@ public class AddArticleCommandHandler : IRequestHandler<AddArticleCommand, Artic
         _articleEventHandler = articleEventHandler;
     }
 
-    public async Task<ArticleAddedEvent> Handle(AddArticleCommand command, CancellationToken cancellationToken)
+    public async Task<ArticleUpdatedEvent> Handle(ArticleUpdateCommand command, CancellationToken cancellationToken)
     {
-        await _articleRepository.AddAsync(command.Article);
-        var e = new ArticleAddedEvent
+        await _articleRepository.UpdateAsync(command.Article);
+        var e = new ArticleUpdatedEvent
         {
             Id = command.Article.Id,
             Timestamp = DateTimeOffset.UtcNow,
             Published = command.Article.Published,
+            ContentUpdated = true,
         };
         await _articleEventHandler.SendAsync(e);
         return e;

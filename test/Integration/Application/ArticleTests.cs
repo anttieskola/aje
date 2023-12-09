@@ -45,11 +45,11 @@ public class ArticleTests : IClassFixture<RedisFixture>
         // arrange article
         await _redisFixture.Database.KeyDeleteAsync(_index.RedisId(_idOk.ToString()));
         var source = "https://www.anttieskola.com";
-        var publishHandler = new AddArticleCommandHandler(_redisFixture.ArticleRepository, new Mock<IArticleEventHandler>().Object);
+        var publishHandler = new ArticleAddCommandHandler(_redisFixture.ArticleRepository, new Mock<IArticleEventHandler>().Object);
         var article = LifeCycleTestArticle(_idOk, source);
 
         // act: publish article
-        var publishEvent = await publishHandler.Handle(new AddArticleCommand { Article = article }, CancellationToken.None);
+        var publishEvent = await publishHandler.Handle(new ArticleAddCommand { Article = article }, CancellationToken.None);
         Assert.NotNull(publishEvent);
         Assert.Equal(_idOk, publishEvent.Id);
 

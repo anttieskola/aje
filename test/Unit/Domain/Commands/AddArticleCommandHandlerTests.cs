@@ -37,11 +37,11 @@ public class AddArticleCommandHandlerTests
         // arrange
         var mockArticleRepository = new Mock<IArticleRepository>();
         var mockArticleEventHandler = new Mock<IArticleEventHandler>();
-        var handler = new AddArticleCommandHandler(mockArticleRepository.Object, mockArticleEventHandler.Object);
+        var handler = new ArticleAddCommandHandler(mockArticleRepository.Object, mockArticleEventHandler.Object);
 
         // act
         var article = TestArticle;
-        var command = new AddArticleCommand { Article = article };
+        var command = new ArticleAddCommand { Article = article };
         var result = handler.Handle(command, CancellationToken.None).Result;
 
         // assert

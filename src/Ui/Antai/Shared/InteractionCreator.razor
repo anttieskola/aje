@@ -104,7 +104,7 @@ else if (_output != null)
         _inputDisabled = true;
         StateHasChanged();
         await Task.Delay(TimeSpan.FromMilliseconds(200));
-        await Sender.Send(new SendAiChatMessageCommand
+        await Sender.Send(new AiChatSendMessageCommand
             {
                 ChatId = ChatId,
                 Message = _input,

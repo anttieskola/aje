@@ -1,18 +1,18 @@
 ﻿namespace AJE.Domain.Commands;
 
 // could contain, model info, system instructions, prompt creator, temperature...
-public record StartAiChatCommand : IRequest<AiChatEvent>
+public record AiChatStartCommand : IRequest<AiChatEvent>
 {
     public bool IsTest { get; init; } = false;
     public required Guid Id { get; init; }
 }
 
-public class StartAiChatCommandHandler : IRequestHandler<StartAiChatCommand, AiChatEvent>
+public class AiChatStartCommandHandler : IRequestHandler<AiChatStartCommand, AiChatEvent>
 {
     private readonly IAiChatRepository _aiChatRepository;
     private readonly IAiChatEventHandler _aiChatEventHandler;
 
-    public StartAiChatCommandHandler(
+    public AiChatStartCommandHandler(
         IAiChatRepository aiChatRepository,
         IAiChatEventHandler aiChatEventHandler)
     {
@@ -20,7 +20,7 @@ public class StartAiChatCommandHandler : IRequestHandler<StartAiChatCommand, AiC
         _aiChatEventHandler = aiChatEventHandler;
     }
 
-    public async Task<AiChatEvent> Handle(StartAiChatCommand command, CancellationToken cancellationToken)
+    public async Task<AiChatEvent> Handle(AiChatStartCommand command, CancellationToken cancellationToken)
     {
         var options = new AiChatOptions
         {

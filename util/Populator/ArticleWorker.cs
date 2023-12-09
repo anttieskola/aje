@@ -25,7 +25,7 @@ public class ArticleWorker : BackgroundService
                 var article = generator.Generate();
                 if (!await _sender.Send(new ArticleExistsQuery { Source = article.Source }, stoppingToken))
                 {
-                    var publishEvent = await _sender.Send(new AddArticleCommand { Article = article }, stoppingToken);
+                    var publishEvent = await _sender.Send(new ArticleAddCommand { Article = article }, stoppingToken);
                     _logger.LogInformation("Published article: {id}", publishEvent.Id);
                 }
                 else

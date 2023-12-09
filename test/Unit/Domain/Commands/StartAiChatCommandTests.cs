@@ -14,8 +14,8 @@ public class StartAiChatCommandTests
         var mockAiChatRepository = new Mock<IAiChatRepository>();
         mockAiChatRepository.Setup(x => x.AddAsync(It.IsAny<AiChatOptions>())).ReturnsAsync(new AiChat { ChatId = id, StartTimestamp = DateTimeOffset.UtcNow });
         var mockAiChatEventHandler = new Mock<IAiChatEventHandler>();
-        var handler = new StartAiChatCommandHandler(mockAiChatRepository.Object, mockAiChatEventHandler.Object);
-        var result = await handler.Handle(new StartAiChatCommand { Id = id }, CancellationToken.None);
+        var handler = new AiChatStartCommandHandler(mockAiChatRepository.Object, mockAiChatEventHandler.Object);
+        var result = await handler.Handle(new AiChatStartCommand { Id = id }, CancellationToken.None);
         Assert.NotNull(result);
         Assert.True(result is AiChatStartedEvent);
         Assert.NotEqual(Guid.Empty, result.ChatId);

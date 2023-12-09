@@ -1,6 +1,6 @@
 ﻿namespace AJE.Application.Commands;
 
-public class SendChatMessageCommandHandler : IRequestHandler<SendChatMessageCommand, ChatMessageSendEvent>
+public class SendChatMessageCommandHandler : IRequestHandler<ChatMessageSendCommand, ChatMessageSendEvent>
 {
     private readonly IConnectionMultiplexer _connection;
 
@@ -8,7 +8,7 @@ public class SendChatMessageCommandHandler : IRequestHandler<SendChatMessageComm
     {
         _connection = connection;
     }
-    public async Task<ChatMessageSendEvent> Handle(SendChatMessageCommand request, CancellationToken cancellationToken)
+    public async Task<ChatMessageSendEvent> Handle(ChatMessageSendCommand request, CancellationToken cancellationToken)
     {
         var sb = _connection.GetSubscriber();
         var msg = JsonSerializer.Serialize(request);

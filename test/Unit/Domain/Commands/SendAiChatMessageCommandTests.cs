@@ -45,14 +45,14 @@ public class SendAiChatMessageCommandTests
                 NumberOfTokensContext = 1024,
             },
         });
-        var handler = new SendAiChatMessageCommandHandler(
+        var handler = new AiChatSendMessageCommandHandler(
             mockAiChatRepository.Object,
             mockAiChatEventHandler.Object,
             mockAntai.Object,
             mockAiModel.Object);
 
         // act
-        var result = await handler.Handle(new SendAiChatMessageCommand
+        var result = await handler.Handle(new AiChatSendMessageCommand
         {
             ChatId = id,
             Message = "Hello",

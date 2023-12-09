@@ -70,7 +70,7 @@ public class YleWorker : BackgroundService
                 {
                     // add
                     var article = HtmlParser.Parse(content, await CreateId(link));
-                    await _sender.Send(new AddArticleCommand { Article = article }, _stoppingToken);
+                    await _sender.Send(new ArticleAddCommand { Article = article }, _stoppingToken);
                 }
                 else
                 {
@@ -84,7 +84,7 @@ public class YleWorker : BackgroundService
 
                         // add
                         var article = HtmlParser.Parse(content, await CreateId(link));
-                        await _sender.Send(new AddArticleCommand { Article = article }, _stoppingToken);
+                        await _sender.Send(new ArticleAddCommand { Article = article }, _stoppingToken);
                     }
                     else
                     {
@@ -129,7 +129,7 @@ public class YleWorker : BackgroundService
                 var content = await Request(new Uri(link));
                 await File.WriteAllTextAsync(Path.Combine(_configuration.DumpFolder, CreateHTMLFileName(link)), content, _stoppingToken);
                 var article = HtmlParser.Parse(content, await CreateId(link));
-                await _sender.Send(new AddArticleCommand { Article = article }, _stoppingToken);
+                await _sender.Send(new ArticleAddCommand { Article = article }, _stoppingToken);
             }
         }
         catch (Exception e)

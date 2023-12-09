@@ -1,20 +1,20 @@
 ﻿namespace AJE.Domain.Commands;
 
-public record SendAiChatMessageCommand : IRequest<AiChatEvent>
+public record AiChatSendMessageCommand : IRequest<AiChatEvent>
 {
     public bool IsTest { get; init; } = false;
     public required Guid ChatId { get; init; }
     public required string Message { get; init; }
 }
 
-public class SendAiChatMessageCommandHandler : IRequestHandler<SendAiChatMessageCommand, AiChatEvent>
+public class AiChatSendMessageCommandHandler : IRequestHandler<AiChatSendMessageCommand, AiChatEvent>
 {
     private readonly IAiChatRepository _aiChatRepository;
     private readonly IAiChatEventHandler _aiChatEventHandler;
     private readonly IAntai _antai;
     private readonly IAiModel _aiModel;
 
-    public SendAiChatMessageCommandHandler(
+    public AiChatSendMessageCommandHandler(
         IAiChatRepository aiChatRepository,
         IAiChatEventHandler aiChatEventHandler,
         IAntai antai,
@@ -26,7 +26,7 @@ public class SendAiChatMessageCommandHandler : IRequestHandler<SendAiChatMessage
         _aiModel = aiModel;
     }
 
-    public async Task<AiChatEvent> Handle(SendAiChatMessageCommand command, CancellationToken cancellationToken)
+    public async Task<AiChatEvent> Handle(AiChatSendMessageCommand command, CancellationToken cancellationToken)
     {
         var chat = await _aiChatRepository.GetAsync(command.ChatId)
             ?? throw new KeyNotFoundException($"Chat with id {command.ChatId} not found");

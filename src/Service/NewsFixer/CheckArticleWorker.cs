@@ -57,7 +57,7 @@ public class CheckArticleWorker : BackgroundService
             // update article with saved IsValidated true value if it is not set
             var current = await _sender.Send(new GetArticleByIdQuery { Id = row.Id }, _cancellationToken);
             if (!current.IsValidated)
-                await _sender.Send(new UpdateArticleIsValidatedCommand { Id = row.Id, IsValidated = true }, _cancellationToken);
+                await _sender.Send(new ArticleUpdateIsValidatedCommand { Id = row.Id, IsValidated = true }, _cancellationToken);
         }
     }
 
@@ -116,7 +116,7 @@ public class CheckArticleWorker : BackgroundService
         // redis update
         if (result.IsValid)
         {
-            await _sender.Send(new UpdateArticleIsValidatedCommand { Id = article.Id, IsValidated = true }, _cancellationToken);
+            await _sender.Send(new ArticleUpdateIsValidatedCommand { Id = article.Id, IsValidated = true }, _cancellationToken);
             _logger.LogInformation("Article {} is valid", article.Id);
         }
         else
