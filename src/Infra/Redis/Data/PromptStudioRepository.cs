@@ -66,4 +66,40 @@ public class PromptStudioRepository : IPromptStudioRepository
         var chat = JsonSerializer.Deserialize<PromptStudioSession>(json);
         return chat ?? throw new DataException($"invalid value in key {redisId}");
     }
+
+    public async Task<PaginatedList<PromptStudioSessionHeader>> GetHeadersAsync(PromptStudioGetManySessionHeadersQuery query)
+    {
+        var db = _connection.GetDatabase();
+        var arguments = new string [] { _index.Name, "*", "SORTBY", "modified", "DESC", "RETURN", "3", "$.sessionId", "$.title", "$.modified", "LIMIT", query.Offset.ToString(), query.PageSize.ToString() };
+        var result = await db.ExecuteAsync("FT.SEARCH", arguments);
+        // first item is total count (integer)
+        var rows = (RedisResult[])result!;
+        var totalCount = (long)rows[0];
+        var list = new List<PromptStudioSessionHeader>();
+        // then pairs of key (bulk string) and value (multibulk)
+        for (long i = 1; i < rows.LongLength; i += 2)
+        {
+            // value is in this case defined in return statement (with labels)
+            // $.sessionId, sessionId-value, $.title, title-value, $.modified, modified-value
+            var data = (RedisResult[])rows[i + 1]!;
+            if (data.Length == 6)
+            {
+                var id = (string)data[1]! ?? throw new DataException($"invalid data value in key {rows[i]}");
+                var title = (string)data[3]! ?? throw new DataException($"invalid data value in key {rows[i]}");
+                var modified = (long?)data[5]! ?? throw new DataException($"invalid data value in key {rows[i]}");
+                list.Add(new PromptStudioSessionHeader { SessionId = Guid.Parse(id), Title = title, Modified = modified });
+            }
+            else
+            {
+                _logger.LogError("invalid data value in key:{}", rows[i]);
+                _logger.LogError("invalid data Length:{}", data.Length);
+                for (var e = 0; e < data.Length; e++)
+                    _logger.LogError("invalid data Index:{} Item:{}", e, data[e]);
+
+                throw new DataException($"invalid data value in key {rows[i]}");
+            }
+        }
+
+        return new PaginatedList<PromptStudioSessionHeader>(list, query.Offset, totalCount);
+    }
 }

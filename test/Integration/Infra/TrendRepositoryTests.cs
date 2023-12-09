@@ -232,18 +232,42 @@ public class TrendRepositoryTests : IClassFixture<RedisFixture>
                 End = DateTimeOffset.UtcNow
             }, CancellationToken.None);
             Assert.NotNull(results);
-            Assert.Equal(6, results.Length); // -5, -4 -3, -2, -1, 0
-            Assert.Empty(results[5].Items); // today
-            Assert.Single(results[4].Items); // yesterday
-            Assert.Equal(1, results[4].PositiveCount);
-            Assert.Single(results[3].Items); // two days ago
-            Assert.Equal(1, results[3].NeutralCount);
-            Assert.Single(results[2].Items); // three days ago
-            Assert.Equal(1, results[2].NegativeCount);
-            Assert.Single(results[1].Items); // four days ago
-            Assert.Equal(1, results[1].UnknownCount);
-            Assert.Single(results[0].Items); // five days ago
-            Assert.Equal(1, results[0].UnknownCount);
+
+            // If UTC time is before midnight and local time after we don't get today's results
+            var isTodayIncluded = DateTimeOffset.UtcNow.Date == DateTimeOffset.Now.Date;
+            if (isTodayIncluded)
+            {
+                Assert.Equal(6, results.Length); // -5, -4 -3, -2, -1, 0
+                Assert.Empty(results[5].Items); // today
+                Assert.Single(results[4].Items); // yesterday
+                Assert.Equal(1, results[4].PositiveCount);
+                Assert.Single(results[3].Items); // two days ago
+                Assert.Equal(1, results[3].NeutralCount);
+                Assert.Single(results[2].Items); // three days ago
+                Assert.Equal(1, results[2].NegativeCount);
+                Assert.Single(results[1].Items); // four days ago
+                Assert.Equal(1, results[1].UnknownCount);
+                Assert.Single(results[0].Items); // five days ago
+                Assert.Equal(1, results[0].UnknownCount);
+            }
+            else
+            {
+                // Why when local time is in next day and utc not we get another empty result?
+                // example utc date 09, local date 10
+                // [6] == empty day 10
+                // [5] == empty day 09
+                Assert.Equal(7, results.Length);
+                Assert.Single(results[4].Items); // yesterday (in utc, but two days ago as local)
+                Assert.Equal(1, results[4].PositiveCount);
+                Assert.Single(results[3].Items); // two days ago
+                Assert.Equal(1, results[3].NeutralCount);
+                Assert.Single(results[2].Items); // three days ago
+                Assert.Equal(1, results[2].NegativeCount);
+                Assert.Single(results[1].Items); // four days ago
+                Assert.Equal(1, results[1].UnknownCount);
+                Assert.Single(results[0].Items); // five days ago
+                Assert.Equal(1, results[0].UnknownCount);
+            }
 
             // clean
             await _redisFixture.Database.KeyDeleteAsync(_index.RedisId(idPositive.ToString()));

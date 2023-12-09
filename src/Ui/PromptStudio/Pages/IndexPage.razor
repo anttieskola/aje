@@ -1,4 +1,6 @@
 ﻿@page "/"
+@inject ISender Sender
+@inject IConnectionMultiplexer Connection
 
 <PageTitle>PromptStudio</PageTitle>
 
@@ -12,3 +14,45 @@
         </button>
     </NavLink>
 </div>
+
+@foreach (var session in _sessions.Items)
+{
+    var sessionUri = $"/session/{session.SessionId}";
+
+    <NavLink href="@sessionUri">
+        @session.SessionId
+    </NavLink>
+}
+
+@code {
+    private readonly PromptStudioIndex _index = new PromptStudioIndex();
+    private PaginatedList<PromptStudioSessionHeader> _sessions =
+         new PaginatedList<PromptStudioSessionHeader>(new List<PromptStudioSessionHeader>(), 0, 0);
+
+    private void OnMessage(RedisChannel channel, RedisValue message)
+    {
+        if (message.HasValue)
+        {
+            var msg = JsonSerializer.Deserialize<PromptStudioEvent>(message.ToString());
+            var startEvent = msg as PromptStudioStartEvent;
+            if (startEvent != null && !startEvent.IsTest)
+            {
+                InvokeAsync(Refresh);
+            }
+        }
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        var pubsub = Connection.GetSubscriber();
+        await pubsub.SubscribeAsync(_index.Channel, OnMessage);
+        await Refresh();
+    }
+
+    private async Task Refresh()
+    {
+        // using delays to present what is happening to the user
+        await Task.Delay(TimeSpan.FromMilliseconds(200));
+        _sessions = await Sender.Send(new PromptStudioGetManySessionHeadersQuery { Offset = 0, PageSize = 100 });
+        StateHasChanged();
+    }
+}

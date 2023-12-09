@@ -3,7 +3,7 @@ namespace AJE.Infra.Redis.Indexes;
 
 public class PromptStudioIndex : IRedisIndex
 {
-    public int Version => 1;
+    public int Version => 2;
 
     public string Name => "idx:promptstudio";
 
@@ -11,7 +11,9 @@ public class PromptStudioIndex : IRedisIndex
 
     public string RedisId(string itemId) => $"{Prefix}{itemId}";
 
-    public string Schema => "$.id AS id TAG";
+    public string Schema => "$.sessionId AS sessionId TAG "
+        + "$.title AS title TEXT "
+        + "$.modified AS modified NUMERIC SORTABLE";
 
     public RedisChannel Channel =>
         new("promptstudio", RedisChannel.PatternMode.Auto);

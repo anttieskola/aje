@@ -1,4 +1,5 @@
 ﻿using AJE.Domain.Entities;
+using AJE.Domain.Queries;
 using AJE.Infra.Redis.Data;
 using AJE.Infra.Redis.Indexes;
 using Microsoft.Extensions.Logging;
@@ -50,6 +51,12 @@ public class PromptStudioRepositoryTests : IClassFixture<RedisFixture>
         Assert.NotNull(session);
         Assert.Single(session.Runs);
         Assert.Equal(run, session.Runs[0]);
+
+        // act: get headers
+        var headers = await repository.GetHeadersAsync(new PromptStudioGetManySessionHeadersQuery { Offset = 0, PageSize = 1} );
+        Assert.NotNull(headers);
+        Assert.NotEmpty(headers.Items);
+
         await _redisFixture.Database.KeyDeleteAsync(_index.RedisId(_idForOk.ToString()));
     }
 }
