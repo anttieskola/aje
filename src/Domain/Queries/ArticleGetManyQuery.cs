@@ -8,6 +8,7 @@ public record ArticleGetManyQuery : PaginatedQuery, IRequest<PaginatedList<Artic
     public Polarity? Polarity { get; init; }
     public int? MaxPolarityVersion { get; init; }
     public bool? IsValidated { get; init; }
+    public int? MaxTokenCount { get; init; }
 }
 
 public class ArticleGetManyQueryHandler : IRequestHandler<ArticleGetManyQuery, PaginatedList<Article>>

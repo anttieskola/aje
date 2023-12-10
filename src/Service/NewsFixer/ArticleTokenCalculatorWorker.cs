@@ -16,17 +16,17 @@ public class ArticleTokenCalculatorWorker : BackgroundService
         _sender = sender;
     }
 
-    private CancellationToken _cancellationToken;
+    private CancellationToken _stoppingToken;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _cancellationToken = stoppingToken;
+        _stoppingToken = stoppingToken;
 
         // reload true data into redis if missing
         await ReloadTokenCountsAsync();
 
         // check articles that have not been checked yet
-        while (!_cancellationToken.IsCancellationRequested)
+        while (!_stoppingToken.IsCancellationRequested)
         {
             // load all checked article data from db
             await LoadCheckedArticles();
@@ -38,7 +38,7 @@ public class ArticleTokenCalculatorWorker : BackgroundService
             }
 
             // throttle
-            await Task.Delay(TimeSpan.FromMilliseconds(200), _cancellationToken);
+            await Task.Delay(TimeSpan.FromMilliseconds(200), _stoppingToken);
         }
     }
 
@@ -47,27 +47,27 @@ public class ArticleTokenCalculatorWorker : BackgroundService
     {
         using var scope = _scopeFactory.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<NewsFixerContext>();
-        var rows = context.Articles.AsAsyncEnumerable();
+        var rows = context.Articles.Where(x => x.TokenCount > 0).AsAsyncEnumerable();
 
         await foreach (var row in rows)
         {
-            if (_cancellationToken.IsCancellationRequested)
+            if (_stoppingToken.IsCancellationRequested)
                 break;
 
             // update article with saved IsValidated true value if it is not set
-            var current = await _sender.Send(new ArticleGetByIdQuery { Id = row.Id }, _cancellationToken);
-            if (!current.IsValidated)
-                await _sender.Send(new ArticleUpdateIsValidatedCommand { Id = row.Id, IsValidated = true }, _cancellationToken);
+            var current = await _sender.Send(new ArticleGetByIdQuery { Id = row.Id }, _stoppingToken);
+            if (current.TokenCount != row.TokenCount)
+                await _sender.Send(new ArticleUpdateTokenCountCommand { Id = row.Id, TokenCount = row.TokenCount }, _stoppingToken);
         }
     }
 
-    private List<Guid> _checkedArticles = new();
+    private List<Guid> _checkedArticles = [];
 
     private async Task LoadCheckedArticles()
     {
         using var scope = _scopeFactory.CreateScope();
         using var context = scope.ServiceProvider.GetRequiredService<NewsFixerContext>();
-        _checkedArticles = await context.Articles.Select(x => x.Id).ToListAsync(_cancellationToken);
+        _checkedArticles = await context.Articles.Where(x => x.TokenCount > 0).Select(x => x.Id).ToListAsync(_stoppingToken);
     }
 
     private async Task<Article?> FindArticleToCheck()
@@ -80,9 +80,9 @@ public class ArticleTokenCalculatorWorker : BackgroundService
                 Category = ArticleCategory.NEWS,
                 Offset = offset,
                 PageSize = 1,
-                IsValidated = false,
+                MaxTokenCount = 0,
             };
-            var result = await _sender.Send(query, _cancellationToken);
+            var result = await _sender.Send(query, _stoppingToken);
 
             // end of articles
             if (result.Items.Count == 0)
@@ -100,19 +100,27 @@ public class ArticleTokenCalculatorWorker : BackgroundService
     private async Task ArticleCountTokensAsync(Article article)
     {
         // ask AI
-        var tokenCount = await _sender.Send(new ArticleGetTokenCountQuery { Article = article }, _cancellationToken);
+        var tokenCount = await _sender.Send(new ArticleGetTokenCountQuery { Article = article }, _stoppingToken);
 
         // db update
         using var scope = _scopeFactory.CreateScope();
         using var context = scope.ServiceProvider.GetRequiredService<NewsFixerContext>();
-        await context.Articles.AddAsync(new ArticleRow
+        var current = context.Articles.Find(article.Id);
+        if (current == null)
         {
-            Id = article.Id,
-            TokenCount = tokenCount,
-            IsValid = false,
-        }, _cancellationToken);
-        await context.SaveChangesAsync(_cancellationToken);
-        await _sender.Send(new ArticleUpdateTokenCountCommand { Id = article.Id, TokenCount = tokenCount }, _cancellationToken);
+            await context.Articles.AddAsync(new ArticleRow
+            {
+                Id = article.Id,
+                TokenCount = tokenCount,
+                IsValid = false,
+            }, _stoppingToken);
+        }
+        else
+        {
+            current.TokenCount = tokenCount;
+        }
+        await context.SaveChangesAsync(_stoppingToken);
+        await _sender.Send(new ArticleUpdateTokenCountCommand { Id = article.Id, TokenCount = tokenCount }, _stoppingToken);
         _logger.LogInformation("Article {} updated with TokenCount: {}", article.Id, tokenCount);
     }
 }

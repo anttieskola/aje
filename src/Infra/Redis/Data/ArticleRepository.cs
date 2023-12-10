@@ -98,6 +98,8 @@ public class ArticleRepository : IArticleRepository
             builder.Conditions.Add(new QueryCondition { Expression = $"@polarityVersion:[-inf {query.MaxPolarityVersion}]" });
         if (query.IsValidated != null)
             builder.Conditions.Add(new QueryCondition { Expression = $"@isValidated:{{{query.IsValidated}}}" });
+        if (query.MaxTokenCount != null)
+            builder.Conditions.Add(new QueryCondition { Expression = $"@tokenCount:[-inf {query.MaxTokenCount}]" });
         var queryString = builder.Build();
 
         var arguments = new string[] { _index.Name, queryString, "SORTBY", "modified", "DESC", "LIMIT", query.Offset.ToString(), query.PageSize.ToString() };

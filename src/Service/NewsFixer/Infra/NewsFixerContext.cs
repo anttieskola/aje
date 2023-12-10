@@ -10,11 +10,15 @@ public class ArticleRow
 
     [JsonPropertyName("tokenCount")]
     [Column("tokencount")]
-    public int TokenCount {get; set;}
+    public int TokenCount { get; set; } = 0;
+
+    [JsonPropertyName("wordCount")]
+    [Column("wordcount")]
+    public int WordCount { get; set; } = 0;
 
     [JsonPropertyName("isValid")]
-    [Column("isValid")]
-    public bool IsValid { get; set; }
+    [Column("isvalid")]
+    public bool IsValid { get; set; } = false;
 }
 
 public class NewsFixerContext : DbContext
