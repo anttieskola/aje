@@ -21,7 +21,7 @@ public class PromptStudioUpdateNumberOfTokensToPredictCommandHandler : IRequestH
 
     public async Task<PromptStudioNumberOfTokensToPredictUpdatedEvent> Handle(PromptStudioUpdateNumberOfTokensToPredictCommand command, CancellationToken cancellationToken)
     {
-        await _promptStudioRepository.SaveNumberOfTokensEvaluatedAsync(command.SessionId, command.NumberOfTokensToPredict);
+        await _promptStudioRepository.SaveNumberOfTokensToPredictAsync(command.SessionId, command.NumberOfTokensToPredict);
         var e = new PromptStudioNumberOfTokensToPredictUpdatedEvent
         {
             SessionId = command.SessionId,

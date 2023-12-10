@@ -1,4 +1,5 @@
 ﻿@page "/session/{SessionId:guid}"
+@inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager
 @inject ISender Sender
 @inject IConnectionMultiplexer Connection
@@ -16,15 +17,15 @@ else
     <PageTitle>Session @_session.Title</PageTitle>
 
     <div class="xl:flex">
-        <div class="xl:mt-4 xl:ml-4">
-            <div class="xl:w-5/6 xl:flex">
+        <div class="xl:w-1/2 xl:mt-4 xl:ml-4">
+            <div class="xl:w-full xl:flex">
                 <label for="title" class="xl:w-48">Title</label>
                 <input id="title" class="xl:ml-2" type="text" @bind="_title" />
                 <button class="submitButton xl:w-8" @onclick="SaveTitle">
                     <Icon Name="save2" Padding="2" Size="14" />
                 </button>
             </div>
-            <div class="xl:w-5/6 xl:flex xl:mt-2">
+            <div class="xl:w-full xl:flex xl:mt-2">
                 <label for="entityName" class="xl:w-48">EntityName</label>
                 <input id="entityName" class="xl:ml-2" type="text" @bind="_entityName" />
                 <button class="submitButton xl:w-8" @onclick="SaveEntityName">
@@ -32,7 +33,7 @@ else
                 </button>
             </div>
 
-            <div class="xl:w-5/6 xl:flex xl:mt-2">
+            <div class="xl:w-full xl:flex xl:mt-2">
                 <label for="temperature" class="xl:w-48">Temperature</label>
                 <input id="temperature" class="xl:ml-2" type="number" step="0.1" @bind="_temperature" />
                 <button class="submitButton xl:w-8" @onclick="SaveTemperature">
@@ -40,27 +41,27 @@ else
                 </button>
             </div>
 
-            <div class="xl:w-5/6 xl:flex xl:mt-2">
+            <div class="xl:w-full xl:flex xl:mt-2">
                 <label for="entityName" class="xl:w-48"># Tokens to predict</label>
-                <input id="entityName" class="xl:ml-2" type="number" step="1" min="1" max="8096" @bind="_numberOfTokensToPredict" />
+                <input id="entityName" class="xl:ml-2" type="number" step="1" min="1" max="32768" @bind="_numberOfTokensToPredict" />
                 <button class="submitButton xl:w-8" @onclick="SaveNumberOfTokensToPredict">
                     <Icon Name="save2" Padding="2" Size="14" />
                 </button>
             </div>
 
-            <div class=" xl:w-5/6 xl:mt-2">
+            <div class="xl:w-full xl:mt-2">
                 <div class="container">
                     <label for="systemInstructions">System instructions</label>
                 </div>
                 <div class="container">
-                    <textarea id="systemInstructions" cols="80" rows="8" @bind="_systemInstructions"></textarea>
+                    <textarea id="systemInstructions" cols="@_cols" rows="@_rows" @bind="_systemInstructions"></textarea>
                 </div>
-                <button class="submitButton xl:w-8" @onclick="SaveSystemInstructions">
-                    <Icon Name="save2" Padding="2" Size="14" />
+                <button class="submitButton xl:w-1/2" @onclick="SaveSystemInstructions">
+                    <Icon Name="save2" Padding="2" Size="18" />
                 </button>
             </div>
 
-            <div class="xl:w-5/6 xl:mt-2">
+            <div class="xl:w-full xl:mt-2">
                 <div class="container">
                     <label for="context">Context</label>
                 </div>
@@ -78,31 +79,38 @@ else
                     </button>
                 </div>
                 <div class="container xl:mt-2">
-                    <textarea id="context" cols="80" rows="8" @bind="_context"></textarea>
+                    <textarea id="context" cols="@_cols" rows="@_rows" @bind="_context"></textarea>
                 </div>
-                <button class="submitButton xl:w-8" @onclick="SaveContext">
-                    <Icon Name="save2" Padding="2" Size="14" />
+                <button class="submitButton xl:w-1/2" @onclick="SaveContext">
+                    <Icon Name="save2" Padding="2" Size="18" />
                 </button>
             </div>
 
-            <div class="xl:w-5/6 xl:mt-2">
-                <button class="xl:w-32 xl:h-9 submitButton" @onclick="Run">Create run</button>
+            <div class="xl:w-full xl:mt-2">
+                @if (_isRunOngoing)
+                {
+                    <button class="xl:w-32 xl:h-9 submitButton" @onclick="Run" disabled>Create run</button>
+                }
+                else
+                {
+                    <button class="xl:w-32 xl:h-9 submitButton" @onclick="Run">Create run</button>
+                }
             </div>
 
             @if (_errors.Count > 0)
             {
-                <div class="xl:w-5/6 xl:mt-2">
+                <div class="xl:w-1/2 xl:mt-2">
                     @foreach (var error in _errors)
                     {
                         <p class="text-red-600">@error</p>
                     }
                 </div>
             }
-            <div class="xl:w-5/6 xl:mt-2">
+            <div class="xl:w-1/2 xl:mt-2">
                 <div class="container">
                     @if(_activeRunId != Guid.Empty)
                     {
-                        <label for="context">Output of @_activeRunId</label>
+                        <label for="context">Output of @_activeRunId @(_isRunOngoing ? "...running..." :  "")</label>
                     }
                     else
                     {
@@ -110,12 +118,12 @@ else
                     }
                 </div>
                 <div class="container">
-                    <textarea id="output" cols="80" rows="8" @bind="_output" disabled></textarea>
+                    <textarea id="output" cols="@_cols" rows="@_rows" @bind="_output" disabled></textarea>
                 </div>
             </div>
         </div>
 
-        <div class="xl">
+        <div class="xl:w-1/2">
             <RunListView SessionId="@SessionId" />
         </div>
     </div>
@@ -128,7 +136,9 @@ else
     private readonly PromptStudioIndex _index = new PromptStudioIndex();
 
     private PromptStudioSession? _session;
-
+    private bool _isRunOngoing = false;
+    private int _cols = 80;
+    private int _rows = 8;
     private string _title = string.Empty;
     private string _entityName = "assistant";
     private double _temperature = 0.8;
@@ -140,10 +150,22 @@ else
     private string _output = string.Empty;
     private List<string> _errors = new List<string>();
     private Guid _activeRunId = Guid.Empty;
+
     protected override async Task OnInitializedAsync()
     {
+        // sub to msg's
         var pubsub = Connection.GetSubscriber();
         await pubsub.SubscribeAsync(_index.Channel, OnMessage);
+
+        // adjust textareas according to window size
+        var windowWidth = await JSRuntime.InvokeAsync<int>("eval", "window.innerWidth");
+        _cols = (int)Math.Round(windowWidth / 22.0);
+        _cols = _cols < 80 ? 80 : _cols; // adjust if making mobile friendly version
+        var windowHeight = await JSRuntime.InvokeAsync<int>("eval", "window.innerHeight");
+        _rows = (int)Math.Round(windowHeight / 120.0);
+        _rows = _rows < 8 ? 8 : _rows; // adjust if making mobile friendly version
+
+        // refresh (load session data)
         await Refresh();
     }
 
@@ -272,6 +294,7 @@ else
 
         // reset and pick new run id
         _activeRunId = Guid.NewGuid();
+        _isRunOngoing = true;
         _output = string.Empty;
         StateHasChanged();
 
@@ -286,6 +309,9 @@ else
             Temperature = _temperature,
             NumberOfTokensToPredict = _numberOfTokensToPredict
         }, CancellationToken.None);
+
+        _isRunOngoing = false;
+        StateHasChanged();
     }
 
     private async Task FetchArticle()

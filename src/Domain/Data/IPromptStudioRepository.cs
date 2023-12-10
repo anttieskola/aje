@@ -8,7 +8,7 @@ public interface IPromptStudioRepository
     Task<PaginatedList<PromptStudioSessionHeader>> GetHeadersAsync(PromptStudioGetManySessionHeadersQuery query);
     Task SaveTitleAsync(Guid sessionId, string title);
     Task SaveTemperatureAsync(Guid sessionId, double temperature);
-    Task SaveNumberOfTokensEvaluatedAsync(Guid sessionId, int numberOfTokensEvaluated);
+    Task SaveNumberOfTokensToPredictAsync(Guid sessionId, int numberOfTokensEvaluated);
     Task SaveEntityNameAsync(Guid sessionId, string entityName);
     Task SaveSystemInstructionsAsync(Guid sessionId, EquatableList<string> systemInstructions);
     Task SaveContextAsync(Guid sessionId, string context);

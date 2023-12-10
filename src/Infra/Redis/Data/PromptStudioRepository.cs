@@ -128,14 +128,14 @@ public class PromptStudioRepository : IPromptStudioRepository
         await UpdateModified(sessionId);
     }
 
-    public async Task SaveNumberOfTokensEvaluatedAsync(Guid sessionId, int numberOfTokensEvaluated)
+    public async Task SaveNumberOfTokensToPredictAsync(Guid sessionId, int numberOfTokensToPredict)
     {
         var db = _connection.GetDatabase();
         var redisId = _index.RedisId(sessionId.ToString());
-        var numberOfTokensEvaluatedJson = JsonSerializer.Serialize(numberOfTokensEvaluated);
-        var setResult = await db.ExecuteAsync("JSON.SET", redisId, "$.numberOfTokensEvaluated", numberOfTokensEvaluatedJson);
+        var numberOfTokensToPredictJson = JsonSerializer.Serialize(numberOfTokensToPredict);
+        var setResult = await db.ExecuteAsync("JSON.SET", redisId, "$.numberOfTokensToPredict", numberOfTokensToPredictJson);
         if (setResult.ToString() != "OK")
-            throw new DataException($"failed to update PromptStudio session numberOfTokensEvaluated with id:{redisId}");
+            throw new DataException($"failed to update PromptStudio session numberOfTokensToPredict with id:{redisId}");
 
         await UpdateModified(sessionId);
     }

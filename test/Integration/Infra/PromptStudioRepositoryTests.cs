@@ -73,7 +73,7 @@ public class PromptStudioRepositoryTests : IClassFixture<RedisFixture>
         Assert.Equal(0.5, session.Temperature);
 
         // act: update number of tokens evaluated
-        await repository.SaveNumberOfTokensEvaluatedAsync(_idForOk, 1024);
+        await repository.SaveNumberOfTokensToPredictAsync(_idForOk, 1024);
         session = await repository.GetAsync(_idForOk);
         Assert.NotNull(session);
         Assert.True(session.Modified > currentTicks);

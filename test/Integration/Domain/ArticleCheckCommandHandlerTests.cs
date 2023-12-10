@@ -98,6 +98,8 @@ public class ArticleCheckCommandHandlerTests : IClassFixture<HttpClientFixture>
         Polarity = Polarity.Positive,
         PolarityVersion = 1
     };
+
+    // TODO: Broken as the system instructions need to be fixed
     [Fact]
     public async Task No01()
     {
