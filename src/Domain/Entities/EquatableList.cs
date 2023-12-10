@@ -6,7 +6,16 @@
 /// <typeparam name="T"></typeparam>
 public sealed class EquatableList<T> : List<T>, IEquatable<EquatableList<T>>
 {
-    public static EquatableList<T> Empty => new();
+    public EquatableList()
+    {
+    }
+
+    public EquatableList(IEnumerable<T> collection)
+        : base(collection)
+    {
+    }
+
+    public static EquatableList<T> Empty => [];
 
     public bool Equals(EquatableList<T>? other)
     {

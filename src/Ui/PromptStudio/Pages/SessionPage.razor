@@ -13,23 +13,39 @@
 }
 else
 {
-    <PageTitle>Session @_session.SessionId</PageTitle>
+    <PageTitle>Session @_session.Title</PageTitle>
 
     <div class="xl:flex">
         <div class="xl:mt-4 xl:ml-4">
             <div class="xl:w-5/6 xl:flex">
+                <label for="title" class="xl:w-48">Title</label>
+                <input id="title" class="xl:ml-2" type="text" @bind="_title" />
+                <button class="submitButton xl:w-8" @onclick="SaveTitle">
+                    <Icon Name="save2" Padding="2" Size="14" />
+                </button>
+            </div>
+            <div class="xl:w-5/6 xl:flex xl:mt-2">
                 <label for="entityName" class="xl:w-48">EntityName</label>
                 <input id="entityName" class="xl:ml-2" type="text" @bind="_entityName" />
+                <button class="submitButton xl:w-8" @onclick="SaveEntityName">
+                    <Icon Name="save2" Padding="2" Size="14" />
+                </button>
             </div>
 
-            <div class="xl:w-5/6 xl:flex">
+            <div class="xl:w-5/6 xl:flex xl:mt-2">
                 <label for="temperature" class="xl:w-48">Temperature</label>
                 <input id="temperature" class="xl:ml-2" type="number" step="0.1" @bind="_temperature" />
+                <button class="submitButton xl:w-8" @onclick="SaveTemperature">
+                    <Icon Name="save2" Padding="2" Size="14" />
+                </button>
             </div>
 
-            <div class="xl:w-5/6 xl:flex">
-                <label for="entityName" class="xl:w-48">Max tokens</label>
+            <div class="xl:w-5/6 xl:flex xl:mt-2">
+                <label for="entityName" class="xl:w-48"># Tokens to predict</label>
                 <input id="entityName" class="xl:ml-2" type="number" step="1" min="1" max="8096" @bind="_numberOfTokensToPredict" />
+                <button class="submitButton xl:w-8" @onclick="SaveNumberOfTokensToPredict">
+                    <Icon Name="save2" Padding="2" Size="14" />
+                </button>
             </div>
 
             <div class=" xl:w-5/6 xl:mt-2">
@@ -39,6 +55,9 @@ else
                 <div class="container">
                     <textarea id="systemInstructions" cols="80" rows="8" @bind="_systemInstructions"></textarea>
                 </div>
+                <button class="submitButton xl:w-8" @onclick="SaveSystemInstructions">
+                    <Icon Name="save2" Padding="2" Size="14" />
+                </button>
             </div>
 
             <div class="xl:w-5/6 xl:mt-2">
@@ -61,10 +80,13 @@ else
                 <div class="container xl:mt-2">
                     <textarea id="context" cols="80" rows="8" @bind="_context"></textarea>
                 </div>
+                <button class="submitButton xl:w-8" @onclick="SaveContext">
+                    <Icon Name="save2" Padding="2" Size="14" />
+                </button>
             </div>
 
             <div class="xl:w-5/6 xl:mt-2">
-                <button class="xl:w-32 xl:h-9 submitButton" @onclick="Run">Run</button>
+                <button class="xl:w-32 xl:h-9 submitButton" @onclick="Run">Create run</button>
             </div>
 
             @if (_errors.Count > 0)
@@ -107,6 +129,7 @@ else
 
     private PromptStudioSession? _session;
 
+    private string _title = string.Empty;
     private string _entityName = "assistant";
     private double _temperature = 0.8;
     private int _numberOfTokensToPredict = 2048;
@@ -130,12 +153,90 @@ else
         {
             var msg = JsonSerializer.Deserialize<PromptStudioEvent>(message.ToString());
             var tokenEvent = msg as PromptStudioRunTokenEvent;
+            // tokens on new run
             if (tokenEvent != null && tokenEvent.RunId == _activeRunId)
             {
                 _output += tokenEvent.Token;
                 InvokeAsync(StateHasChanged);
             }
+            // title
+            var titleEvent = msg as PromptStudioTitleUpdatedEvent;
+            if (titleEvent != null && titleEvent.SessionId == SessionId && _title != titleEvent.Title)
+            {
+                _title = titleEvent.Title;
+                InvokeAsync(StateHasChanged);
+            }
+            // temperature
+            var temperatureEvent = msg as PromptStudioTemperatureUpdatedEvent;
+            if (temperatureEvent != null && temperatureEvent.SessionId == SessionId && _temperature != temperatureEvent.Temperature)
+            {
+                _temperature = temperatureEvent.Temperature;
+                InvokeAsync(StateHasChanged);
+            }
+            // number of tokens
+            var numberOfTokensEvent = msg as PromptStudioNumberOfTokensToPredictUpdatedEvent;
+            if (numberOfTokensEvent != null && numberOfTokensEvent.SessionId == SessionId && _numberOfTokensToPredict != numberOfTokensEvent.NumberOfTokensToPredict)
+            {
+                _numberOfTokensToPredict = numberOfTokensEvent.NumberOfTokensToPredict;
+                InvokeAsync(StateHasChanged);
+            }
+            // entity name
+            var entityNameEvent = msg as PromptStudioEntityNameUpdatedEvent;
+            if (entityNameEvent != null && entityNameEvent.SessionId == SessionId && _entityName != entityNameEvent.EntityName)
+            {
+                _entityName = entityNameEvent.EntityName;
+                InvokeAsync(StateHasChanged);
+            }
+            // system instructions
+            var systemInstructionsEvent = msg as PropmtStudioSystemInstructionsUpdatedEvent;
+            if (systemInstructionsEvent != null && systemInstructionsEvent.SessionId == SessionId)
+            {
+                var eList = new EquatableList<string>(_systemInstructions.Split("\n").ToArray());
+                if (eList != systemInstructionsEvent.SystemInstructions)
+                {
+                    _systemInstructions = string.Join("\n", systemInstructionsEvent.SystemInstructions);
+                    InvokeAsync(StateHasChanged);
+                }
+            }
+            // context
+            var contextEvent = msg as PromptStudioContextUpdatedEvent;
+            if (contextEvent != null && contextEvent.SessionId == SessionId && _context != contextEvent.Context)
+            {
+                _context = contextEvent.Context;
+                InvokeAsync(StateHasChanged);
+            }
         }
+    }
+
+    private async Task SaveTitle()
+    {
+        await Sender.Send(new PromptStudioUpdateTitleCommand { SessionId = SessionId, Title = _title }, CancellationToken.None);
+    }
+
+    private async Task SaveTemperature()
+    {
+        await Sender.Send(new PromptStudioUpdateTemperatureCommand { SessionId = SessionId, Temperature = _temperature }, CancellationToken.None);
+    }
+
+    private async Task SaveNumberOfTokensToPredict()
+    {
+        await Sender.Send(new PromptStudioUpdateNumberOfTokensToPredictCommand { SessionId = SessionId, NumberOfTokensToPredict = _numberOfTokensToPredict }, CancellationToken.None);
+    }
+
+    private async Task SaveEntityName()
+    {
+        await Sender.Send(new PromptStudioUpdateEntityNameCommand { SessionId = SessionId, EntityName = _entityName }, CancellationToken.None);
+    }
+
+    private async Task SaveSystemInstructions()
+    {
+        var eList = new EquatableList<string>(_systemInstructions.Split("\n").ToArray());
+        await Sender.Send(new PromptStudioUpdateSystemInstructionsCommand { SessionId = SessionId, SystemInstructions = eList }, CancellationToken.None);
+    }
+
+    private async Task SaveContext()
+    {
+        await Sender.Send(new PromptStudioUpdateContextCommand { SessionId = SessionId, Context = _context }, CancellationToken.None);
     }
 
     private async Task Refresh()
@@ -143,6 +244,12 @@ else
         // using delays to present what is happening to the user
         await Task.Delay(TimeSpan.FromMilliseconds(200));
         _session = await Sender.Send(new PromptStudioGetSessionQuery { SessionId = SessionId });
+        _title = _session.Title;
+        _temperature = _session.Temperature;
+        _numberOfTokensToPredict = _session.NumberOfTokensToPredict;
+        _entityName = _session.EntityName;
+        _systemInstructions = string.Join("\n", _session.SystemInstructions);
+        _context = _session.Context;
         StateHasChanged();
     }
 

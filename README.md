@@ -105,6 +105,7 @@ List of current components and used software
 - Ui.NewsWA is just a test to write same app using WebAssembly but this will need WebAPI project too
 	- Having issues that can't debug it properly and not sure are lifecycle methods triggering
 - [Ui.Antai](./doc/antai.md) UI for chat with me feature
+- [Ui.PromptStudio](./doc/UiPromptstudio.md) UI for creating and testing AI system instructions
 - Utilities (under Tests currently)
 	- MChatter: Chat application with large language model
 	- Populator: Utility to fill Redis with bogus data
@@ -129,6 +130,8 @@ List of current components and used software
 ## Deployment locations
 - Ui.Public published on server into path `/usr/local/bin/AJE.Ui.Public/`
 - Ui.News published on server into path `/usr/local/bin/AJE.Ui.News/`
+- Ui.Antai published on server into path `/usr/local/bin/AJE.Ui.Antai/`
+- Ui.PromptStudio published on server into path `/usr/local/bin/AJE.Ui.PromptStudio/`
 - News published on server into path `/usr/local/bin/AJE.Service.NewsDownloader/`
 - NewsAnalyzer published on server into path `/usr/local/bin/AJE.Service.NewsAnalyzer/`
 - Llama.cpp is installed manually on server into path `/usr/local/bin/Llama/`

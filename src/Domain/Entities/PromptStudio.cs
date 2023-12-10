@@ -32,8 +32,8 @@ public record PromptStudioSession
     [JsonPropertyName("temperature")]
     public double Temperature { get; init; } = 0.8;
 
-    [JsonPropertyName("numberOfTokensEvaluated")]
-    public int NumberOfTokensEvaluated { get; init; } = 2048;
+    [JsonPropertyName("numberOfTokensToPredict")]
+    public int NumberOfTokensToPredict { get; init; } = 2048;
 
     [JsonPropertyName("entityName")]
     public string EntityName { get; init; } = string.Empty;

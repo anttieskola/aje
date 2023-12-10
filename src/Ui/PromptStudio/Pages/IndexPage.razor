@@ -4,25 +4,38 @@
 
 <PageTitle>PromptStudio</PageTitle>
 
+<div class="xl:ml-8 xl:mt-8">
+    <div class="">
+        <h2>Existing sessions</h2>
+    </div>
+    <ol>
+        @foreach (var session in _sessions.Items)
+        {
+            var sessionUri = $"/session/{session.SessionId}";
+            <NavLink href="@sessionUri">
+                @if (string.IsNullOrEmpty(session.Title))
+                {
+                <li>@(new DateTimeOffset(new DateTime(session.Modified, DateTimeKind.Utc))) -  @session.SessionId</li>
+                }
+                else
+                {
+                    <li>@session.Title - @(new DateTimeOffset(new DateTime(session.Modified, DateTimeKind.Utc))) -  @session.SessionId</li>
+                }
+            </NavLink>
+        }
+    </ol>
+</div>
+
 <div class="container m-auto mt-8 flex justify-center items-center">
     <NavLink href="/start" aria-label="chat">
         <button class="menuButton p-2" aria-label="home">
             <div class="flex">
                 <Icon Name="database-add" Size="48" />
-                <span class="ml-2 mt-2">Start new session</span>
+                <span class="ml-2 mt-2">Create new session</span>
             </div>
         </button>
     </NavLink>
 </div>
-
-@foreach (var session in _sessions.Items)
-{
-    var sessionUri = $"/session/{session.SessionId}";
-
-    <NavLink href="@sessionUri">
-        @session.SessionId
-    </NavLink>
-}
 
 @code {
     private readonly PromptStudioIndex _index = new PromptStudioIndex();
@@ -36,6 +49,11 @@
             var msg = JsonSerializer.Deserialize<PromptStudioEvent>(message.ToString());
             var startEvent = msg as PromptStudioStartEvent;
             if (startEvent != null && !startEvent.IsTest)
+            {
+                InvokeAsync(Refresh);
+            }
+            var titleEvent = msg as PromptStudioTitleUpdatedEvent;
+            if (titleEvent != null && !titleEvent.IsTest)
             {
                 InvokeAsync(Refresh);
             }

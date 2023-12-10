@@ -5,7 +5,7 @@
 [JsonDerivedType(typeof(PromptStudioRunCompletedEvent), "run")]
 [JsonDerivedType(typeof(PromptStudioTitleUpdatedEvent), "titleUpdate")]
 [JsonDerivedType(typeof(PromptStudioTemperatureUpdatedEvent), "temperatureUpdate")]
-[JsonDerivedType(typeof(PromptStudioNumberOfTokensEvaluatedUpdatedEvent), "numberOfTokensEvaluatedUpdate")]
+[JsonDerivedType(typeof(PromptStudioNumberOfTokensToPredictUpdatedEvent), "numberOfTokensToPredictUpdate")]
 [JsonDerivedType(typeof(PromptStudioEntityNameUpdatedEvent), "entityNameUpdate")]
 [JsonDerivedType(typeof(PropmtStudioSystemInstructionsUpdatedEvent), "systemInstructionsUpdate")]
 [JsonDerivedType(typeof(PromptStudioContextUpdatedEvent), "contextUpdate")]
@@ -48,10 +48,10 @@ public record PromptStudioTemperatureUpdatedEvent : PromptStudioEvent
     public required double Temperature { get; init; }
 }
 
-public record PromptStudioNumberOfTokensEvaluatedUpdatedEvent : PromptStudioEvent
+public record PromptStudioNumberOfTokensToPredictUpdatedEvent : PromptStudioEvent
 {
-    [JsonPropertyName("numberOfTokensEvaluated")]
-    public required int NumberOfTokensEvaluated { get; init; }
+    [JsonPropertyName("numberOfTokensToPredict")]
+    public required int NumberOfTokensToPredict { get; init; }
 }
 
 public record PromptStudioEntityNameUpdatedEvent : PromptStudioEvent

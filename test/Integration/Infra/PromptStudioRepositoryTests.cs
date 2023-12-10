@@ -78,7 +78,7 @@ public class PromptStudioRepositoryTests : IClassFixture<RedisFixture>
         Assert.NotNull(session);
         Assert.True(session.Modified > currentTicks);
         currentTicks = session.Modified;
-        Assert.Equal(1024, session.NumberOfTokensEvaluated);
+        Assert.Equal(1024, session.NumberOfTokensToPredict);
 
         // act: update entity name
         await repository.SaveEntityNameAsync(_idForOk, "test entity name");

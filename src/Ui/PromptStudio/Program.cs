@@ -1,8 +1,8 @@
 var builder = WebApplication.CreateBuilder(args);
 if (builder.Environment.IsDevelopment())
-    builder.WebHost.UseUrls("http://localhost:5503");
+    builder.WebHost.UseUrls("http://localhost:5506");
 else
-    builder.WebHost.UseUrls("http://*:5003");
+    builder.WebHost.UseUrls("http://*:5006");
 
 var config = new ConfigurationBuilder()
     .SetBasePath(Directory.GetCurrentDirectory())

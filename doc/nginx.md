@@ -6,6 +6,7 @@
 127.0.0.1       www.zeus.com
 127.0.0.1       news.zeus.com
 127.0.0.1       antai.zeus.com
+127.0.0.1       promptstudio.zeus.com
 192.168.1.20    zeus
 
 # The following lines are desirable for IPv6 capable hosts
@@ -56,6 +57,22 @@ server {
         location / {
                 # proxy to asp.net app
                 proxy_pass http://127.0.0.1:5003;
+                proxy_http_version 1.1;
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection "Upgrade";
+                proxy_set_header Host $host;
+                proxy_cache_bypass $http_upgrade;
+        }
+}
+
+server {
+        listen 80;
+        server_name promptstudio.zeus.com;
+        root /var/www/promptstudio;
+        index index.html;
+        location / {
+                # proxy to asp.net app
+                proxy_pass http://127.0.0.1:5006;
                 proxy_http_version 1.1;
                 proxy_set_header Upgrade $http_upgrade;
                 proxy_set_header Connection "Upgrade";
