@@ -3,6 +3,12 @@
 [JsonDerivedType(typeof(PromptStudioStartEvent), "start")]
 [JsonDerivedType(typeof(PromptStudioRunTokenEvent), "token")]
 [JsonDerivedType(typeof(PromptStudioRunCompletedEvent), "run")]
+[JsonDerivedType(typeof(PromptStudioTitleUpdatedEvent), "titleUpdate")]
+[JsonDerivedType(typeof(PromptStudioTemperatureUpdatedEvent), "temperatureUpdate")]
+[JsonDerivedType(typeof(PromptStudioNumberOfTokensEvaluatedUpdatedEvent), "numberOfTokensEvaluatedUpdate")]
+[JsonDerivedType(typeof(PromptStudioEntityNameUpdatedEvent), "entityNameUpdate")]
+[JsonDerivedType(typeof(PropmtStudioSystemInstructionsUpdatedEvent), "systemInstructionsUpdate")]
+[JsonDerivedType(typeof(PromptStudioContextUpdatedEvent), "contextUpdate")]
 public record PromptStudioEvent
 {
     [JsonPropertyName("isTest")]
@@ -28,6 +34,42 @@ public record PromptStudioRunTokenEvent : PromptStudioEvent
 
     [JsonPropertyName("token")]
     public required string Token { get; init; }
+}
+
+public record PromptStudioTitleUpdatedEvent : PromptStudioEvent
+{
+    [JsonPropertyName("title")]
+    public required string Title { get; init; }
+}
+
+public record PromptStudioTemperatureUpdatedEvent : PromptStudioEvent
+{
+    [JsonPropertyName("temperature")]
+    public required double Temperature { get; init; }
+}
+
+public record PromptStudioNumberOfTokensEvaluatedUpdatedEvent : PromptStudioEvent
+{
+    [JsonPropertyName("numberOfTokensEvaluated")]
+    public required int NumberOfTokensEvaluated { get; init; }
+}
+
+public record PromptStudioEntityNameUpdatedEvent : PromptStudioEvent
+{
+    [JsonPropertyName("entityName")]
+    public required string EntityName { get; init; }
+}
+
+public record PropmtStudioSystemInstructionsUpdatedEvent : PromptStudioEvent
+{
+    [JsonPropertyName("systemInstructions")]
+    public required EquatableList<string> SystemInstructions { get; init; }
+}
+
+public record PromptStudioContextUpdatedEvent : PromptStudioEvent
+{
+    [JsonPropertyName("context")]
+    public required string Context { get; init; }
 }
 
 public record PromptStudioRunCompletedEvent : PromptStudioEvent

@@ -28,6 +28,7 @@ public class PromptStudioRepository : IPromptStudioRepository
         if (setResult.ToString() != "OK")
             throw new DataException($"failed to add PromptStudio session with id:{redisId}");
         _logger.LogTrace("PromptStudioSession added with id:{}", options.SessionId);
+        await UpdateModified(options.SessionId);
         return session;
     }
 
@@ -49,6 +50,7 @@ public class PromptStudioRepository : IPromptStudioRepository
                 throw new DataException($"failed append run entry to PromptStudioSession with id:{redisId}");
         }
         _logger.LogTrace("Appended run entry to PromptStudioSession with id:{}, runId:{}", sessionId, run.RunId);
+        await UpdateModified(sessionId);
         return await GetAsync(sessionId);
     }
 
@@ -99,7 +101,88 @@ public class PromptStudioRepository : IPromptStudioRepository
                 throw new DataException($"invalid data value in key {rows[i]}");
             }
         }
-
         return new PaginatedList<PromptStudioSessionHeader>(list, query.Offset, totalCount);
     }
+
+    public async Task SaveTitleAsync(Guid sessionId, string title)
+    {
+        var db = _connection.GetDatabase();
+        var redisId = _index.RedisId(sessionId.ToString());
+        var titleJson = JsonSerializer.Serialize(title);
+        var setResult = await db.ExecuteAsync("JSON.SET", redisId, "$.title", titleJson);
+        if (setResult.ToString() != "OK")
+            throw new DataException($"failed to update PromptStudio session title with id:{redisId}");
+
+        await UpdateModified(sessionId);
+    }
+
+    public async Task SaveTemperatureAsync(Guid sessionId, double temperature)
+    {
+        var db = _connection.GetDatabase();
+        var redisId = _index.RedisId(sessionId.ToString());
+        var temperatureJson = JsonSerializer.Serialize(temperature);
+        var setResult = await db.ExecuteAsync("JSON.SET", redisId, "$.temperature", temperatureJson);
+        if (setResult.ToString() != "OK")
+            throw new DataException($"failed to update PromptStudio session temperature with id:{redisId}");
+
+        await UpdateModified(sessionId);
+    }
+
+    public async Task SaveNumberOfTokensEvaluatedAsync(Guid sessionId, int numberOfTokensEvaluated)
+    {
+        var db = _connection.GetDatabase();
+        var redisId = _index.RedisId(sessionId.ToString());
+        var numberOfTokensEvaluatedJson = JsonSerializer.Serialize(numberOfTokensEvaluated);
+        var setResult = await db.ExecuteAsync("JSON.SET", redisId, "$.numberOfTokensEvaluated", numberOfTokensEvaluatedJson);
+        if (setResult.ToString() != "OK")
+            throw new DataException($"failed to update PromptStudio session numberOfTokensEvaluated with id:{redisId}");
+
+        await UpdateModified(sessionId);
+    }
+
+    public async Task SaveEntityNameAsync(Guid sessionId, string entityName)
+    {
+        var db = _connection.GetDatabase();
+        var redisId = _index.RedisId(sessionId.ToString());
+        var entityNameJson = JsonSerializer.Serialize(entityName);
+        var setResult = await db.ExecuteAsync("JSON.SET", redisId, "$.entityName", entityNameJson);
+        if (setResult.ToString() != "OK")
+            throw new DataException($"failed to update PromptStudio session entityName with id:{redisId}");
+
+        await UpdateModified(sessionId);
+    }
+
+    public async Task SaveSystemInstructionsAsync(Guid sessionId, EquatableList<string> systemInstructions)
+    {
+        var db = _connection.GetDatabase();
+        var redisId = _index.RedisId(sessionId.ToString());
+        var systemInstructionsJson = JsonSerializer.Serialize(systemInstructions.ToArray());
+        var setResult = await db.ExecuteAsync("JSON.SET", redisId, "$.systemInstructions", systemInstructionsJson);
+        if (setResult.ToString() != "OK")
+            throw new DataException($"failed to update PromptStudio session entityName with id:{redisId}");
+
+        await UpdateModified(sessionId);
+    }
+
+    public async Task SaveContextASync(Guid sessionId, string context)
+    {
+        var db = _connection.GetDatabase();
+        var redisId = _index.RedisId(sessionId.ToString());
+        var contextJson = JsonSerializer.Serialize(context);
+        var setResult = await db.ExecuteAsync("JSON.SET", redisId, "$.context", contextJson);
+        if (setResult.ToString() != "OK")
+            throw new DataException($"failed to update PromptStudio session context with id:{redisId}");
+
+        await UpdateModified(sessionId);
+    }
+
+    private async Task UpdateModified(Guid sessionId)
+    {
+        var db = _connection.GetDatabase();
+        var redisId = _index.RedisId(sessionId.ToString());
+        var setResult = await db.ExecuteAsync("JSON.SET", redisId, "$.modified", DateTimeOffset.UtcNow.Ticks);
+        if (setResult.ToString() != "OK")
+            throw new DataException($"failed to update PromptStudio session modified with id:{redisId}");
+    }
+
 }
