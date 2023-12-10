@@ -53,7 +53,7 @@ public class PromptStudioRepositoryTests : IClassFixture<RedisFixture>
         Assert.Equal(run, session.Runs[0]);
 
         // act: get headers
-        var headers = await repository.GetHeadersAsync(new PromptStudioGetManySessionHeadersQuery { Offset = 0, PageSize = 1} );
+        var headers = await repository.GetHeadersAsync(new PromptStudioGetManySessionHeadersQuery { Offset = 0, PageSize = 1 });
         Assert.NotNull(headers);
         Assert.NotEmpty(headers.Items);
 
@@ -99,7 +99,7 @@ public class PromptStudioRepositoryTests : IClassFixture<RedisFixture>
         Assert.Equal("You start with bringing peace to the world", session.SystemInstructions[1]);
 
         // act: update context
-        await repository.SaveContextASync(_idForOk, "test context");
+        await repository.SaveContextAsync(_idForOk, "test context");
         session = await repository.GetAsync(_idForOk);
         Assert.NotNull(session);
         Assert.True(session.Modified > currentTicks);

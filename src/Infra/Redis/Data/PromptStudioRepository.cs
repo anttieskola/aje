@@ -72,7 +72,7 @@ public class PromptStudioRepository : IPromptStudioRepository
     public async Task<PaginatedList<PromptStudioSessionHeader>> GetHeadersAsync(PromptStudioGetManySessionHeadersQuery query)
     {
         var db = _connection.GetDatabase();
-        var arguments = new string [] { _index.Name, "*", "SORTBY", "modified", "DESC", "RETURN", "3", "$.sessionId", "$.title", "$.modified", "LIMIT", query.Offset.ToString(), query.PageSize.ToString() };
+        var arguments = new string[] { _index.Name, "*", "SORTBY", "modified", "DESC", "RETURN", "3", "$.sessionId", "$.title", "$.modified", "LIMIT", query.Offset.ToString(), query.PageSize.ToString() };
         var result = await db.ExecuteAsync("FT.SEARCH", arguments);
         // first item is total count (integer)
         var rows = (RedisResult[])result!;
@@ -164,7 +164,7 @@ public class PromptStudioRepository : IPromptStudioRepository
         await UpdateModified(sessionId);
     }
 
-    public async Task SaveContextASync(Guid sessionId, string context)
+    public async Task SaveContextAsync(Guid sessionId, string context)
     {
         var db = _connection.GetDatabase();
         var redisId = _index.RedisId(sessionId.ToString());
