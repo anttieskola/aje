@@ -1,13 +1,13 @@
 ﻿namespace AJE.Service.NewsFixer;
 
-public class CheckArticleWorker : BackgroundService
+public class ArticleTokenCalculatorWorker : BackgroundService
 {
-    private readonly ILogger<CheckArticleWorker> _logger;
+    private readonly ILogger<ArticleTokenCalculatorWorker> _logger;
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ISender _sender;
 
-    public CheckArticleWorker(
-        ILogger<CheckArticleWorker> logger,
+    public ArticleTokenCalculatorWorker(
+        ILogger<ArticleTokenCalculatorWorker> logger,
         IServiceScopeFactory scopeFactory,
         ISender sender)
     {
@@ -23,7 +23,7 @@ public class CheckArticleWorker : BackgroundService
         _cancellationToken = stoppingToken;
 
         // reload true data into redis if missing
-        await ReloadTruesAsync();
+        await ReloadTokenCountsAsync();
 
         // check articles that have not been checked yet
         while (!_cancellationToken.IsCancellationRequested)
@@ -34,7 +34,7 @@ public class CheckArticleWorker : BackgroundService
             var article = await FindArticleToCheck();
             if (article != null)
             {
-                await CheckArticleASync(article);
+                await ArticleCountTokensAsync(article);
             }
 
             // throttle
@@ -43,11 +43,11 @@ public class CheckArticleWorker : BackgroundService
     }
 
     // reloading check data where value is true
-    private async Task ReloadTruesAsync()
+    private async Task ReloadTokenCountsAsync()
     {
         using var scope = _scopeFactory.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<NewsFixerContext>();
-        var rows = context.Articles.Where(x => x.IsValid).AsAsyncEnumerable();
+        var rows = context.Articles.AsAsyncEnumerable();
 
         await foreach (var row in rows)
         {
@@ -97,10 +97,10 @@ public class CheckArticleWorker : BackgroundService
         }
     }
 
-    private async Task CheckArticleASync(Article article)
+    private async Task ArticleCountTokensAsync(Article article)
     {
         // ask AI
-        var result = await _sender.Send(new ArticleCheckQuery { Article = article }, _cancellationToken);
+        var tokenCount = await _sender.Send(new ArticleGetTokenCountQuery { Article = article }, _cancellationToken);
 
         // db update
         using var scope = _scopeFactory.CreateScope();
@@ -108,20 +108,11 @@ public class CheckArticleWorker : BackgroundService
         await context.Articles.AddAsync(new ArticleRow
         {
             Id = article.Id,
-            IsValid = result.IsValid,
-            Reasoning = result.Reasoning,
+            TokenCount = tokenCount,
+            IsValid = false,
         }, _cancellationToken);
         await context.SaveChangesAsync(_cancellationToken);
-
-        // redis update
-        if (result.IsValid)
-        {
-            await _sender.Send(new ArticleUpdateIsValidatedCommand { Id = article.Id, IsValidated = true }, _cancellationToken);
-            _logger.LogInformation("Article {} is valid", article.Id);
-        }
-        else
-        {
-            _logger.LogInformation("Article {} is invalid: {}", article.Id, result.Reasoning);
-        }
+        await _sender.Send(new ArticleUpdateTokenCountCommand { Id = article.Id, TokenCount = tokenCount }, _cancellationToken);
+        _logger.LogInformation("Article {} updated with TokenCount: {}", article.Id, tokenCount);
     }
 }

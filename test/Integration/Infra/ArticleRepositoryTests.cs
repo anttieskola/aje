@@ -108,7 +108,7 @@ public class ArticleRepositoryTests : IClassFixture<RedisFixture>
         var articleCopy = result.Items.Single(i => i.Id == _idForIsValidated);
         Assert.True(article == articleCopy);
 
-        await repository.UpdateIsValidated(_idForIsValidated, true);
+        await repository.UpdateIsValidatedAsync(_idForIsValidated, true);
         result = await repository.GetAsync(new ArticleGetManyQuery
         {
             Category = ArticleCategory.BOGUS,
@@ -119,6 +119,12 @@ public class ArticleRepositoryTests : IClassFixture<RedisFixture>
         Assert.NotNull(result);
         var notExistingCopy = result.Items.SingleOrDefault(i => i.Id == _idForIsValidated);
         Assert.Null(notExistingCopy);
+
+        // token count update
+        await repository.UpdateTokenCountAsync(_idForIsValidated, 100);
+        article = await repository.GetAsync(_idForIsValidated);
+        Assert.NotNull(article);
+        Assert.Equal(100, article.TokenCount);
 
         // clean
         await _redisFixture.Database.KeyDeleteAsync(_index.RedisId(_idForIsValidated.ToString()));

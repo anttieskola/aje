@@ -1,17 +1,17 @@
 ﻿namespace AJE.Domain.Commands;
 
-public record ArticleUpdateIsValidatedCommand : IRequest<ArticleUpdatedEvent>
+public record ArticleUpdateTokenCountCommand : IRequest<ArticleUpdatedEvent>
 {
     public required Guid Id { get; init; }
-    public required bool IsValidated { get; init; }
+    public required int TokenCount { get; init; }
 }
 
-public class ArticleUpdateIsValidatedCommandHandler : IRequestHandler<ArticleUpdateIsValidatedCommand, ArticleUpdatedEvent>
+public class ArticleUpdateTokenCountCommandHandler : IRequestHandler<ArticleUpdateTokenCountCommand, ArticleUpdatedEvent>
 {
     private readonly IArticleRepository _articleRepository;
     private readonly IArticleEventHandler _articleEventHandler;
 
-    public ArticleUpdateIsValidatedCommandHandler(
+    public ArticleUpdateTokenCountCommandHandler(
         IArticleRepository articleRepository,
         IArticleEventHandler articleEventHandler)
     {
@@ -19,9 +19,9 @@ public class ArticleUpdateIsValidatedCommandHandler : IRequestHandler<ArticleUpd
         _articleEventHandler = articleEventHandler;
     }
 
-    public async Task<ArticleUpdatedEvent> Handle(ArticleUpdateIsValidatedCommand command, CancellationToken cancellationToken)
+    public async Task<ArticleUpdatedEvent> Handle(ArticleUpdateTokenCountCommand command, CancellationToken cancellationToken)
     {
-        await _articleRepository.UpdateIsValidatedAsync(command.Id, command.IsValidated);
+        await _articleRepository.UpdateTokenCountAsync(command.Id, command.TokenCount);
         var e = new ArticleUpdatedEvent
         {
             Id = command.Id,

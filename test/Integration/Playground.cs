@@ -28,7 +28,8 @@ public class Playground
 #pragma warning restore S2699
 
     /// <summary>
-    /// TODO: Can this be done easier using aggregate?
+    /// This will fail when no articles in redis. Can be ignored.
+    /// Used to scan language codes for UI.
     /// </summary>
     /// <returns></returns>
     [Fact]

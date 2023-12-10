@@ -6,15 +6,15 @@ public class ArticleRow
     [Key]
     [JsonPropertyName("id")]
     [Column("id")]
-    public Guid Id { get; init; }
+    public Guid Id { get; set; }
+
+    [JsonPropertyName("tokenCount")]
+    [Column("tokencount")]
+    public int TokenCount {get; set;}
 
     [JsonPropertyName("isValid")]
     [Column("isValid")]
-    public required bool IsValid { get; init; }
-
-    [JsonPropertyName("reasoning")]
-    [Column("reasoning")]
-    public string Reasoning { get; init; } = null!;
+    public bool IsValid { get; set; }
 }
 
 public class NewsFixerContext : DbContext

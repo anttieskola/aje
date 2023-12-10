@@ -46,12 +46,22 @@ public class ArticleRepository : IArticleRepository
         _logger.LogTrace("Updated article {Id}", article.Id);
     }
 
-    public async Task UpdateIsValidated(Guid id, bool isValidated)
+    public async Task UpdateIsValidatedAsync(Guid id, bool isValidated)
     {
         var db = _connection.GetDatabase();
         var redisId = _index.RedisId(id.ToString());
+        var isValidatedJson = JsonSerializer.Serialize(isValidated);
+        var setResult = await db.ExecuteAsync("JSON.SET", redisId, "$.isValidated", isValidatedJson);
+        if (setResult.ToString() != "OK")
+            throw new DataException($"failed to set IsValidated on article {redisId}");
+    }
 
-        var setResult = await db.ExecuteAsync("JSON.SET", redisId, "$.isValidated", isValidated.ToString().ToLower());
+    public async Task UpdateTokenCountAsync(Guid id, int tokenCount)
+    {
+        var db = _connection.GetDatabase();
+        var redisId = _index.RedisId(id.ToString());
+        var tokenCountJson = JsonSerializer.Serialize(tokenCount);
+        var setResult = await db.ExecuteAsync("JSON.SET", redisId, "$.tokenCount", tokenCountJson);
         if (setResult.ToString() != "OK")
             throw new DataException($"failed to set IsValidated on article {redisId}");
     }

@@ -3,7 +3,7 @@ namespace AJE.Infra.Redis.Indexes;
 
 public class ArticleIndex : IRedisIndex
 {
-    public int Version => 2;
+    public int Version => 3;
 
     public string Name => "idx:article";
 
@@ -23,7 +23,8 @@ public class ArticleIndex : IRedisIndex
         + "$.language AS language TAG "
         + "$.polarity AS polarity NUMERIC "
         + "$.polarityVersion AS polarityVersion NUMERIC "
-        + "$.isValidated AS isValidated TAG";
+        + "$.isValidated AS isValidated TAG "
+        + "$.tokenCount AS tokenCount NUMERIC";
 
     public RedisChannel Channel =>
         new("articles", RedisChannel.PatternMode.Auto);
