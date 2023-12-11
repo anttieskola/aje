@@ -18,7 +18,7 @@ public class ArticleIndexTest : IClassFixture<RedisFixture>
     /// This test only works after only articles loaded
     /// </summary>
     /// <returns></returns>
-    [Fact]
+    [Fact(Skip = "Only works after articles loaded")]
     public async Task TestIndexAfterArticleReload()
     {
         var db = _redisFixture.Connection.GetDatabase();

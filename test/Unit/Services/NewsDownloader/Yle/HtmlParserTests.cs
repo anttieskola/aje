@@ -6,6 +6,8 @@ namespace AJE.Test.Unit.Services.News.Yle;
 
 public class HtmlParserTests
 {
+
+    #region normal news
     private readonly Guid _id = Guid.ParseExact("20000000-eaea-c123-4567-890120000000", "D");
 
     private const string _htmlNoScript = @"
@@ -277,7 +279,6 @@ public class HtmlParserTests
         Assert.Equal("- Bullet one" + Environment.NewLine + "- Bullet two" + Environment.NewLine, textListElement.Text);
     }
 
-
     private const string _htmlAlternativeFullUrlOk = @"
 <!DOCTYPE html>
 <html>
@@ -416,7 +417,10 @@ public class HtmlParserTests
         Assert.Equal("- Bullet one" + Environment.NewLine + "- Bullet two" + Environment.NewLine, textListElement.Text);
     }
 
-    private const string _htmlLiveFeed = @"
+    #endregion normal news
+
+    #region Live feed
+    private const string _htmlLiveFeedNoLiveNode = @"
 <!DOCTYPE html>
 <html>
     <head></head>
@@ -435,7 +439,177 @@ public class HtmlParserTests
                                 ""livefeedId"": ""64-1-1519""
                             }
                         ]
+                    }
+                }
+            }
+        </script>
+    </body>
+</html>
+";
+    [Fact]
+    public void LiveFeedNoLiveNode()
+    {
+        var expection = Assert.Throws<ParsingException>(() => HtmlParser.Parse(_htmlLiveFeedNoLiveNode, _id));
+        Assert.Equal("no livenode", expection.Message);
+    }
 
+    private const string _htmlLiveFeedNoLiveMode = @"
+<!DOCTYPE html>
+<html>
+    <head></head>
+    <body>
+        <script type=""text/javascript"">
+            window.__INITIAL__STATE__={
+                ""pageData"": {
+                    ""article"": {
+                        ""fullUrl"": ""https://news.anttieskola.com/123456789012"",
+                        ""dateJsonModified"": ""1980-09-12T18:00:00+0300"",
+                        ""title"": ""Article title"",
+                        ""language"": ""en"",
+                        ""content"": [
+                            {
+                                ""type"": ""LivefeedBlock"",
+                                ""livefeedId"": ""64-1-1519""
+                            }
+                        ],
+                        ""live"": {
+                            ""somethingForTheCount"": false
+                        }
+                    }
+                }
+            }
+        </script>
+    </body>
+</html>
+";
+    [Fact]
+    public void LiveFeedNoLiveMode()
+    {
+        var expection = Assert.Throws<ParsingException>(() => HtmlParser.Parse(_htmlLiveFeedNoLiveMode, _id));
+        Assert.Equal("no livemode", expection.Message);
+    }
+
+    private const string _htmlLiveFeedEmptyContent = @"
+<!DOCTYPE html>
+<html>
+    <head></head>
+    <body>
+        <script type=""text/javascript"">
+            window.__INITIAL__STATE__={
+                ""pageData"": {
+                    ""article"": {
+                        ""fullUrl"": ""https://news.anttieskola.com/123456789012"",
+                        ""dateJsonModified"": ""1980-09-12T18:00:00+0300"",
+                        ""title"": ""Article title"",
+                        ""language"": ""en"",
+                        ""content"": [
+                            {
+                                ""type"": ""LivefeedBlock"",
+                                ""livefeedId"": ""64-1-1519""
+                            }
+                        ],
+                        ""live"": {
+                            ""livemode"": true
+                        }
+                    }
+                }
+            }
+        </script>
+    </body>
+</html>
+";
+    [Fact]
+    public void LiveFeedNoContent()
+    {
+        var expection = Assert.Throws<ParsingException>(() => HtmlParser.Parse(_htmlLiveFeedEmptyContent, _id));
+        Assert.Equal("empty content array", expection.Message);
+    }
+
+
+    private const string _htmlLiveFeed = @"
+<!DOCTYPE html>
+<html>
+    <head></head>
+    <body>
+        <script type=""text/javascript"">
+            window.__INITIAL__STATE__={
+                ""pageData"": {
+                    ""article"": {
+                        ""fullUrl"": ""https://news.anttieskola.com/123456789012"",
+                        ""dateJsonModified"": ""1980-09-12T18:00:00+0300"",
+                        ""title"": ""Article title"",
+                        ""language"": ""en"",
+                        ""content"": [
+                            {
+                                ""type"": ""LivefeedBlock"",
+                                ""livefeedId"": ""64-1-1519""
+                            }
+                        ],
+                        ""live"": {
+                            ""livemode"": true,
+                            ""rawLive"": {
+                                ""live"": {
+                                    ""features"": [
+                                        {
+                                            ""posts"": [
+                                                {
+                                                    ""content"": {
+                                                        ""blocks"": [
+                                                            {
+                                                                ""type"": ""h1"",
+                                                                ""text"": ""Ufot ovat laskeutuneet""
+                                                            },
+                                                            {
+                                                                ""type"": ""paragraph"",
+                                                                ""items"": [
+                                                                    {
+                                                                        ""type"": ""text"",
+                                                                        ""text"": ""He valitsivat laskeutumispaikaksi Oulun kaupungin.""
+                                                                    },
+                                                                    {
+                                                                        ""type"": ""text"",
+                                                                        ""styling"": {
+                                                                            ""bold"": true
+                                                                        },
+                                                                        ""text"": ""Miksi Oulu?""
+                                                                    }
+                                                                ]
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    ""content"": {
+                                                        ""blocks"": [
+                                                            {
+                                                                ""type"": ""h1"",
+                                                                ""text"": ""Ufot ovat paenneet""
+                                                            },
+                                                            {
+                                                                ""type"": ""paragraph"",
+                                                                ""items"": [
+                                                                    {
+                                                                        ""type"": ""text"",
+                                                                        ""text"": ""Alus lähti aikaisin tänään, kommenttina kuului vain, että""
+                                                                    },
+                                                                    {
+                                                                        ""type"": ""text"",
+                                                                        ""styling"": {
+                                                                            ""bold"": true
+                                                                        },
+                                                                        ""text"": ""Ihan liian kova meininki!""
+                                                                    }
+                                                                ]
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -448,14 +622,114 @@ public class HtmlParserTests
     {
         var article = HtmlParser.Parse(_htmlLiveFeed, _id);
         Assert.NotNull(article);
-        Assert.Equal("Article title", article.Title);
-        Assert.NotEmpty(article.Content);
-        Assert.Single(article.Content);
-
-        var textElement = article.Content.ElementAt(0) as MarkdownTextElement;
-        Assert.NotNull(textElement);
-        Assert.Equal("64-1-1519", textElement.Text);
+        Assert.True(article.IsLiveNews);
+        Assert.Equal(6, article.Content.Count);
+        Assert.Equal("Ufot ovat laskeutuneet", (article.Content.ElementAt(0) as MarkdownHeaderElement)?.Text);
+        Assert.Equal("He valitsivat laskeutumispaikaksi Oulun kaupungin.", (article.Content.ElementAt(1) as MarkdownTextElement)?.Text);
+        Assert.Equal("**Miksi Oulu?**", (article.Content.ElementAt(2) as MarkdownTextElement)?.Text);
+        Assert.Equal("Ufot ovat paenneet", (article.Content.ElementAt(3) as MarkdownHeaderElement)?.Text);
+        Assert.Equal("Alus lähti aikaisin tänään, kommenttina kuului vain, että", (article.Content.ElementAt(4) as MarkdownTextElement)?.Text);
+        Assert.Equal("**Ihan liian kova meininki!**", (article.Content.ElementAt(5) as MarkdownTextElement)?.Text);
     }
+
+    private const string _htmlLiveFeedEnded = @"
+<!DOCTYPE html>
+<html>
+    <head></head>
+    <body>
+        <script type=""text/javascript"">
+            window.__INITIAL__STATE__={
+                ""pageData"": {
+                    ""article"": {
+                        ""fullUrl"": ""https://news.anttieskola.com/123456789012"",
+                        ""dateJsonModified"": ""1980-09-12T18:00:00+0300"",
+                        ""title"": ""Article title"",
+                        ""language"": ""en"",
+                        ""content"": [
+                            {
+                                ""type"": ""LivefeedBlock"",
+                                ""livefeedId"": ""64-1-1519""
+                            }
+                        ],
+                        ""live"": {
+                            ""livemode"": false,
+                            ""features"": [
+                                {
+                                    ""posts"": [
+                                        {
+                                            ""content"": {
+                                                ""blocks"": [
+                                                    {
+                                                        ""type"": ""h1"",
+                                                        ""text"": ""Israel on antanut palestiinalaisille oman maan ja itsenäisyyden""
+                                                    },
+                                                    {
+                                                        ""type"": ""paragraph"",
+                                                        ""items"": [
+                                                            {
+                                                                ""type"": ""text"",
+                                                                ""text"": ""Netanjahu on iloinnut kun saanut luovuttaa maata hyvään käyttöön""
+                                                            },
+                                                            {
+                                                                ""type"": ""text"",
+                                                                ""text"": ""Kertoi hän haastattelussa YK:n kokouksessa""
+                                                            },
+                                                            {
+                                                                ""type"": ""text"",
+                                                                ""text"": ""Hän kehui alieneja hienosta rauhanvälitystyöstä""
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        ""type"": ""h2"",
+                                                        ""text"": ""I could not ask for better day than this""
+                                                    },
+                                                    {
+                                                        ""type"": ""paragraph"",
+                                                        ""items"": [
+                                                            {
+                                                                ""type"": ""text"",
+                                                                ""text"": ""Lauloivat alienit Elon Muskin bändin säestäessä""
+                                                            },
+                                                            {
+                                                                ""type"": ""text"",
+                                                                ""text"": ""Elvis laskeutuu avaruusaluksesta soittamaan kitaraa ryhmän mukaan""
+                                                            }
+                                                        ]
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        </script>
+    </body>
+</html>
+";
+    [Fact]
+    public void LiveFeedEnded()
+    {
+        var article = HtmlParser.Parse(_htmlLiveFeedEnded, _id);
+        Assert.NotNull(article);
+        Assert.False(article.IsLiveNews);
+        Assert.Equal(7, article.Content.Count);
+        Assert.Equal("Israel on antanut palestiinalaisille oman maan ja itsenäisyyden", (article.Content.ElementAt(0) as MarkdownHeaderElement)?.Text);
+        Assert.Equal("Netanjahu on iloinnut kun saanut luovuttaa maata hyvään käyttöön", (article.Content.ElementAt(1) as MarkdownTextElement)?.Text);
+        Assert.Equal("Kertoi hän haastattelussa YK:n kokouksessa", (article.Content.ElementAt(2) as MarkdownTextElement)?.Text);
+        Assert.Equal("Hän kehui alieneja hienosta rauhanvälitystyöstä", (article.Content.ElementAt(3) as MarkdownTextElement)?.Text);
+        Assert.Equal("I could not ask for better day than this", (article.Content.ElementAt(4) as MarkdownHeaderElement)?.Text);
+        Assert.Equal(2, (article.Content.ElementAt(4) as MarkdownHeaderElement)?.Level);
+        Assert.Equal("Lauloivat alienit Elon Muskin bändin säestäessä", (article.Content.ElementAt(5) as MarkdownTextElement)?.Text);
+        Assert.Equal("Elvis laskeutuu avaruusaluksesta soittamaan kitaraa ryhmän mukaan", (article.Content.ElementAt(6) as MarkdownTextElement)?.Text);
+    }
+    #endregion Live feed
+
+    #region FeatureBlock
 
     private const string _htmlFeatureBlockNoPages = @"
 <!DOCTYPE html>
@@ -553,4 +827,6 @@ public class HtmlParserTests
         Assert.NotNull(textElement);
         Assert.Equal("C-kasettimankka oli 1990-luvulle saakka jokaisen teinin huonessa.", textElement.Text);
     }
+
+    #endregion FeatureBlock
 }

@@ -21,10 +21,13 @@ public record Article : ArticleHeader
     public ArticleCategory Category { get; set; }
 
     [JsonPropertyName("content")]
-    public EquatableList<MarkdownElement> Content { get; set; } = EquatableList<MarkdownElement>.Empty;
+    public EquatableList<MarkdownElement> Content { get; set; } = [];
 
     [JsonPropertyName("chat")]
-    public EquatableList<ChatMessage> Chat { get; set; } = EquatableList<ChatMessage>.Empty;
+    public EquatableList<ChatMessage> Chat { get; set; } = [];
+
+    [JsonPropertyName("isLiveNews")]
+    public bool IsLiveNews { get; set; }
 
     [JsonPropertyName("newsTypeVersion")]
     public int NewsTypeVersion { get; set; } = 0;
@@ -34,9 +37,6 @@ public record Article : ArticleHeader
 
     [JsonPropertyName("modified")]
     public long Modified { get; set; }
-
-    [JsonPropertyName("published")]
-    public bool Published { get; set; }
 
     [JsonPropertyName("source")]
     public string Source { get; set; } = string.Empty;

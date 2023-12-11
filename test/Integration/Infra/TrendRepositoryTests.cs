@@ -32,7 +32,6 @@ public class TrendRepositoryTests : IClassFixture<RedisFixture>
             Category = ArticleCategory.BOGUS,
             Title = "daily test positive article",
             Modified = DateTimeOffset.UtcNow.Date.AddDays(-1).AddHours(12).Ticks, // one day ago, 12:00
-            Published = true,
             Source = source,
             Language = "en",
             Content = TestArticle.Content,
@@ -49,7 +48,6 @@ public class TrendRepositoryTests : IClassFixture<RedisFixture>
             Category = ArticleCategory.BOGUS,
             Title = "hourly test positive article",
             Modified = new DateTimeOffset(DateTimeOffset.UtcNow.Year, DateTimeOffset.UtcNow.Month, DateTimeOffset.UtcNow.Day, DateTimeOffset.UtcNow.Hour, 0, 0, TimeSpan.Zero).AddHours(-1).Ticks, // one hour ago
-            Published = true,
             Source = source,
             Language = "en",
             Content = TestArticle.Content,
@@ -66,7 +64,6 @@ public class TrendRepositoryTests : IClassFixture<RedisFixture>
             Category = ArticleCategory.BOGUS,
             Title = "daily test neutral article",
             Modified = DateTimeOffset.UtcNow.Date.AddDays(-2).AddHours(12).Ticks, // two day ago, 12:00
-            Published = true,
             Source = source,
             Language = "en",
             Content = TestArticle.Content,
@@ -83,7 +80,6 @@ public class TrendRepositoryTests : IClassFixture<RedisFixture>
             Category = ArticleCategory.BOGUS,
             Title = "hourly test neutral article",
             Modified = new DateTimeOffset(DateTimeOffset.UtcNow.Year, DateTimeOffset.UtcNow.Month, DateTimeOffset.UtcNow.Day, DateTimeOffset.UtcNow.Hour, 0, 0, TimeSpan.Zero).AddHours(-2).Ticks, // two hour ago
-            Published = true,
             Source = source,
             Language = "en",
             Content = TestArticle.Content,
@@ -100,7 +96,6 @@ public class TrendRepositoryTests : IClassFixture<RedisFixture>
             Category = ArticleCategory.BOGUS,
             Title = "daily test negative article",
             Modified = DateTimeOffset.UtcNow.Date.AddDays(-3).AddHours(12).Ticks, // three day ago, 12:00
-            Published = true,
             Source = source,
             Language = "en",
             Content = TestArticle.Content,
@@ -117,7 +112,6 @@ public class TrendRepositoryTests : IClassFixture<RedisFixture>
             Category = ArticleCategory.BOGUS,
             Title = "hourly test negative article",
             Modified = new DateTimeOffset(DateTimeOffset.UtcNow.Year, DateTimeOffset.UtcNow.Month, DateTimeOffset.UtcNow.Day, DateTimeOffset.UtcNow.Hour, 0, 0, TimeSpan.Zero).AddHours(-3).Ticks, // three hour ago
-            Published = true,
             Source = source,
             Language = "en",
             Content = TestArticle.Content,
@@ -134,7 +128,6 @@ public class TrendRepositoryTests : IClassFixture<RedisFixture>
             Category = ArticleCategory.BOGUS,
             Title = "daily test unknown article",
             Modified = DateTimeOffset.UtcNow.Date.AddDays(-4).AddHours(12).Ticks, // four day ago, 12:00
-            Published = true,
             Source = source,
             Language = "en",
             Content = TestArticle.Content,
@@ -151,7 +144,6 @@ public class TrendRepositoryTests : IClassFixture<RedisFixture>
             Category = ArticleCategory.BOGUS,
             Title = "hourly test unknown article",
             Modified = new DateTimeOffset(DateTimeOffset.UtcNow.Year, DateTimeOffset.UtcNow.Month, DateTimeOffset.UtcNow.Day, DateTimeOffset.UtcNow.Hour, 0, 0, TimeSpan.Zero).AddHours(-4).Ticks, // four hour ago
-            Published = true,
             Source = source,
             Language = "en",
             Content = TestArticle.Content,
@@ -168,7 +160,6 @@ public class TrendRepositoryTests : IClassFixture<RedisFixture>
             Category = ArticleCategory.BOGUS,
             Title = "daily test without polarity",
             Modified = DateTimeOffset.UtcNow.Date.AddDays(-5).AddHours(12).Ticks, // five day ago, 12:00
-            Published = true,
             Source = source,
             Language = "en",
             Content = TestArticle.Content,
@@ -183,7 +174,6 @@ public class TrendRepositoryTests : IClassFixture<RedisFixture>
             Category = ArticleCategory.BOGUS,
             Title = "hourly test without polarity",
             Modified = new DateTimeOffset(DateTimeOffset.UtcNow.Year, DateTimeOffset.UtcNow.Month, DateTimeOffset.UtcNow.Day, DateTimeOffset.UtcNow.Hour, 0, 0, TimeSpan.Zero).AddHours(-5).Ticks, // five hours ago
-            Published = true,
             Source = source,
             Language = "en",
             Content = TestArticle.Content,

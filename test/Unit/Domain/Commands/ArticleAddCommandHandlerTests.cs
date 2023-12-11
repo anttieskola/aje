@@ -15,7 +15,6 @@ public class ArticleAddCommandHandlerTests
             Category = ArticleCategory.BOGUS,
             Title = "AJE is born",
             Modified = new DateTime(1980, 9, 12, 12, 00, 12).Ticks,
-            Published = true,
             Source = "https://www.anttieskola.com",
             Language = "en",
             Content = new EquatableList<MarkdownElement>

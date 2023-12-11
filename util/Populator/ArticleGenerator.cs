@@ -19,7 +19,6 @@ internal class ArticleGenerator
             Category = ArticleCategory.BOGUS,
             Title = _faker.Commerce.ProductName(),
             Modified = DateTime.UtcNow.Ticks,
-            Published = _faker.Random.Bool(),
             Source = string.Empty,
             Language = "en",
 

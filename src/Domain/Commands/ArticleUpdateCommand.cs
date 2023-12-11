@@ -25,7 +25,6 @@ public class ArticleUpdateCommandHandler : IRequestHandler<ArticleUpdateCommand,
         {
             Id = command.Article.Id,
             Timestamp = DateTimeOffset.UtcNow,
-            Published = command.Article.Published,
             ContentUpdated = true,
         };
         await _articleEventHandler.SendAsync(e);

@@ -30,7 +30,6 @@ public class ArticleTests : IClassFixture<RedisFixture>
             Category = ArticleCategory.BOGUS,
             Title = "daily test positive article",
             Modified = DateTimeOffset.UtcNow.AddYears(-100).Ticks,
-            Published = true,
             Source = source,
             Language = "en",
             Content = TestArticle.Content,
@@ -68,7 +67,6 @@ public class ArticleTests : IClassFixture<RedisFixture>
         Assert.Equal(article.Category, copy.Category);
         Assert.Equal(article.Title, copy.Title);
         Assert.Equal(article.Modified, copy.Modified);
-        Assert.Equal(article.Published, copy.Published);
         Assert.Equal(article.Source, copy.Source);
         Assert.Equal(article.Language, copy.Language);
         Assert.Equal(article.Content.Count, copy.Content.Count);

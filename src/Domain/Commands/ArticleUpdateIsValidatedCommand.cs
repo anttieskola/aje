@@ -26,7 +26,6 @@ public class ArticleUpdateIsValidatedCommandHandler : IRequestHandler<ArticleUpd
         {
             Id = command.Id,
             Timestamp = DateTimeOffset.UtcNow,
-            Published = false,
             ContentUpdated = false,
         };
         await _articleEventHandler.SendAsync(e);
