@@ -47,7 +47,7 @@ public class ArticleTokenCalculatorWorker : BackgroundService
     {
         using var scope = _scopeFactory.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<NewsFixerContext>();
-        var rows = context.Articles.Where(x => x.TokenCount > 0).AsAsyncEnumerable();
+        var rows = context.Articles.Where(x => x.TokenCount >= 0).AsAsyncEnumerable();
 
         await foreach (var row in rows)
         {
@@ -80,7 +80,7 @@ public class ArticleTokenCalculatorWorker : BackgroundService
                 Category = ArticleCategory.NEWS,
                 Offset = offset,
                 PageSize = 1,
-                MaxTokenCount = 0,
+                MaxTokenCount = -1,
             };
             var result = await _sender.Send(query, _stoppingToken);
 

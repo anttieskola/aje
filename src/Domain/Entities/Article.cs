@@ -51,10 +51,10 @@ public record Article : ArticleHeader
     public int PolarityVersion { get; set; } = 0;
 
     /// <summary>
-    /// Number of tokens in the article
+    /// Number of tokens in the article, -1 means it has not been calculated yet
     /// </summary>
     [JsonPropertyName("tokenCount")]
-    public int TokenCount { get; set; } = 0;
+    public int TokenCount { get; set; } = -1;
 
     /// <summary>
     /// Is content validated to contain full article
@@ -77,7 +77,7 @@ public record Article : ArticleHeader
     #region Scoring different aspects of the article using AI
 
     [JsonPropertyName("credibilityScoreVersion")]
-    public int CredibilityScoreVersion  { get; set; } = 0;
+    public int CredibilityScoreVersion { get; set; } = 0;
 
     [JsonPropertyName("credibilityScore")]
     public double CredibilityScore { get; set; } = 0.0;
