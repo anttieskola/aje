@@ -1,2 +1,4 @@
 -- select * from pg_tables;
-select from articles;
+-- delete from articles;
+select count(*) from articles;
+-- select * from articles limit 10000;

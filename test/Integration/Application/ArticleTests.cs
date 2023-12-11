@@ -8,7 +8,7 @@ using AJE.Infra.Redis.Indexes;
 namespace AJE.Test.Integration.Application;
 
 /// <summary>
-/// Tests require redis running on localhost:6379
+/// Tests require redis running
 /// </summary>
 public class ArticleTests : IClassFixture<RedisFixture>
 {

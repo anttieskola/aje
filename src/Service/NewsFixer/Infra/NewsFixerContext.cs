@@ -10,11 +10,11 @@ public class ArticleRow
 
     [JsonPropertyName("tokenCount")]
     [Column("tokencount")]
-    public int TokenCount { get; set; } = 0;
+    public int TokenCount { get; set; } = -1;
 
     [JsonPropertyName("wordCount")]
     [Column("wordcount")]
-    public int WordCount { get; set; } = 0;
+    public int WordCount { get; set; } = -1;
 
     [JsonPropertyName("isValid")]
     [Column("isvalid")]

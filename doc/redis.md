@@ -1,6 +1,16 @@
 
 # Redis
 
+## Funky
+- When reloading now over 7k articles...
+- Afterwards starting like token counter it finds few articles then stops
+- Have to drop index, remake to make it work again
+- Should investigate more [from module homepage](https://github.com/RediSearch)
+- Lots of time I been looking issues that are just by fixed by re-creating index...
+
+We could program functionality that drops index after reloading articles, recreate it
+and query info until it shows its 100% ready.
+
 ## Helpful commands
 
 ```bash

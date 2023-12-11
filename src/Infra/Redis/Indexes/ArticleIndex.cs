@@ -24,7 +24,23 @@ public class ArticleIndex : IRedisIndex
         + "$.polarity AS polarity NUMERIC "
         + "$.polarityVersion AS polarityVersion NUMERIC "
         + "$.isValidated AS isValidated TAG "
-        + "$.tokenCount AS tokenCount NUMERIC";
+        + "$.tokenCount AS tokenCount NUMERIC "
+        + "$.articleToneVersion AS articleToneVersion NUMERIC "
+        + "$.credibilityScoreVersion AS credibilityScoreVersion NUMERIC "
+        + "$.honestyScoreVersion AS honestyScoreVersion NUMERIC "
+        + "$.sensationalismScoreVersion AS sensationalismScoreVersion NUMERIC "
+        + "$.empathyScoreVersion AS empathyScoreVersion NUMERIC "
+        + "$.racismScoreVersion AS racismScoreVersion NUMERIC "
+        + "$.criminalityScoreVersion AS criminalityScoreVersion NUMERIC "
+        + "$.biasWesternScoreVersion AS biasWesternScoreVersion NUMERIC "
+        + "$.biasEasternScoreVersion AS biasEasternScoreVersion NUMERIC "
+        + "$.religionScoreVersion AS religionScoreVersion NUMERIC "
+        + "$.christianityScoreVersion AS christianityScoreVersion NUMERIC "
+        + "$.islamScoreVersion AS islamScoreVersion NUMERIC "
+        + "$.hinduismScoreVersion AS hinduismScoreVersion NUMERIC "
+        + "$.buddhismScoreVersion AS buddhismScoreVersion NUMERIC "
+        + "$.judaismScoreVersion AS judaismScoreVersion NUMERIC";
+
 
     public RedisChannel Channel =>
         new("articles", RedisChannel.PatternMode.Auto);

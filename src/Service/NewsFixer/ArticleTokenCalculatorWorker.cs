@@ -17,7 +17,6 @@ public class ArticleTokenCalculatorWorker : BackgroundService
     }
 
     private CancellationToken _stoppingToken;
-
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _stoppingToken = stoppingToken;
@@ -35,10 +34,12 @@ public class ArticleTokenCalculatorWorker : BackgroundService
             if (article != null)
             {
                 await ArticleCountTokensAsync(article);
+                await Task.Delay(TimeSpan.FromMilliseconds(100), _stoppingToken);
             }
-
-            // throttle
-            await Task.Delay(TimeSpan.FromMilliseconds(200), _stoppingToken);
+            else
+            {
+                await Task.Delay(TimeSpan.FromSeconds(120), _stoppingToken);
+            }
         }
     }
 
@@ -67,7 +68,7 @@ public class ArticleTokenCalculatorWorker : BackgroundService
     {
         using var scope = _scopeFactory.CreateScope();
         using var context = scope.ServiceProvider.GetRequiredService<NewsFixerContext>();
-        _checkedArticles = await context.Articles.Where(x => x.TokenCount > 0).Select(x => x.Id).ToListAsync(_stoppingToken);
+        _checkedArticles = await context.Articles.Where(x => x.TokenCount >= 0).Select(x => x.Id).ToListAsync(_stoppingToken);
     }
 
     private async Task<Article?> FindArticleToCheck()

@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 namespace AJE.Test.Integration;
 
 /// <summary>
-/// Tests require redis running on localhost:6379
+/// Tests require redis running
 /// </summary>
 public class TrendRepositoryTests : IClassFixture<RedisFixture>
 {
