@@ -5,21 +5,28 @@ public class ArticleTokenCalculatorWorker : BackgroundService
     private readonly ILogger<ArticleTokenCalculatorWorker> _logger;
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ISender _sender;
+    private readonly IConnectionMultiplexer _connection;
+    private readonly ArticleIndex _index = new();
 
     public ArticleTokenCalculatorWorker(
         ILogger<ArticleTokenCalculatorWorker> logger,
         IServiceScopeFactory scopeFactory,
-        ISender sender)
+        ISender sender,
+        IConnectionMultiplexer connection)
     {
         _logger = logger;
         _scopeFactory = scopeFactory;
         _sender = sender;
+        _connection = connection;
     }
 
     private CancellationToken _stoppingToken;
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _stoppingToken = stoppingToken;
+
+        var pubsub = _connection.GetSubscriber();
+        await pubsub.SubscribeAsync(_index.Channel, OnMessage);
 
         // reload true data into redis if missing
         await ReloadTokenCountsAsync();
@@ -39,6 +46,23 @@ public class ArticleTokenCalculatorWorker : BackgroundService
             else
             {
                 await Task.Delay(TimeSpan.FromSeconds(120), _stoppingToken);
+            }
+        }
+
+        await pubsub.UnsubscribeAsync(_index.Channel);
+    }
+
+    private async void OnMessage(RedisChannel channel, RedisValue message)
+    {
+        if (message.HasValue)
+        {
+            var msg = JsonSerializer.Deserialize<ArticleEvent>(message.ToString());
+            var updateEvent = msg as ArticleUpdatedEvent;
+            if (updateEvent != null && updateEvent.ContentUpdated)
+            {
+                // token gotta ge recalculated when content is updated
+                var article = await _sender.Send(new ArticleGetByIdQuery { Id = updateEvent.Id }, _stoppingToken);
+                await ArticleCountTokensAsync(article);
             }
         }
     }
