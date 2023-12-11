@@ -26,6 +26,10 @@ public record Article : ArticleHeader
     [JsonPropertyName("chat")]
     public EquatableList<ChatMessage> Chat { get; set; } = [];
 
+    /// <summary>
+    /// Is article live news that updates until some point in time
+    /// Will stay true until reporting ended
+    /// </summary>
     [JsonPropertyName("isLiveNews")]
     public bool IsLiveNews { get; set; }
 
@@ -62,19 +66,20 @@ public record Article : ArticleHeader
     [JsonPropertyName("isValidated")]
     public bool IsValidated { get; set; } = false;
 
+    [JsonPropertyName("analysis")]
+    public Analysis Analysis { get; set; } = new();
+}
+
+public record Analysis
+{
     [JsonPropertyName("articleToneVersion")]
     public int ArticleToneVersion { get; set; } = 0;
 
-    /// <summary>
-    /// Tone in which the article is written (AI)
-    /// </summary>
     [JsonPropertyName("articleTone")]
     public ArticleTone ArticleTone { get; set; } = ArticleTone.Unknown;
 
     [JsonPropertyName("articleToneReasoning")]
     public string ArticleToneReasoning { get; set; } = string.Empty;
-
-    #region Scoring different aspects of the article using AI
 
     [JsonPropertyName("credibilityScoreVersion")]
     public int CredibilityScoreVersion { get; set; } = 0;
@@ -201,6 +206,4 @@ public record Article : ArticleHeader
 
     [JsonPropertyName("judaismScoreReasoning")]
     public string JudaismScoreReasoning { get; set; } = string.Empty;
-
-    #endregion Scoring different aspects of the article using AI
 }
