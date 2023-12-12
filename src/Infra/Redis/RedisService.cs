@@ -89,7 +89,7 @@ public class RedisService : IRedisService
             throw new PlatformException($"Could not drop index {index.Name}");
     }
 
-    private static async Task CreateIndex(IDatabase db, IRedisIndex index)
+    private async Task CreateIndex(IDatabase db, IRedisIndex index)
     {
         var arguments = new List<string> { index.Name, "ON", "JSON", "PREFIX", "1", index.Prefix, "SCHEMA" };
         index.Schema.Split(' ').ToList().ForEach(x => arguments.Add(x));
@@ -99,5 +99,11 @@ public class RedisService : IRedisService
 
         if (!await db.StringSetAsync($"{index.Name}_VERSION", index.Version))
             throw new PlatformException($"Could not set index {index.Name} version");
+
+        // TODO: Programmatically check index info is it ready to use
+        // FT.INFO indexName.... check for 45) indexing 46) "0" 47) percent_indexed 48) "1"
+        _logger.LogInformation("Index {} created, with version {}", index.Name, index.Version);
+        _logger.LogInformation("Waiting for 60 seconds to let the index be created");
+        await Task.Delay(TimeSpan.FromSeconds(60));
     }
 }

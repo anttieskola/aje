@@ -310,8 +310,24 @@ public static class HtmlParser
                 {
                     foreach (var post in posts.AsArray())
                     {
+                        if (post?.AsObject() != null && post.AsObject().TryGetPropertyValue("updatedAt", out JsonNode? updatedAt))
+                        {
+                            if (updatedAt != null && !string.IsNullOrEmpty(updatedAt.ToString()))
+                            {
+                                var dateString = updatedAt.ToString();
+                                var date = DateTime.Parse(dateString, null, DateTimeStyles.AdjustToUniversal);
+                                var finlandZone = TimeZoneInfo.FindSystemTimeZoneById("E. Europe Standard Time");
+                                var offSet = finlandZone.GetUtcOffset(date);
+                                elements.Add(new MarkdownHeaderElement
+                                {
+                                    Level = 6,
+                                    Text = $"{date.ToBestString()} {(offSet.Hours >= 0 ? "+" : "-")}{offSet.Hours:00}:{offSet.Minutes:00}",
+                                });
+                            }
+                        }
                         if (post?.AsObject() != null && post.AsObject().TryGetPropertyValue("content", out JsonNode? content))
                         {
+
                             if (content != null && content.AsObject().TryGetPropertyValue("blocks", out JsonNode? blocks))
                             {
                                 if (blocks?.AsArray() != null)

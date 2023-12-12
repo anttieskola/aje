@@ -32,7 +32,7 @@ public class Playground
     /// Used to scan language codes for UI.
     /// </summary>
     /// <returns></returns>
-    [Fact]
+    [Fact(Skip = "This will fail when no articles in redis. Can be ignored. Used to scan language codes for UI.")]
     public async Task ScanLanguages()
     {
         using var connection = await ConnectionMultiplexer.ConnectAsync(TestConstants.RedisAddress);

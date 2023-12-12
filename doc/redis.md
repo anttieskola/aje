@@ -1,6 +1,8 @@
 
 # Redis
 
+**STILL FORGET THAT YOU CAN'T MAKE TAG FROM A NUMERIC FIELD**
+
 ## Funky
 - When reloading now over 7k articles...
 - Afterwards starting like token counter it finds few articles then stops

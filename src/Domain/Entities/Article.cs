@@ -33,12 +33,6 @@ public record Article : ArticleHeader
     [JsonPropertyName("isLiveNews")]
     public bool IsLiveNews { get; set; }
 
-    [JsonPropertyName("newsTypeVersion")]
-    public int NewsTypeVersion { get; set; } = 0;
-
-    [JsonPropertyName("newsType")]
-    public NewsArticleType NewsType { get; set; } = NewsArticleType.Unknown;
-
     [JsonPropertyName("modified")]
     public long Modified { get; set; }
 
@@ -72,6 +66,15 @@ public record Article : ArticleHeader
 
 public record Analysis
 {
+    [JsonPropertyName("newsTypeVersion")]
+    public int NewsTypeVersion { get; set; } = 0;
+
+    [JsonPropertyName("newsType")]
+    public NewsArticleType NewsType { get; set; } = NewsArticleType.Unknown;
+
+    [JsonPropertyName("newsTypeReasoning")]
+    public string NewsTypeReasoning { get; set; } = string.Empty;
+
     [JsonPropertyName("articleToneVersion")]
     public int ArticleToneVersion { get; set; } = 0;
 

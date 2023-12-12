@@ -553,6 +553,7 @@ public class HtmlParserTests
                                         {
                                             ""posts"": [
                                                 {
+                                                    ""updatedAt"": ""2100-12-24T12:00:00.000000Z"",
                                                     ""content"": {
                                                         ""blocks"": [
                                                             {
@@ -579,6 +580,7 @@ public class HtmlParserTests
                                                     }
                                                 },
                                                 {
+                                                    ""updatedAt"": ""2100-12-24T13:00:00.000000Z"",
                                                     ""content"": {
                                                         ""blocks"": [
                                                             {
@@ -623,13 +625,15 @@ public class HtmlParserTests
         var article = HtmlParser.Parse(_htmlLiveFeed, _id);
         Assert.NotNull(article);
         Assert.True(article.IsLiveNews);
-        Assert.Equal(6, article.Content.Count);
-        Assert.Equal("Ufot ovat laskeutuneet", (article.Content.ElementAt(0) as MarkdownHeaderElement)?.Text);
-        Assert.Equal("He valitsivat laskeutumispaikaksi Oulun kaupungin.", (article.Content.ElementAt(1) as MarkdownTextElement)?.Text);
-        Assert.Equal("**Miksi Oulu?**", (article.Content.ElementAt(2) as MarkdownTextElement)?.Text);
-        Assert.Equal("Ufot ovat paenneet", (article.Content.ElementAt(3) as MarkdownHeaderElement)?.Text);
-        Assert.Equal("Alus lähti aikaisin tänään, kommenttina kuului vain, että", (article.Content.ElementAt(4) as MarkdownTextElement)?.Text);
-        Assert.Equal("**Ihan liian kova meininki!**", (article.Content.ElementAt(5) as MarkdownTextElement)?.Text);
+        Assert.Equal(8, article.Content.Count);
+        Assert.Equal("2100-12-24 12:00:00 +02:00", (article.Content.ElementAt(0) as MarkdownHeaderElement)?.Text);
+        Assert.Equal("Ufot ovat laskeutuneet", (article.Content.ElementAt(1) as MarkdownHeaderElement)?.Text);
+        Assert.Equal("He valitsivat laskeutumispaikaksi Oulun kaupungin.", (article.Content.ElementAt(2) as MarkdownTextElement)?.Text);
+        Assert.Equal("**Miksi Oulu?**", (article.Content.ElementAt(3) as MarkdownTextElement)?.Text);
+        Assert.Equal("2100-12-24 12:00:00 +02:00", (article.Content.ElementAt(0) as MarkdownHeaderElement)?.Text);
+        Assert.Equal("Ufot ovat paenneet", (article.Content.ElementAt(5) as MarkdownHeaderElement)?.Text);
+        Assert.Equal("Alus lähti aikaisin tänään, kommenttina kuului vain, että", (article.Content.ElementAt(6) as MarkdownTextElement)?.Text);
+        Assert.Equal("**Ihan liian kova meininki!**", (article.Content.ElementAt(7) as MarkdownTextElement)?.Text);
     }
 
     private const string _htmlLiveFeedEnded = @"
@@ -657,6 +661,7 @@ public class HtmlParserTests
                                 {
                                     ""posts"": [
                                         {
+                                            ""updatedAt"": ""1980-09-12T12:00:00.000000Z"",
                                             ""content"": {
                                                 ""blocks"": [
                                                     {
@@ -717,15 +722,17 @@ public class HtmlParserTests
         var article = HtmlParser.Parse(_htmlLiveFeedEnded, _id);
         Assert.NotNull(article);
         Assert.False(article.IsLiveNews);
-        Assert.Equal(7, article.Content.Count);
-        Assert.Equal("Israel on antanut palestiinalaisille oman maan ja itsenäisyyden", (article.Content.ElementAt(0) as MarkdownHeaderElement)?.Text);
-        Assert.Equal("Netanjahu on iloinnut kun saanut luovuttaa maata hyvään käyttöön", (article.Content.ElementAt(1) as MarkdownTextElement)?.Text);
-        Assert.Equal("Kertoi hän haastattelussa YK:n kokouksessa", (article.Content.ElementAt(2) as MarkdownTextElement)?.Text);
-        Assert.Equal("Hän kehui alieneja hienosta rauhanvälitystyöstä", (article.Content.ElementAt(3) as MarkdownTextElement)?.Text);
-        Assert.Equal("I could not ask for better day than this", (article.Content.ElementAt(4) as MarkdownHeaderElement)?.Text);
-        Assert.Equal(2, (article.Content.ElementAt(4) as MarkdownHeaderElement)?.Level);
-        Assert.Equal("Lauloivat alienit Elon Muskin bändin säestäessä", (article.Content.ElementAt(5) as MarkdownTextElement)?.Text);
-        Assert.Equal("Elvis laskeutuu avaruusaluksesta soittamaan kitaraa ryhmän mukaan", (article.Content.ElementAt(6) as MarkdownTextElement)?.Text);
+        Assert.Equal(8, article.Content.Count);
+        Assert.Equal("1980-09-12 12:00:00 +03:00", (article.Content.ElementAt(0) as MarkdownHeaderElement)?.Text);
+        Assert.Equal(3, (article.Content.ElementAt(0) as MarkdownHeaderElement)?.Level);
+        Assert.Equal("Israel on antanut palestiinalaisille oman maan ja itsenäisyyden", (article.Content.ElementAt(1) as MarkdownHeaderElement)?.Text);
+        Assert.Equal("Netanjahu on iloinnut kun saanut luovuttaa maata hyvään käyttöön", (article.Content.ElementAt(2) as MarkdownTextElement)?.Text);
+        Assert.Equal("Kertoi hän haastattelussa YK:n kokouksessa", (article.Content.ElementAt(3) as MarkdownTextElement)?.Text);
+        Assert.Equal("Hän kehui alieneja hienosta rauhanvälitystyöstä", (article.Content.ElementAt(4) as MarkdownTextElement)?.Text);
+        Assert.Equal("I could not ask for better day than this", (article.Content.ElementAt(5) as MarkdownHeaderElement)?.Text);
+        Assert.Equal(2, (article.Content.ElementAt(5) as MarkdownHeaderElement)?.Level);
+        Assert.Equal("Lauloivat alienit Elon Muskin bändin säestäessä", (article.Content.ElementAt(6) as MarkdownTextElement)?.Text);
+        Assert.Equal("Elvis laskeutuu avaruusaluksesta soittamaan kitaraa ryhmän mukaan", (article.Content.ElementAt(7) as MarkdownTextElement)?.Text);
     }
     #endregion Live feed
 
