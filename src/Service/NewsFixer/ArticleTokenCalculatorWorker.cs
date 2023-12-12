@@ -45,7 +45,7 @@ public class ArticleTokenCalculatorWorker : BackgroundService
             }
             else
             {
-                await Task.Delay(TimeSpan.FromSeconds(120), _stoppingToken);
+                await Task.Delay(TimeSpan.FromMinutes(2), _stoppingToken);
             }
         }
 

@@ -18,10 +18,10 @@ public class YleRepository : IYleRepository
         return $"{fileName}.html";
     }
 
-    public Task<string> GetHtmlAsync(Uri uri)
+    public Task<string> GetHtmlAsync(Uri uri, CancellationToken cancellationToken)
     {
         var fileWithPath = Path.Combine(_yleFolder, GetFileName(uri));
-        return File.ReadAllTextAsync(fileWithPath);
+        return File.ReadAllTextAsync(fileWithPath, cancellationToken);
     }
 
     public Task<Uri[]> GetUriList()
@@ -35,7 +35,7 @@ public class YleRepository : IYleRepository
         return Task.FromResult(uris.ToArray());
     }
 
-    public async Task StoreAsync(Uri uri, string html)
+    public async Task StoreAsync(Uri uri, string html, CancellationToken cancellationToken)
     {
         var fileName = Path.Combine(_yleFolder, GetFileName(uri));
         if (File.Exists(fileName))
@@ -44,11 +44,11 @@ public class YleRepository : IYleRepository
         }
         else
         {
-            await File.WriteAllTextAsync(fileName, html);
+            await File.WriteAllTextAsync(fileName, html, cancellationToken);
         }
     }
 
-    public async Task UpdateAsync(Uri uri, string html)
+    public async Task UpdateAsync(Uri uri, string html, CancellationToken cancellationToken)
     {
         var fileName = Path.Combine(_yleFolder, GetFileName(uri));
         if (!File.Exists(fileName))
@@ -57,7 +57,7 @@ public class YleRepository : IYleRepository
         }
         else
         {
-            await File.WriteAllTextAsync(fileName, html);
+            await File.WriteAllTextAsync(fileName, html, cancellationToken);
         }
     }
 }

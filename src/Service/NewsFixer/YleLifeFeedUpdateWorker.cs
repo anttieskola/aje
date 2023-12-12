@@ -3,7 +3,6 @@
 public class YleLifeFeedUpdateWorker : BackgroundService
 {
     private readonly ILogger<YleLifeFeedUpdateWorker> _logger;
-    private readonly IServiceScopeFactory _scopeFactory;
     private readonly ISender _sender;
 
     public YleLifeFeedUpdateWorker(
@@ -12,7 +11,6 @@ public class YleLifeFeedUpdateWorker : BackgroundService
         ISender sender)
     {
         _logger = logger;
-        _scopeFactory = scopeFactory;
         _sender = sender;
     }
 
@@ -24,34 +22,40 @@ public class YleLifeFeedUpdateWorker : BackgroundService
 
         while (!_stoppingToken.IsCancellationRequested)
         {
-            var article = await FindArticlesToUpdate();
-            if (article != null)
+            var articles = await FindArticlesToUpdate();
+            foreach (var article in articles)
             {
                 await UpdateArticle(article);
             }
-            await Task.Delay(TimeSpan.FromMinutes(2), stoppingToken);
+            await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
         }
-
-        throw new NotImplementedException();
     }
 
-    public async Task<Article?> FindArticlesToUpdate()
+    public async Task<IReadOnlyCollection<Article>> FindArticlesToUpdate()
     {
         var query = new ArticleGetManyQuery
         {
             Category = ArticleCategory.NEWS,
             IsLiveNews = true,
             Offset = 0,
-            PageSize = 1,
+            PageSize = 100,
         };
         var result = await _sender.Send(query, _stoppingToken);
-        return result.Items.FirstOrDefault();
+        return result.Items;
     }
 
     private async Task UpdateArticle(Article article)
     {
-        await Task.Delay(1000);
-        throw new NotImplementedException();
+        var html = await _sender.Send(new YleHttpQuery { Uri = new Uri(article.Source) }, _stoppingToken);
+        var newVersion = await _sender.Send(new YleHtmlParseQuery { Html = html }, _stoppingToken);
+        newVersion.Id = article.Id;
+        // can't compare directly because analysis / token counts are different
+        // so checking for new content or end of live event
+        if (!newVersion.IsLiveNews || newVersion.Content.Count > article.Content.Count)
+        {
+            _logger.LogInformation("Article {article.Source} has changed", article.Source);
+            await _sender.Send(new YleUpdateCommand { Uri = new Uri(article.Source), Html = html }, _stoppingToken);
+            await _sender.Send(new ArticleUpdateCommand { Article = newVersion }, _stoppingToken);
+        }
     }
-
 }

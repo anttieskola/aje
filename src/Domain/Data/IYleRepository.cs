@@ -7,16 +7,18 @@ public interface IYleRepository
     /// </summary>
     /// <param name="uri"></param>
     /// <param name="html"></param>
+    /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task StoreAsync(Uri uri, string html);
+    Task StoreAsync(Uri uri, string html, CancellationToken cancellationToken);
 
     /// <summary>
     /// Update stored html content
     /// </summary>
     /// <param name="uri"></param>
     /// <param name="html"></param>
+    /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task UpdateAsync(Uri uri, string html);
+    Task UpdateAsync(Uri uri, string html, CancellationToken cancellationToken);
 
     /// <summary>
     /// Get list of stored html content's uri's
@@ -28,7 +30,8 @@ public interface IYleRepository
     /// Get single uri's html content
     /// </summary>
     /// <param name="uri"></param>
+    /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<string> GetHtmlAsync(Uri uri);
+    Task<string> GetHtmlAsync(Uri uri, CancellationToken cancellationToken);
 
 }

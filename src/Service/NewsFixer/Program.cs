@@ -14,6 +14,7 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddRedis(config);
         services.AddFileSystem(config);
         services.AddHostedService<ArticleTokenCalculatorWorker>();
+        services.AddHostedService<YleLifeFeedUpdateWorker>();
     })
     .ConfigureLogging(logging =>
     {

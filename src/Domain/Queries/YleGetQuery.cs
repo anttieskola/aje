@@ -16,6 +16,6 @@ public class YleGetQueryHandler : IRequestHandler<YleGetQuery, string>
 
     public async Task<string> Handle(YleGetQuery query, CancellationToken cancellationToken)
     {
-        return await _repository.GetHtmlAsync(query.Uri);
+        return await _repository.GetHtmlAsync(query.Uri, cancellationToken);
     }
 }

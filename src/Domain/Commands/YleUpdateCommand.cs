@@ -21,7 +21,7 @@ public class YleUpdateCommandHandler : IRequestHandler<YleUpdateCommand, YleEven
 
     public async Task<YleEvent> Handle(YleUpdateCommand command, CancellationToken cancellationToken)
     {
-        await _repository.UpdateAsync(command.Uri, command.Html);
+        await _repository.UpdateAsync(command.Uri, command.Html, cancellationToken);
         var yleEvent = new YleEvent
         {
             Uri = command.Uri,
