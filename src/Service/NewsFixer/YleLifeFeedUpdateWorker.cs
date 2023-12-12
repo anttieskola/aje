@@ -1,13 +1,13 @@
 ﻿namespace AJE.Service.NewsFixer;
 
-public class YleLifeFeedFixerWorker : BackgroundService
+public class YleLifeFeedUpdateWorker : BackgroundService
 {
-    private readonly ILogger<YleLifeFeedFixerWorker> _logger;
+    private readonly ILogger<YleLifeFeedUpdateWorker> _logger;
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ISender _sender;
 
-    public YleLifeFeedFixerWorker(
-        ILogger<YleLifeFeedFixerWorker> logger,
+    public YleLifeFeedUpdateWorker(
+        ILogger<YleLifeFeedUpdateWorker> logger,
         IServiceScopeFactory scopeFactory,
         ISender sender)
     {
@@ -24,10 +24,17 @@ public class YleLifeFeedFixerWorker : BackgroundService
 
         while (!_stoppingToken.IsCancellationRequested)
         {
-            // find article to fix
-            // try fix article
         }
 
+        throw new NotImplementedException();
+    }
+
+    public async Task<Article> FindArticleToUpdate()
+    {
+        var query = new ArticleGetManyQuery
+        {
+
+        };
         throw new NotImplementedException();
     }
 }
