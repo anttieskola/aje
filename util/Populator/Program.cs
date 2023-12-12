@@ -18,5 +18,5 @@ IHost host = Host.CreateDefaultBuilder(args)
     })
     .Build();
 
-await host.Services.InitializeRedis();
+await host.Services.InitializeRedisAsync();
 host.Run();

@@ -20,5 +20,6 @@
     <ProjectReference Include="..\..\Domain\Domain.csproj" />
     <ProjectReference Include="..\..\Infra\Redis\Redis.csproj" />
     <ProjectReference Include="..\..\Infra\DummyAi\DummyAi.csproj" />
+    <ProjectReference Include="..\..\Infra\FileSystem\FileSystem.csproj" />
   </ItemGroup>
 </Project>

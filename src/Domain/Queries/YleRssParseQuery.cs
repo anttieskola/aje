@@ -1,15 +1,15 @@
 ﻿namespace AJE.Domain.Queries;
 
-public record YleRssParseQuery : IRequest<string[]>
+public record YleRssParseQuery : IRequest<Uri[]>
 {
     public required XDocument Rss { get; init; }
 }
 
-public class YleRssParseQueryHandler : IRequestHandler<YleRssParseQuery, string[]>
+public class YleRssParseQueryHandler : IRequestHandler<YleRssParseQuery, Uri[]>
 {
-    public Task<string[]> Handle(YleRssParseQuery query, CancellationToken cancellationToken)
+    public Task<Uri[]> Handle(YleRssParseQuery query, CancellationToken cancellationToken)
     {
-        var list = new List<string>();
+        var list = new List<Uri>();
         var items = from item in query.Rss.Descendants("item")
                     select item;
 
@@ -18,7 +18,7 @@ public class YleRssParseQueryHandler : IRequestHandler<YleRssParseQuery, string[
             var articleLink = item.Element("link");
             if (articleLink != null)
             {
-                list.Add(articleLink.Value.Replace("?origin=rss", string.Empty));
+                list.Add(new Uri(articleLink.Value.Replace("?origin=rss", string.Empty)));
             }
         }
         return Task.FromResult(list.ToArray());

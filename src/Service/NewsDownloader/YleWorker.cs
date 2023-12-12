@@ -20,7 +20,7 @@ public class YleWorker : BackgroundService
         _sender = sender;
     }
 
-    private readonly ConcurrentBag<string> _currentLinks = [];
+    private readonly ConcurrentBag<Uri> _currentLinks = [];
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -46,52 +46,39 @@ public class YleWorker : BackgroundService
         }
     }
 
-    private async Task<Guid> CreateId(string source)
+    private async Task AddArticle(Uri link, string html)
     {
-        return await _sender.Send(new GuidGetQuery { Category = _guidCategory, UniqueString = source }, _stoppingToken);
-    }
-
-    private async Task<Article> ParseArticle(string html)
-    {
-        return await _sender.Send(new YleHtmlParseQuery { Html = html }, _stoppingToken);
+        var article = await _sender.Send(new YleHtmlParseQuery { Html = html }, _stoppingToken);
+        article.Id = await _sender.Send(new GuidGetQuery { Category = _guidCategory, UniqueString = link.ToString() }, _stoppingToken);
+        await _sender.Send(new ArticleAddCommand { Article = article }, _stoppingToken);
     }
 
     private async Task Reload()
     {
-        var files = Directory.GetFiles(_configuration.DumpFolder, "*.html");
-        _logger.LogInformation("Found {} files in dump folder", files.Length);
-
-        foreach (var file in files)
+        var links = await _sender.Send(new YleListQuery { }, _stoppingToken);
+        foreach (var link in links)
         {
-            var link = $"https://yle.fi/a/{Path.GetFileNameWithoutExtension(file)}";
-            if (!await _sender.Send(new ArticleExistsQuery { Source = link }, _stoppingToken))
+            if (!await _sender.Send(new ArticleExistsQuery { Source = link.ToString() }, _stoppingToken))
             {
-                var content = await File.ReadAllTextAsync(file, _stoppingToken);
-                if (await TestHtmlParse(content))
+                var html = await _sender.Send(new YleGetQuery { Uri = link }, _stoppingToken);
+                if (await TestHtmlParse(html))
                 {
-                    // add
-                    var article = await ParseArticle(content);
-                    article.Id = await CreateId(link);
-                    await _sender.Send(new ArticleAddCommand { Article = article }, _stoppingToken);
+                    await AddArticle(link, html);
                 }
                 else
                 {
                     // file content is invalid, downloading again to see if we get valid article
-                    content = await _sender.Send(new YleHttpQuery { Uri = new Uri(link) });
-                    if (await TestHtmlParse(content))
+                    html = await _sender.Send(new YleHttpQuery { Uri = link }, _stoppingToken);
+                    if (await TestHtmlParse(html))
                     {
                         // save valid article file
-                        _logger.LogInformation("Article file {} fixed with valid content", file);
-                        await File.WriteAllTextAsync(Path.Combine(_configuration.DumpFolder, CreateHTMLFileName(link)), content, _stoppingToken);
-
-                        // add
-                        var article = await ParseArticle(content);
-                        article.Id = await CreateId(link);
-                        await _sender.Send(new ArticleAddCommand { Article = article }, _stoppingToken);
+                        _logger.LogInformation("Article file {} fixed with valid content", link.ToString());
+                        await _sender.Send(new YleAddCommand { Uri = link, Html = html }, _stoppingToken);
+                        await AddArticle(link, html);
                     }
                     else
                     {
-                        _logger.LogWarning("Article file {} could not be fixed", file);
+                        _logger.LogWarning("Article file {} could not be fixed", link.ToString());
                     }
                 }
             }
@@ -103,7 +90,6 @@ public class YleWorker : BackgroundService
         try
         {
             var content = await _sender.Send(new YleHttpQuery { Uri = feed.Url }, _stoppingToken);
-            await File.WriteAllTextAsync(Path.Combine(_configuration.DumpFolder, CreateRSSFileName(feed.Url)), content, _stoppingToken);
             var links = await _sender.Send(new YleRssParseQuery { Rss = XDocument.Parse(content) });
             foreach (var link in links)
             {
@@ -117,21 +103,15 @@ public class YleWorker : BackgroundService
         }
     }
 
-    private async Task HandleLink(string link)
+    private async Task HandleLink(Uri link)
     {
         try
         {
-            if (!await _sender.Send(new ArticleExistsQuery { Source = link }, _stoppingToken))
+            if (!await _sender.Send(new ArticleExistsQuery { Source = link.ToString() }, _stoppingToken))
             {
-                // Note, we want to crash if any errors occur in reloading
-                // Yle uses [Amazon CloudFron](https://aws.amazon.com/cloudfront/)
-                // So in case of high traffic or similar we might download an CloudFront error page
-                // TODO: Feature that detects the error page and works around it
-                var content = await _sender.Send(new YleHttpQuery { Uri = new Uri(link) });
-                await File.WriteAllTextAsync(Path.Combine(_configuration.DumpFolder, CreateHTMLFileName(link)), content, _stoppingToken);
-                var article = await ParseArticle(content);
-                article.Id = await CreateId(link);
-                await _sender.Send(new ArticleAddCommand { Article = article }, _stoppingToken);
+                var html = await _sender.Send(new YleHttpQuery { Uri = link });
+                await _sender.Send(new YleAddCommand { Uri = link, Html = html }, _stoppingToken);
+                await AddArticle(link, html);
             }
         }
         catch (Exception e)
@@ -140,30 +120,16 @@ public class YleWorker : BackgroundService
         }
     }
 
-    public async Task<bool> TestHtmlParse(string content)
+    public async Task<bool> TestHtmlParse(string html)
     {
         try
         {
-            await ParseArticle(content);
+            await _sender.Send(new YleHtmlParseQuery { Html = html }, _stoppingToken);
             return true;
         }
         catch (ParsingException)
         {
             return false;
         }
-    }
-
-    public static string CreateRSSFileName(Uri uri)
-    {
-        var sb = new StringBuilder();
-        uri.ToString().Where(c => char.IsAsciiLetterOrDigit(c)).ToList().ForEach(c => sb.Append(c));
-        sb.Append(".xml");
-        return sb.ToString();
-    }
-
-    public static string CreateHTMLFileName(string url)
-    {
-        var fileName = url.Replace("https://yle.fi/a/", string.Empty);
-        return $"{fileName}.html";
     }
 }

@@ -6,6 +6,7 @@ global using AJE.Domain.Enums;
 global using AJE.Domain.Queries;
 global using AJE.Infra.Ai;
 global using AJE.Infra.Redis;
+global using AJE.Infra.DummyFileSystem;
 global using MediatR;
 global using Microsoft.EntityFrameworkCore;
 global using System.ComponentModel.DataAnnotations;

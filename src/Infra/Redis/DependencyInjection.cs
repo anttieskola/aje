@@ -18,6 +18,7 @@ public static class DependencyInjection
         services.AddSingleton<IPromptStudioRepository, PromptStudioRepository>();
         services.AddSingleton<IPromptStudioEventHandler, PromptStudioEventHandler>();
         services.AddSingleton<IRedisService, RedisService>();
+        services.AddSingleton<IYleEventHandler, YleEventHandler>();
         return services;
     }
 
@@ -27,7 +28,7 @@ public static class DependencyInjection
             ?? throw new PlatformException(nameof(RedisConfiguration));
     }
 
-    public static async Task InitializeRedis(this IServiceProvider provider)
+    public static async Task InitializeRedisAsync(this IServiceProvider provider)
     {
         var redis = provider.GetService<IRedisService>()
             ?? throw new PlatformException($"{nameof(IRedisService)} not found");

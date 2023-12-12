@@ -9,6 +9,5 @@ public class YleFeed
 public class YleConfiguration
 {
     public int RefreshDelayInSeconds { get; set; }
-    public required string DumpFolder { get; set; }
     public required List<YleFeed> Feeds { get; set; }
 }

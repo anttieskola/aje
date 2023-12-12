@@ -74,8 +74,8 @@ public class YleParseRssQueryHandlerTests
         var result = await handler.Handle(new YleRssParseQuery { Rss = rss }, CancellationToken.None);
         Assert.NotNull(result);
         Assert.Equal(3, result.Length);
-        Assert.Equal("https://yle.fi/a/74-20052790", result[0]);
-        Assert.Equal("https://yle.fi/a/74-20052777", result[1]);
-        Assert.Equal("https://yle.fi/a/3-12127507", result[2]);
+        Assert.Equal(new Uri("https://yle.fi/a/74-20052790"), result[0]);
+        Assert.Equal(new Uri("https://yle.fi/a/74-20052777"), result[1]);
+        Assert.Equal(new Uri("https://yle.fi/a/3-12127507"), result[2]);
     }
 }

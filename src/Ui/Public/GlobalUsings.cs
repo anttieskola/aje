@@ -2,13 +2,10 @@
 global using AJE.Ui.Public.Hubs;
 global using AJE.Infra.DummyAi;
 global using AJE.Domain;
-global using AJE.Domain.Ai;
-global using AJE.Domain.Data;
-global using AJE.Domain.Events;
 global using AJE.Domain.Entities;
 global using AJE.Infra.Redis;
+global using AJE.Infra.DummyFileSystem;
 global using System;
 global using StackExchange.Redis;
-global using MediatR;
 global using System.Text.Json;
 global using Microsoft.AspNetCore.SignalR;

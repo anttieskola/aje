@@ -13,6 +13,7 @@ var redisConfiguration = config.GetRedisConfiguration();
 
 // dummies
 builder.Services.AddDummyAi();
+builder.Services.AddDummyFileSystem();
 
 // real
 builder.Services.AddDomain();
@@ -33,7 +34,7 @@ builder.Logging.AddSimpleConsole(option =>
 });
 var app = builder.Build();
 
-await app.Services.InitializeRedis();
+await app.Services.InitializeRedisAsync();
 
 if (!app.Environment.IsDevelopment())
 {

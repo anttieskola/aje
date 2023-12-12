@@ -30,7 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Domain\Domain.csproj" />
+    <ProjectReference Include="..\..\src\Domain\Domain.csproj" />
     <ProjectReference Include="..\..\src\Service\NewsDownloader\NewsDownloader.csproj" />
     <ProjectReference Include="..\..\src\Infra\Ai\Ai.csproj" />
     <ProjectReference Include="..\..\src\Infra\Redis\Redis.csproj" />

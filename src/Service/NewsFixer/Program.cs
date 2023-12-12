@@ -12,6 +12,7 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddDomain();
         services.AddAi(config);
         services.AddRedis(config);
+        services.AddFileSystem(config);
         services.AddHostedService<ArticleTokenCalculatorWorker>();
     })
     .ConfigureLogging(logging =>
@@ -23,5 +24,6 @@ var host = Host.CreateDefaultBuilder(args)
     })
     .Build();
 
-await host.Services.InitializeRedis();
+await host.Services.InitializeRedisAsync();
+await host.Services.InitializeFileSystemAsync();
 host.Run();
