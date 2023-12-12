@@ -7,7 +7,6 @@ IHost host = Host.CreateDefaultBuilder(args)
             .Build();
 
         services.AddHostedService<ArticleWorker>();
-        services.AddApplication();
         services.AddRedis(config);
     })
     .ConfigureLogging(logging =>

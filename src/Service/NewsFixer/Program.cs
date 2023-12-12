@@ -9,7 +9,6 @@ var host = Host.CreateDefaultBuilder(args)
         {
             options.UseNpgsql(config.GetConnectionString("NewsFixer"));
         });
-        services.AddApplication();
         services.AddDomain();
         services.AddAi(config);
         services.AddRedis(config);

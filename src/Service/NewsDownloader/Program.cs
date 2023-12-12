@@ -10,7 +10,6 @@ var host = Host.CreateDefaultBuilder(args)
             ?? throw new SystemException(nameof(YleConfiguration));
         services.AddSingleton(yleConfig);
 
-        services.AddApplication();
         services.AddDomain();
         services.AddRedis(config);
         services.AddDummyAi();

@@ -1,7 +1,6 @@
 ﻿global using AJE.Ui.Public;
 global using AJE.Ui.Public.Hubs;
 global using AJE.Infra.DummyAi;
-global using AJE.Application;
 global using AJE.Domain;
 global using AJE.Domain.Ai;
 global using AJE.Domain.Data;

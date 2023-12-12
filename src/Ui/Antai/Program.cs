@@ -11,7 +11,6 @@ var config = new ConfigurationBuilder()
 
 var redisConfiguration = config.GetRedisConfiguration();
 
-builder.Services.AddApplication();
 builder.Services.AddDomain();
 builder.Services.AddAi(config);
 builder.Services.AddRedis(config);

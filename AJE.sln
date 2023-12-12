@@ -5,8 +5,6 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Domain", "src\Domain\Domain.csproj", "{1CDEA8E3-55FB-4E00-BD9D-AF4E29F82B61}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Application", "src\Application\Application.csproj", "{AD228D65-A2E1-4DE9-BFED-800FAD7691FD}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Service", "Service", "{1F2CC064-FF62-4052-B834-31EF506C62F8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NewsAnalyzer", "src\Service\NewsAnalyzer\NewsAnalyzer.csproj", "{D5386E8F-076F-40BF-BE85-11CA9EF85B3E}"
@@ -86,10 +84,6 @@ Global
 		{1CDEA8E3-55FB-4E00-BD9D-AF4E29F82B61}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1CDEA8E3-55FB-4E00-BD9D-AF4E29F82B61}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1CDEA8E3-55FB-4E00-BD9D-AF4E29F82B61}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AD228D65-A2E1-4DE9-BFED-800FAD7691FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AD228D65-A2E1-4DE9-BFED-800FAD7691FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AD228D65-A2E1-4DE9-BFED-800FAD7691FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AD228D65-A2E1-4DE9-BFED-800FAD7691FD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D5386E8F-076F-40BF-BE85-11CA9EF85B3E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D5386E8F-076F-40BF-BE85-11CA9EF85B3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D5386E8F-076F-40BF-BE85-11CA9EF85B3E}.Release|Any CPU.ActiveCfg = Release|Any CPU

@@ -48,19 +48,12 @@ public class YleWorker : BackgroundService
 
     private async Task<Guid> CreateId(string source)
     {
-        return await _sender.Send(new GuidGetQuery
-        {
-            Category = _guidCategory,
-            UniqueString = source,
-        }, _stoppingToken);
+        return await _sender.Send(new GuidGetQuery { Category = _guidCategory, UniqueString = source }, _stoppingToken);
     }
 
     private async Task<Article> ParseArticle(string html)
     {
-        return await _sender.Send(new YleHtmlParseQuery
-        {
-            Html = html,
-        }, _stoppingToken);
+        return await _sender.Send(new YleHtmlParseQuery { Html = html }, _stoppingToken);
     }
 
     private async Task Reload()
@@ -84,7 +77,7 @@ public class YleWorker : BackgroundService
                 else
                 {
                     // file content is invalid, downloading again to see if we get valid article
-                    content = await Request(new Uri(link));
+                    content = await _sender.Send(new YleHttpQuery { Uri = new Uri(link) });
                     if (await TestHtmlParse(content))
                     {
                         // save valid article file
@@ -109,9 +102,7 @@ public class YleWorker : BackgroundService
     {
         try
         {
-            using var client = new HttpClient();
-            var response = await client.GetAsync(feed.Url, _stoppingToken);
-            var content = await response.Content.ReadAsStringAsync(_stoppingToken);
+            var content = await _sender.Send(new YleHttpQuery { Uri = feed.Url }, _stoppingToken);
             await File.WriteAllTextAsync(Path.Combine(_configuration.DumpFolder, CreateRSSFileName(feed.Url)), content, _stoppingToken);
             var links = await _sender.Send(new YleRssParseQuery { Rss = XDocument.Parse(content) });
             foreach (var link in links)
@@ -136,7 +127,7 @@ public class YleWorker : BackgroundService
                 // Yle uses [Amazon CloudFron](https://aws.amazon.com/cloudfront/)
                 // So in case of high traffic or similar we might download an CloudFront error page
                 // TODO: Feature that detects the error page and works around it
-                var content = await Request(new Uri(link));
+                var content = await _sender.Send(new YleHttpQuery { Uri = new Uri(link) });
                 await File.WriteAllTextAsync(Path.Combine(_configuration.DumpFolder, CreateHTMLFileName(link)), content, _stoppingToken);
                 var article = await ParseArticle(content);
                 article.Id = await CreateId(link);
@@ -160,43 +151,6 @@ public class YleWorker : BackgroundService
         {
             return false;
         }
-    }
-
-    public async Task<string> Request(Uri uri)
-    {
-        using var client = new HttpClient();
-        var request = CreateRequest(uri);
-        var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, _stoppingToken);
-        if (response.Content.Headers.ContentEncoding.Contains("gzip"))
-        {
-            using var stream = await response.Content.ReadAsStreamAsync(_stoppingToken);
-            using var gzipStream = new GZipStream(stream, CompressionMode.Decompress);
-            using var decompressedStream = new MemoryStream();
-            await gzipStream.CopyToAsync(decompressedStream, _stoppingToken);
-            decompressedStream.Seek(0, SeekOrigin.Begin);
-            return await new StreamReader(decompressedStream).ReadToEndAsync(_stoppingToken);
-        }
-        else
-        {
-            return await response.Content.ReadAsStringAsync(_stoppingToken);
-        }
-    }
-
-    public static HttpRequestMessage CreateRequest(Uri uri)
-    {
-        var request = new HttpRequestMessage(HttpMethod.Get, uri);
-        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("text/html"));
-        request.Headers.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
-        request.Headers.Add("Sec-Ch-Ua", "\"Chromium\";v=\"118\", \"Microsoft Edge\";v=\"118\", \"Not=A?Brand\";v=\"99\"");
-        request.Headers.Add("Sec-Ch-Ua-Mobile", "?0");
-        request.Headers.Add("Sec-Ch-Ua-Platform", "\"Linux\"");
-        request.Headers.Add("Sec-Fetch-Dest", "document");
-        request.Headers.Add("Sec-Fetch-Mode", "navigate");
-        request.Headers.Add("Sec-Fetch-Site", "none");
-        request.Headers.Add("Sec-Fetch-User", "?1");
-        request.Headers.Add("Upgrade-Insecure-Requests", "1");
-        request.Headers.Add("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.2088.33");
-        return request;
     }
 
     public static string CreateRSSFileName(Uri uri)

@@ -14,7 +14,6 @@ var redisConfiguration = config.GetRedisConfiguration();
 // dummys
 builder.Services.AddDummyAi();
 // real
-builder.Services.AddApplication();
 builder.Services.AddDomain();
 builder.Services.AddRedis(config);
 builder.Services.AddRazorPages();

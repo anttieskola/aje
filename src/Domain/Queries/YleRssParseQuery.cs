@@ -7,10 +7,10 @@ public record YleRssParseQuery : IRequest<string[]>
 
 public class YleRssParseQueryHandler : IRequestHandler<YleRssParseQuery, string[]>
 {
-    public Task<string[]> Handle(YleRssParseQuery request, CancellationToken cancellationToken)
+    public Task<string[]> Handle(YleRssParseQuery query, CancellationToken cancellationToken)
     {
         var list = new List<string>();
-        var items = from item in request.Rss.Descendants("item")
+        var items = from item in query.Rss.Descendants("item")
                     select item;
 
         foreach (var item in items)

@@ -8,9 +8,9 @@ public record YleHtmlParseQuery : IRequest<Article>
 
 public class YleHtmlParseQueryHandler : IRequestHandler<YleHtmlParseQuery, Article>
 {
-    public Task<Article> Handle(YleHtmlParseQuery request, CancellationToken cancellationToken)
+    public Task<Article> Handle(YleHtmlParseQuery query, CancellationToken cancellationToken)
     {
-        var js = ParseJavaScript(request.Html);
+        var js = ParseJavaScript(query.Html);
         var state = ParseStateString(js);
         var article = ParseJson(state);
         return Task.FromResult(article);

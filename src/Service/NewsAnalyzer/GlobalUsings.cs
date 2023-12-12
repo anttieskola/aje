@@ -1,6 +1,5 @@
 global using AJE.Service.NewsAnalyzer;
 global using AJE.Service.NewsAnalyzer.Infra;
-global using AJE.Application;
 global using AJE.Domain;
 global using AJE.Domain.Commands;
 global using AJE.Domain.Enums;
