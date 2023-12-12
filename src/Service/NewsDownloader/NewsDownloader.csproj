@@ -19,5 +19,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Application\Application.csproj" />
     <ProjectReference Include="..\..\Infra\Redis\Redis.csproj" />
+    <ProjectReference Include="..\..\Infra\DummyAi\DummyAi.csproj" />
   </ItemGroup>
 </Project>

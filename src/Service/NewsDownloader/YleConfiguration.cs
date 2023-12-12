@@ -1,4 +1,4 @@
-﻿namespace AJE.Service.NewsDownloader.Yle;
+﻿namespace AJE.Service.NewsDownloader;
 
 public class YleFeed
 {

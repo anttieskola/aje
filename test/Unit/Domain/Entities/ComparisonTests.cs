@@ -11,7 +11,6 @@ public class ComparisonTests
 {
     ""category"": 2,
     ""modified"": 638333882240000000,
-    ""published"": true,
     ""source"": ""https://yle.fi/a/74-20056194"",
     ""language"": ""en"",
     ""content"": [

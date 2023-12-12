@@ -5,7 +5,7 @@ using AJE.Domain.Queries;
 
 namespace AJE.Test.Unit.Domain.Queries;
 
-public class ArticleGetSentimentPolarityQueryHandlerTests
+public class ArticleGetSentimentPolarityQueryTests
 {
     // It calls itself
     [Fact]

@@ -1,4 +1,4 @@
-﻿using AJE.Service.NewsDownloader.Yle;
+﻿using AJE.Service.NewsDownloader;
 
 namespace AJE.Test.Unit.Services.News.Yle;
 

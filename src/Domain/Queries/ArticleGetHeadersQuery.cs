@@ -3,7 +3,6 @@
 public record ArticleGetHeadersQuery : PaginatedQuery, IRequest<PaginatedList<ArticleHeader>>
 {
     public ArticleCategory? Category { get; init; }
-    public bool? Published { get; init; }
     public string? Language { get; init; }
     public Polarity? Polarity { get; init; }
     public int? MaxPolarityVersion { get; init; }

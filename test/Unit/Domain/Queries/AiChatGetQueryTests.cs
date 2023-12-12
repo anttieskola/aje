@@ -4,7 +4,7 @@ using AJE.Domain.Queries;
 
 namespace AJE.Test.Unit.Domain.Queries;
 
-public class AiChatGetQueryHandlerTests
+public class AiChatGetQueryTests
 {
     [Fact]
     public void Ok()
@@ -16,8 +16,8 @@ public class AiChatGetQueryHandlerTests
         {
             ChatId = myId,
             StartTimestamp = DateTime.UtcNow,
-            Interactions = new EquatableList<AiChatInteractionEntry>
-            {
+            Interactions =
+            [
                 new() {
                     InteractionId = Guid.NewGuid(),
                     InteractionTimestamp = DateTime.UtcNow,
@@ -27,7 +27,7 @@ public class AiChatGetQueryHandlerTests
                     NumberOfTokensContext = 1024,
                     NumberOfTokensEvaluated = 8,
                 }
-            }
+            ]
         });
         var handler = new AiChatGetQueryHandler(mockAiChatRepository.Object);
 

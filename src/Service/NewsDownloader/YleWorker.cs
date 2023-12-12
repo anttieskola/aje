@@ -1,4 +1,4 @@
-namespace AJE.Service.NewsDownloader.Yle;
+namespace AJE.Service.NewsDownloader;
 
 public class YleWorker : BackgroundService
 {
@@ -20,7 +20,7 @@ public class YleWorker : BackgroundService
         _sender = sender;
     }
 
-    private readonly ConcurrentBag<string> _currentLinks = new();
+    private readonly ConcurrentBag<string> _currentLinks = [];
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -52,7 +52,15 @@ public class YleWorker : BackgroundService
         {
             Category = _guidCategory,
             UniqueString = source,
-        }, CancellationToken.None);
+        }, _stoppingToken);
+    }
+
+    private async Task<Article> ParseArticle(string html)
+    {
+        return await _sender.Send(new YleHtmlParseQuery
+        {
+            Html = html,
+        }, _stoppingToken);
     }
 
     private async Task Reload()
@@ -69,7 +77,8 @@ public class YleWorker : BackgroundService
                 if (await TestHtmlParse(content))
                 {
                     // add
-                    var article = HtmlParser.Parse(content, await CreateId(link));
+                    var article = await ParseArticle(content);
+                    article.Id = await CreateId(link);
                     await _sender.Send(new ArticleAddCommand { Article = article }, _stoppingToken);
                 }
                 else
@@ -83,7 +92,8 @@ public class YleWorker : BackgroundService
                         await File.WriteAllTextAsync(Path.Combine(_configuration.DumpFolder, CreateHTMLFileName(link)), content, _stoppingToken);
 
                         // add
-                        var article = HtmlParser.Parse(content, await CreateId(link));
+                        var article = await ParseArticle(content);
+                        article.Id = await CreateId(link);
                         await _sender.Send(new ArticleAddCommand { Article = article }, _stoppingToken);
                     }
                     else
@@ -103,7 +113,7 @@ public class YleWorker : BackgroundService
             var response = await client.GetAsync(feed.Url, _stoppingToken);
             var content = await response.Content.ReadAsStringAsync(_stoppingToken);
             await File.WriteAllTextAsync(Path.Combine(_configuration.DumpFolder, CreateRSSFileName(feed.Url)), content, _stoppingToken);
-            var links = RssParser.Parse(content);
+            var links = await _sender.Send(new YleRssParseQuery { Rss = XDocument.Parse(content) });
             foreach (var link in links)
             {
                 if (!_currentLinks.Contains(link))
@@ -128,7 +138,8 @@ public class YleWorker : BackgroundService
                 // TODO: Feature that detects the error page and works around it
                 var content = await Request(new Uri(link));
                 await File.WriteAllTextAsync(Path.Combine(_configuration.DumpFolder, CreateHTMLFileName(link)), content, _stoppingToken);
-                var article = HtmlParser.Parse(content, await CreateId(link));
+                var article = await ParseArticle(content);
+                article.Id = await CreateId(link);
                 await _sender.Send(new ArticleAddCommand { Article = article }, _stoppingToken);
             }
         }
@@ -142,7 +153,7 @@ public class YleWorker : BackgroundService
     {
         try
         {
-            HtmlParser.Parse(content, await CreateId("https://news.anttieskola.com/123456789012"));
+            await ParseArticle(content);
             return true;
         }
         catch (ParsingException)
