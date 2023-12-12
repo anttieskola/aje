@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 namespace AJE.Test.Integration.Infra;
 
 /// <summary>
-/// Tests require llama.cpp running on localhost:5999
+/// Tests require llama.cpp
 /// </summary>
 public class LlamaAiModelTests : IClassFixture<HttpClientFixture>
 {

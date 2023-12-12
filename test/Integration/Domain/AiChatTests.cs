@@ -14,8 +14,8 @@ using Microsoft.Extensions.Logging;
 namespace AJE.Test.Integration.Domain;
 
 /// <summary>
-/// Tests require redis running on localhost:6379
-/// Tests require llama.cpp running on localhost:8080
+/// Tests require redis running
+/// Tests require llama.cpp running
 /// </summary>
 // maybe this warning is bug as it only shows where where two fixtures are used?
 #pragma warning disable xUnit1033

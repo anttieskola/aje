@@ -25,6 +25,8 @@ public class ArticleContextCreatorTests
         };
         var creator = new ArticleContextCreator(mockSimplifier.Object);
         var context = creator.Create(article);
-        Assert.Equal("Text should always be included", context);
+        // we want headers in future as they can be important factor for analysis
+        // for example sensationalism scoring with click-bait articles
+        Assert.Equal("Do we want headers?Text should always be included", context);
     }
 }

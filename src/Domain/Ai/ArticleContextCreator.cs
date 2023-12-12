@@ -14,7 +14,11 @@ public class ArticleContextCreator : IContextCreator<Article>
         var sb = new StringBuilder();
         foreach (var element in article.Content)
         {
-            if (element is MarkdownTextElement text)
+            if (element is MarkdownHeaderElement headerText)
+            {
+                sb.Append(_simplifier.Simplify(headerText.Text));
+            }
+            else if (element is MarkdownTextElement text)
             {
                 sb.Append(_simplifier.Simplify(text.Text));
             }

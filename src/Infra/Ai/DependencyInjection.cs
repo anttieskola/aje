@@ -8,8 +8,6 @@ public static class DependencyInjection
     {
         var llamaConfiguration = config.GetLlamaConfiguration();
         services.AddSingleton(llamaConfiguration);
-
-        services.AddHttpClient();
         services.AddSingleton<IAiModel, LlamaAiModel>();
         services.AddSingleton<IAiLogger, AiLogger>();
         return services;

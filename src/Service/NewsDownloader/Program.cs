@@ -10,16 +10,11 @@ var host = Host.CreateDefaultBuilder(args)
             ?? throw new SystemException(nameof(YleConfiguration));
         services.AddSingleton(yleConfig);
 
-        services.AddApplication();
         services.AddDomain();
         services.AddRedis(config);
+        services.AddFileSystem(config);
+        services.AddDummyAi();
         services.AddHostedService<YleWorker>();
-
-        // dummys
-        services.AddSingleton<IAiModel, DummyAiModel>();
-        services.AddSingleton<IAiLogger, DummyAiLogger>();
-        services.AddSingleton<IAiChatRepository, DummyAiChatRepository>();
-        services.AddSingleton<IAiChatEventHandler, DummyAiChatEventHandler>();
     })
     .ConfigureLogging(logging =>
     {
@@ -30,5 +25,6 @@ var host = Host.CreateDefaultBuilder(args)
     })
     .Build();
 
-await host.Services.InitializeRedis();
+await host.Services.InitializeRedisAsync();
+await host.Services.InitializeFileSystemAsync();
 host.Run();

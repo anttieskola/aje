@@ -26,7 +26,6 @@ public class ArticleUpdateTokenCountCommandHandler : IRequestHandler<ArticleUpda
         {
             Id = command.Id,
             Timestamp = DateTimeOffset.UtcNow,
-            Published = false,
             ContentUpdated = false,
         };
         await _articleEventHandler.SendAsync(e);

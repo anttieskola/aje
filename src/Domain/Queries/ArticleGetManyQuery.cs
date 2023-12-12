@@ -3,12 +3,12 @@
 public record ArticleGetManyQuery : PaginatedQuery, IRequest<PaginatedList<Article>>
 {
     public ArticleCategory? Category { get; init; }
-    public bool? Published { get; init; }
     public string? Language { get; init; }
     public Polarity? Polarity { get; init; }
     public int? MaxPolarityVersion { get; init; }
     public bool? IsValidated { get; init; }
     public int? MaxTokenCount { get; init; }
+    public bool? IsLiveNews { get; init; }
 }
 
 public class ArticleGetManyQueryHandler : IRequestHandler<ArticleGetManyQuery, PaginatedList<Article>>

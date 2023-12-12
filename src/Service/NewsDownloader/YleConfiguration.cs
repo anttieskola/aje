@@ -1,4 +1,4 @@
-﻿namespace AJE.Service.NewsDownloader.Yle;
+﻿namespace AJE.Service.NewsDownloader;
 
 public class YleFeed
 {
@@ -9,6 +9,5 @@ public class YleFeed
 public class YleConfiguration
 {
     public int RefreshDelayInSeconds { get; set; }
-    public required string DumpFolder { get; set; }
     public required List<YleFeed> Feeds { get; set; }
 }

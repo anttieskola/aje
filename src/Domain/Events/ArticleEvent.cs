@@ -11,17 +11,14 @@ public record ArticleEvent
     public required DateTimeOffset Timestamp { get; init; }
 }
 
+#pragma warning disable S2094
 public record ArticleAddedEvent : ArticleEvent
 {
-    [JsonPropertyName("published")]
-    public required bool Published { get; init; }
 }
+#pragma warning restore S2094
 
 public record ArticleUpdatedEvent : ArticleEvent
 {
-    [JsonPropertyName("published")]
-    public required bool Published { get; init; }
-
     [JsonPropertyName("contentUpdated")]
     public required bool ContentUpdated { get; init; }
 }

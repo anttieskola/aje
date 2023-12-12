@@ -6,7 +6,6 @@ var host = Host.CreateDefaultBuilder(args)
             .AddJsonFile("appsettings.json", false, true)
             .Build();
 
-        services.AddApplication();
         services.AddDomain();
         services.AddHostedService<MolWorker>();
     })

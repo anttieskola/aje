@@ -88,8 +88,6 @@ public class ArticleRepository : IArticleRepository
         var builder = new QueryBuilder();
         if (query.Category != null)
             builder.Conditions.Add(new QueryCondition { Expression = $"@category:[{(int)query.Category} {(int)query.Category}]" });
-        if (query.Published != null)
-            builder.Conditions.Add(new QueryCondition { Expression = $"@published:{{{query.Published}}}" });
         if (query.Language != null)
             builder.Conditions.Add(new QueryCondition { Expression = $"@language:{{{query.Language}}}" });
         if (query.Polarity != null)
@@ -100,6 +98,8 @@ public class ArticleRepository : IArticleRepository
             builder.Conditions.Add(new QueryCondition { Expression = $"@isValidated:{{{query.IsValidated}}}" });
         if (query.MaxTokenCount != null)
             builder.Conditions.Add(new QueryCondition { Expression = $"@tokenCount:[-inf {query.MaxTokenCount}]" });
+        if (query.IsLiveNews != null)
+            builder.Conditions.Add(new QueryCondition { Expression = $"@isLiveNews:{{{query.IsLiveNews}}}" });
         var queryString = builder.Build();
 
         var arguments = new string[] { _index.Name, queryString, "SORTBY", "modified", "DESC", "LIMIT", query.Offset.ToString(), query.PageSize.ToString() };
@@ -143,8 +143,6 @@ public class ArticleRepository : IArticleRepository
         var builder = new QueryBuilder();
         if (query.Category != null)
             builder.Conditions.Add(new QueryCondition { Expression = $"@category:[{(int)query.Category} {(int)query.Category}]" });
-        if (query.Published != null)
-            builder.Conditions.Add(new QueryCondition { Expression = $"@published:{{{query.Published}}}" });
         if (query.Language != null)
             builder.Conditions.Add(new QueryCondition { Expression = $"@language:{{{query.Language}}}" });
         if (query.Polarity != null)

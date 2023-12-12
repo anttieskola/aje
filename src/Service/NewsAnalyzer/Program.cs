@@ -9,10 +9,10 @@ var host = Host.CreateDefaultBuilder(args)
         {
             options.UseNpgsql(config.GetConnectionString("NewsAnalyzer"));
         });
-        services.AddApplication();
         services.AddDomain();
         services.AddAi(config);
         services.AddRedis(config);
+        services.AddDummyFileSystem();
         services.AddHostedService<SentimentPolarityWorker>();
     })
     .ConfigureLogging(logging =>
@@ -24,5 +24,5 @@ var host = Host.CreateDefaultBuilder(args)
     })
     .Build();
 
-await host.Services.InitializeRedis();
+await host.Services.InitializeRedisAsync();
 host.Run();

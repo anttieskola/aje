@@ -9,11 +9,12 @@ var host = Host.CreateDefaultBuilder(args)
         {
             options.UseNpgsql(config.GetConnectionString("NewsFixer"));
         });
-        services.AddApplication();
         services.AddDomain();
         services.AddAi(config);
         services.AddRedis(config);
+        services.AddFileSystem(config);
         services.AddHostedService<ArticleTokenCalculatorWorker>();
+        services.AddHostedService<YleLifeFeedUpdateWorker>();
     })
     .ConfigureLogging(logging =>
     {
@@ -24,5 +25,6 @@ var host = Host.CreateDefaultBuilder(args)
     })
     .Build();
 
-await host.Services.InitializeRedis();
+await host.Services.InitializeRedisAsync();
+await host.Services.InitializeFileSystemAsync();
 host.Run();

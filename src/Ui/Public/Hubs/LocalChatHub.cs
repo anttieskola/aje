@@ -8,7 +8,7 @@ public interface IChatClient
 public class LocalChatHub : Hub<IChatClient>
 {
     private readonly ILogger<LocalChatHub> _logger;
-    
+
     public LocalChatHub(
         ILogger<LocalChatHub> logger)
     {
@@ -36,7 +36,6 @@ public class LocalChatHub : Hub<IChatClient>
     public override async Task OnConnectedAsync()
     {
         _logger.LogInformation("Connected: {}", Context.ConnectionId);
-
         await base.OnConnectedAsync();
     }
 

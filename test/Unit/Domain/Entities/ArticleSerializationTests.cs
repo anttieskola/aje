@@ -17,7 +17,6 @@ public class ArticleSerializationTests
             Category = ArticleCategory.BOGUS,
             Title = "AJE is born",
             Modified = new DateTime(1980, 9, 12, 12, 00, 12, DateTimeKind.Utc).Ticks,
-            Published = true,
             Source = "https://www.anttieskola.com",
             Language = "en",
             Content = new EquatableList<MarkdownElement>
@@ -47,7 +46,6 @@ public class ArticleSerializationTests
         Assert.Equal(original.Category, copy.Category);
         Assert.Equal(original.Title, copy.Title);
         Assert.Equal(original.Modified, copy.Modified);
-        Assert.Equal(original.Published, copy.Published);
         Assert.Equal(original.Source, copy.Source);
         Assert.Equal(original.Language, copy.Language);
         Assert.Equal(original.Content.Count, copy.Content.Count);

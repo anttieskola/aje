@@ -12,12 +12,9 @@ var config = new ConfigurationBuilder()
 var redisConfiguration = config.GetRedisConfiguration();
 
 // dummys
-builder.Services.AddSingleton<IAiModel, DummyAiModel>();
-builder.Services.AddSingleton<IAiLogger, DummyAiLogger>();
-builder.Services.AddSingleton<IAiChatRepository, DummyAiChatRepository>();
-builder.Services.AddSingleton<IAiChatEventHandler, DummyAiChatEventHandler>();
+builder.Services.AddDummyAi();
+builder.Services.AddDummyFileSystem();
 // real
-builder.Services.AddApplication();
 builder.Services.AddDomain();
 builder.Services.AddRedis(config);
 builder.Services.AddRazorPages();
@@ -37,7 +34,7 @@ builder.Logging.AddSimpleConsole(option =>
 builder.Services.AddHostedService<ChatRelayService>();
 var app = builder.Build();
 
-await app.Services.InitializeRedis();
+await app.Services.InitializeRedisAsync();
 
 if (!app.Environment.IsDevelopment())
 {

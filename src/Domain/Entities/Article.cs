@@ -21,22 +21,20 @@ public record Article : ArticleHeader
     public ArticleCategory Category { get; set; }
 
     [JsonPropertyName("content")]
-    public EquatableList<MarkdownElement> Content { get; set; } = EquatableList<MarkdownElement>.Empty;
+    public EquatableList<MarkdownElement> Content { get; set; } = [];
 
     [JsonPropertyName("chat")]
-    public EquatableList<ChatMessage> Chat { get; set; } = EquatableList<ChatMessage>.Empty;
+    public EquatableList<ChatMessage> Chat { get; set; } = [];
 
-    [JsonPropertyName("newsTypeVersion")]
-    public int NewsTypeVersion { get; set; } = 0;
-
-    [JsonPropertyName("newsType")]
-    public NewsArticleType NewsType { get; set; } = NewsArticleType.Unknown;
+    /// <summary>
+    /// Is article live news that updates until some point in time
+    /// Will stay true until reporting ended
+    /// </summary>
+    [JsonPropertyName("isLiveNews")]
+    public bool IsLiveNews { get; set; }
 
     [JsonPropertyName("modified")]
     public long Modified { get; set; }
-
-    [JsonPropertyName("published")]
-    public bool Published { get; set; }
 
     [JsonPropertyName("source")]
     public string Source { get; set; } = string.Empty;
@@ -62,19 +60,29 @@ public record Article : ArticleHeader
     [JsonPropertyName("isValidated")]
     public bool IsValidated { get; set; } = false;
 
+    [JsonPropertyName("analysis")]
+    public Analysis Analysis { get; set; } = new();
+}
+
+public record Analysis
+{
+    [JsonPropertyName("newsTypeVersion")]
+    public int NewsTypeVersion { get; set; } = 0;
+
+    [JsonPropertyName("newsType")]
+    public NewsArticleType NewsType { get; set; } = NewsArticleType.Unknown;
+
+    [JsonPropertyName("newsTypeReasoning")]
+    public string NewsTypeReasoning { get; set; } = string.Empty;
+
     [JsonPropertyName("articleToneVersion")]
     public int ArticleToneVersion { get; set; } = 0;
 
-    /// <summary>
-    /// Tone in which the article is written (AI)
-    /// </summary>
     [JsonPropertyName("articleTone")]
     public ArticleTone ArticleTone { get; set; } = ArticleTone.Unknown;
 
     [JsonPropertyName("articleToneReasoning")]
     public string ArticleToneReasoning { get; set; } = string.Empty;
-
-    #region Scoring different aspects of the article using AI
 
     [JsonPropertyName("credibilityScoreVersion")]
     public int CredibilityScoreVersion { get; set; } = 0;
@@ -201,6 +209,4 @@ public record Article : ArticleHeader
 
     [JsonPropertyName("judaismScoreReasoning")]
     public string JudaismScoreReasoning { get; set; } = string.Empty;
-
-    #endregion Scoring different aspects of the article using AI
 }

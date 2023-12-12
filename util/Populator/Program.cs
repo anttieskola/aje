@@ -7,7 +7,6 @@ IHost host = Host.CreateDefaultBuilder(args)
             .Build();
 
         services.AddHostedService<ArticleWorker>();
-        services.AddApplication();
         services.AddRedis(config);
     })
     .ConfigureLogging(logging =>
@@ -19,5 +18,5 @@ IHost host = Host.CreateDefaultBuilder(args)
     })
     .Build();
 
-await host.Services.InitializeRedis();
+await host.Services.InitializeRedisAsync();
 host.Run();

@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 namespace AJE.Test.Integration;
 
 /// <summary>
-/// Tests require redis running on localhost:6379
+/// Tests require redis running
 /// </summary>
 public class ArticleRepositoryTests : IClassFixture<RedisFixture>
 {
@@ -30,7 +30,6 @@ public class ArticleRepositoryTests : IClassFixture<RedisFixture>
             Category = ArticleCategory.BOGUS,
             Title = "test article for get by source",
             Modified = DateTimeOffset.UtcNow.AddYears(-110).Ticks,
-            Published = true,
             Source = "repository_integration_test_get_by_source",
             Language = "en",
             Content = TestArticle.Content,
@@ -72,7 +71,6 @@ public class ArticleRepositoryTests : IClassFixture<RedisFixture>
             Category = ArticleCategory.BOGUS,
             Title = "test article for IsValidated",
             Modified = DateTimeOffset.UtcNow.AddYears(-110).Ticks,
-            Published = true,
             Source = "integration_test_get_by_isvalidated",
             Language = "en",
             Content = TestArticle.Content,

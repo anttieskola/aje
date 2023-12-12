@@ -19,8 +19,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Application\Application.csproj" />
+    <ProjectReference Include="..\..\Domain\Domain.csproj" />
     <ProjectReference Include="..\..\Infra\Ai\Ai.csproj" />
     <ProjectReference Include="..\..\Infra\Redis\Redis.csproj" />
+    <ProjectReference Include="..\..\Infra\DummyFileSystem\DummyFileSystem.csproj" />
   </ItemGroup>
 </Project>
