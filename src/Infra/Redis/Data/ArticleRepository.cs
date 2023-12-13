@@ -46,6 +46,24 @@ public class ArticleRepository : IArticleRepository
         _logger.LogTrace("Updated article {Id}", article.Id);
     }
 
+    public async Task UpdatePolarityAsync(Guid id, int polarityVersion, Polarity polarity)
+    {
+        var db = _connection.GetDatabase();
+        var redisId = _index.RedisId(id.ToString());
+
+        // polarityVersion
+        var polarityVersionJson = JsonSerializer.Serialize(polarityVersion);
+        var setResult = await db.ExecuteAsync("JSON.SET", redisId, "$.polarityVersion", polarityVersionJson);
+        if (setResult.ToString() != "OK")
+            throw new DataException($"failed to set $.polarityVersion on article {redisId}");
+
+        // polarity
+        var polarityJson = JsonSerializer.Serialize(polarity);
+        setResult = await db.ExecuteAsync("JSON.SET", redisId, "$.polarity", polarityJson);
+        if (setResult.ToString() != "OK")
+            throw new DataException($"failed to set $.polarity on article {redisId}");
+    }
+
     public async Task UpdateIsValidatedAsync(Guid id, bool isValidated)
     {
         var db = _connection.GetDatabase();
@@ -64,6 +82,24 @@ public class ArticleRepository : IArticleRepository
         var setResult = await db.ExecuteAsync("JSON.SET", redisId, "$.tokenCount", tokenCountJson);
         if (setResult.ToString() != "OK")
             throw new DataException($"failed to set IsValidated on article {redisId}");
+    }
+
+    public async Task UpdateSummaryAsync(Guid id, int summaryVersion, string summary)
+    {
+        var db = _connection.GetDatabase();
+        var redisId = _index.RedisId(id.ToString());
+
+        // summaryVersion
+        var summaryVersionJson = JsonSerializer.Serialize(summaryVersion);
+        var setResult = await db.ExecuteAsync("JSON.SET", redisId, "$.analysis.summaryVersion", summaryVersionJson);
+        if (setResult.ToString() != "OK")
+            throw new DataException($"failed to set $.analysis.summaryVersion on article {redisId}");
+
+        // summary
+        var summaryJson = JsonSerializer.Serialize(summary);
+        setResult = await db.ExecuteAsync("JSON.SET", redisId, "$.analysis.summary", summaryJson);
+        if (setResult.ToString() != "OK")
+            throw new DataException($"failed to set $.analysis.summary on article {redisId}");
     }
 
     #endregion modifications
@@ -100,6 +136,8 @@ public class ArticleRepository : IArticleRepository
             builder.Conditions.Add(new QueryCondition { Expression = $"@tokenCount:[-inf {query.MaxTokenCount}]" });
         if (query.IsLiveNews != null)
             builder.Conditions.Add(new QueryCondition { Expression = $"@isLiveNews:{{{query.IsLiveNews}}}" });
+        if (query.MaxSummaryVersion != null)
+            builder.Conditions.Add(new QueryCondition { Expression = $"@summaryVersion:[-inf {query.MaxSummaryVersion}]" });
         var queryString = builder.Build();
 
         var arguments = new string[] { _index.Name, queryString, "SORTBY", "modified", "DESC", "LIMIT", query.Offset.ToString(), query.PageSize.ToString() };

@@ -14,6 +14,7 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddRedis(config);
         services.AddDummyFileSystem();
         services.AddHostedService<SentimentPolarityWorker>();
+        services.AddHostedService<SummaryWorker>();
     })
     .ConfigureLogging(logging =>
     {

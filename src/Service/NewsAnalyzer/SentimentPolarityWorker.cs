@@ -55,9 +55,7 @@ public class SentimentPolarityWorker : BackgroundService
             var current = await _sender.Send(new ArticleGetBySourceQuery { Source = row.Source }, _cancellationToken);
             if (current != null && current.PolarityVersion < row.PolarityVersion)
             {
-                current.Polarity = row.Polarity;
-                current.PolarityVersion = row.PolarityVersion;
-                await _sender.Send(new ArticleUpdateCommand { Article = current }, _cancellationToken);
+                await _sender.Send(new ArticleUpdatePolarityCommand { Id = current.Id, PolarityVersion = row.PolarityVersion, Polarity = row.Polarity }, _cancellationToken);
             }
         }
     }
@@ -71,6 +69,7 @@ public class SentimentPolarityWorker : BackgroundService
         var query = new ArticleGetManyQuery
         {
             Category = ArticleCategory.NEWS,
+            IsLiveNews = false,
             MaxPolarityVersion = ArticleGetSentimentPolarityQuery.CURRENT_POLARITY_VERSION - 1,
             Offset = 0,
             PageSize = 1

@@ -80,7 +80,7 @@ public class ArticleRepositoryTests : IClassFixture<RedisFixture>
         };
     }
     [Fact]
-    public async Task IsValidated()
+    public async Task UpdateStuff()
     {
         await _redisFixture.Database.KeyDeleteAsync(_index.RedisId(_idForIsValidated.ToString()));
         var publishHandler = new ArticleAddCommandHandler(_redisFixture.ArticleRepository, new Mock<IArticleEventHandler>().Object);
@@ -118,11 +118,25 @@ public class ArticleRepositoryTests : IClassFixture<RedisFixture>
         var notExistingCopy = result.Items.SingleOrDefault(i => i.Id == _idForIsValidated);
         Assert.Null(notExistingCopy);
 
+        // polarity update
+        await repository.UpdatePolarityAsync(_idForIsValidated, 2, Polarity.Negative);
+        article = await repository.GetAsync(_idForIsValidated);
+        Assert.NotNull(article);
+        Assert.Equal(2, article.PolarityVersion);
+        Assert.Equal(Polarity.Negative, article.Polarity);
+
         // token count update
         await repository.UpdateTokenCountAsync(_idForIsValidated, 100);
         article = await repository.GetAsync(_idForIsValidated);
         Assert.NotNull(article);
         Assert.Equal(100, article.TokenCount);
+
+        // summary update
+        await repository.UpdateSummaryAsync(_idForIsValidated, 1, "summary");
+        article = await repository.GetAsync(_idForIsValidated);
+        Assert.NotNull(article);
+        Assert.Equal(1, article.Analysis.SummaryVersion);
+        Assert.Equal("summary", article.Analysis.Summary);
 
         // clean
         await _redisFixture.Database.KeyDeleteAsync(_index.RedisId(_idForIsValidated.ToString()));

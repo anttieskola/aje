@@ -8,19 +8,35 @@ public class ArticleSentimentPolarityRow
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [JsonPropertyName("serial")]
     [Column("serial")]
-    public int Serial { get; init; }
+    public int Serial { get; set; }
 
     [JsonPropertyName("source")]
     [Column("source")]
-    public required string Source { get; init; }
+    public string Source { get; set; } = string.Empty;
 
     [JsonPropertyName("polarity")]
     [Column("polarity")]
-    public required Polarity Polarity { get; init; }
+    public Polarity Polarity { get; set; }
 
     [JsonPropertyName("polarityVersion")]
     [Column("polarityversion")]
-    public required int PolarityVersion { get; init; }
+    public int PolarityVersion { get; set; } = 0;
+}
+
+[Table("analyses")]
+public class ArticleAnalysisRow
+{
+    [Key]
+    [Column("id")]
+    public Guid Id { get; set; } = Guid.Empty;
+
+    [JsonPropertyName("summaryVersion")]
+    [Column("summaryversion")]
+    public int SummaryVersion { get; set; } = 0;
+
+    [JsonPropertyName("summary")]
+    [Column("summary")]
+    public string Summary { get; set; } = string.Empty;
 }
 
 public class NewsAnalyzerContext : DbContext
@@ -31,4 +47,5 @@ public class NewsAnalyzerContext : DbContext
     }
 
     public DbSet<ArticleSentimentPolarityRow> SentimentPolarities { get; set; } = null!;
+    public DbSet<ArticleAnalysisRow> Analyses { get; set; } = null!;
 }

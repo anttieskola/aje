@@ -64,8 +64,30 @@ public record Article : ArticleHeader
     public Analysis Analysis { get; set; } = new();
 }
 
+/// <summary>
+/// Collection of silly AI analysis scores and stuff
+/// </summary>
 public record Analysis
 {
+    [JsonPropertyName("summaryVersion")]
+    public int SummaryVersion { get; set; } = 0;
+
+    /// <summary>
+    /// Idea is to create summary of article and create that
+    /// in english always, then use that for other analysis
+    /// </summary>
+    [JsonPropertyName("summary")]
+    public string Summary { get; set; } = string.Empty;
+
+    [JsonPropertyName("sentimentScoreVersion")]
+    public int SentimentScoreVersion { get; set; } = 0;
+
+    [JsonPropertyName("sentimentScore")]
+    public double SentimentScore { get; set; } = 0.0;
+
+    [JsonPropertyName("sentimentScoreReasoning")]
+    public string SentimentScoreReasoning { get; set; } = string.Empty;
+
     [JsonPropertyName("newsTypeVersion")]
     public int NewsTypeVersion { get; set; } = 0;
 
