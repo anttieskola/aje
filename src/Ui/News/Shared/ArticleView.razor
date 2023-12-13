@@ -21,6 +21,20 @@ else
         </div>
     }
 
+    <div class="float-left">
+        <SentimentIcon Polarity="@Model.Polarity" IconSize="30" IconPadding="0" />
+    </div>
+
+    <div class="xl:w-3/4 lg:w-4/5 md:w-5/6 xs:w-full xl:m-10 xl:ml-14 lg:m-6 lg:ml-12 md:m-4 md:ml-10 xs:ml-10">
+        <button class="submitButton" @onclick="ToggleSummary">@(_showSummary ? "Hide summary" : "Show summary")</button>
+    </div>
+
+    <div class="xl:w-3/4 lg:w-4/5 md:w-5/6 xs:w-full xl:m-10 xl:ml-14 lg:m-6 lg:ml-12 md:m-4 md:ml-10 xs:m-1">
+        <div class="@(_showSummary ? "border-sky-600 border-b-2" : "hidden")">
+            @Model.Analysis.Summary
+        </div>
+    </div>
+
     <div class="xl:w-3/4 lg:w-4/5 md:w-5/6 xs:w-full xl:m-10 xl:ml-14 lg:m-6 lg:ml-12 md:m-4 md:ml-10 xs:m-1">
     @foreach (var content in Model.Content)
         {
@@ -55,6 +69,13 @@ else
 
     [Parameter]
     public Article? Model { get; set; }
+
+    private bool _showSummary = false;
+
+    private void ToggleSummary()
+    {
+        _showSummary = !_showSummary;
+    }
 
     private DateTimeOffset Published
     {
