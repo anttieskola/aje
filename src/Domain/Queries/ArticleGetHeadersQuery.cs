@@ -6,6 +6,7 @@ public record ArticleGetHeadersQuery : PaginatedQuery, IRequest<PaginatedList<Ar
     public string? Language { get; init; }
     public Polarity? Polarity { get; init; }
     public int? MaxPolarityVersion { get; init; }
+    public string? Keyword { get; init; }
 }
 
 public class ArticleGetHeadersQueryHandler : IRequestHandler<ArticleGetHeadersQuery, PaginatedList<ArticleHeader>>

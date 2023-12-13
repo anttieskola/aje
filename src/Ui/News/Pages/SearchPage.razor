@@ -1,39 +1,24 @@
-﻿@page "/"
+﻿@page "/search"
 @inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager
 @inject ISender Sender
 
-<PageTitle>articles</PageTitle>
+<PageTitle>article search</PageTitle>
 
 <div class="p-1 border-2 rounded-lg border-sky-600 xl:w-2/3 lg:w-3/4 xl:ml-14 lg:ml-12 md:ml-10 xs:ml-0">
+    @if (!_isValid)
+    {
+        <div class="container">
+            <p class="text-red-600">Search supports only digits / letters / '*'</p>
+        </div>
+    }
     <div class="lg:flex lg:p-1 md:flex md:p-1">
         <div class="lg:flex md:flex xs:flex">
             <div>
-                <label for="polarity">Sentiment</label>
-                <select name="polarity" value="@_polarity" @onchange="Polarity">
-                    <option value="">-</option>
-                    <option value="Positive">Positive</option>
-                    <option value="Neutral">Neutral</option>
-                    <option value="Negative">Negative</option>
-                    <option value="Unknown">Unknown</option>
-                </select>
-            </div>
-            <div class="lg:ml-8 md:ml-8 xs:ml-4">
-                <label for="language">Language</label>
-                <select name="language" value="@_language" @onchange="Language">
-                    <option value="">-</option>
-                    <option value="en">en</option>
-                    <option value="fi">fi</option>
-                    <option value="krl">krl</option>
-                    <option value="ru">ru</option>
-                    <option value="se">se</option>
-                    <option value="smn">smn</option>
-                    <option value="sms">sms</option>
-                    <option value="uk">uk</option>
-                </select>
+                <input id="searchKeyword" class="w-96 p-1" type="search" aria-label="search keyword"
+                    @onchange="SearchChange" />
             </div>
         </div>
-
         <div class="lg:ml-8 lg:flex lg:mt-0 md:ml-4 md:flex md:mt-0 xs:flex xs:justify-center xs:items-center xs:mt-2">
             <div>
                 @if (_isPreviousEnabled)
@@ -104,33 +89,30 @@
 
 @code {
 
-    private string? _language;
+    private string _keyword = String.Empty;
+    private bool _isValid = true;
 
-    private async Task Language(ChangeEventArgs a)
+    private void SearchChange(ChangeEventArgs args)
     {
-        if (a.Value is null || a.Value.ToString() == "")
-            _language = null;
-        else
-            _language = a.Value.ToString();
+        var newKeyWord = args?.Value?.ToString() ?? string.Empty;
 
-        _offset = 0;
-        await UpdateQueryString();
-        await InvokeAsync(() => Fetch());
+        _isValid = true;
+        foreach (var c in newKeyWord)
+        {
+            if (!char.IsLetterOrDigit(c) && c != ' ' && c != '*')
+            {
+                _isValid = false;
+            }
+        }
+
+        if (_isValid && newKeyWord != _keyword)
+        {
+            _offset = 0;
+            _keyword = newKeyWord;
+            InvokeAsync(Fetch);
+        }
     }
 
-    private string? _polarity;
-
-    private async Task Polarity(ChangeEventArgs a)
-    {
-        if (a.Value is null || a.Value.ToString() == "")
-            _polarity = null;
-        else
-            _polarity = a.Value.ToString();
-
-        _offset = 0;
-        await UpdateQueryString();
-        await InvokeAsync(() => Fetch());
-    }
 
     private PaginatedList<ArticleHeader> _headers = new PaginatedList<ArticleHeader>(new List<ArticleHeader>(), 0, 0);
     private int _offset = 0;
@@ -157,7 +139,6 @@
         if (_isPreviousEnabled)
         {
             _offset -= _pageSize;
-            await UpdateQueryString();
             await Fetch();
         }
     }
@@ -167,68 +148,28 @@
         if (_isNextEnabled)
         {
             _offset += _pageSize;
-            await UpdateQueryString();
             await Fetch();
         }
     }
 
     private async Task Fetch()
     {
-        _headers = await Sender.Send(new ArticleGetHeadersQuery
+        _headers = await Sender.Send(new ArticleSearchHeadersQuery
             {
+                Keyword = _keyword,
                 Offset = _offset,
                 PageSize = _pageSize,
-                Language = string.IsNullOrEmpty(_language) ? null : _language,
-                Polarity = string.IsNullOrEmpty(_polarity) ? null : Enum.Parse<Polarity>(_polarity),
             });
 
         await InvokeAsync(() => StateHasChanged());
     }
-
-    private async Task UpdateQueryString()
-    {
-        var uri = new Uri(NavigationManager.Uri);
-        var newUri = $"{uri.GetLeftPart(UriPartial.Path)}?polarity={_polarity}&language={_language}&offset={_offset}";
-        await JSRuntime.InvokeVoidAsync("history.pushState", null, string.Empty, newUri);
-    }
-
     protected override async Task OnInitializedAsync()
     {
-        var uri = new Uri(NavigationManager.Uri);
-        var language = HttpUtility.ParseQueryString(uri.Query).Get("language");
-        var polarity = HttpUtility.ParseQueryString(uri.Query).Get("polarity");
-        var stringOffset = HttpUtility.ParseQueryString(uri.Query).Get("offset");
-
-        if (!string.IsNullOrEmpty(language))
-            _language = language;
-
-        if (!string.IsNullOrEmpty(polarity))
-            _polarity = polarity;
-
-        if (!string.IsNullOrEmpty(stringOffset))
-        {
-            if (int.TryParse(stringOffset, out var offset))
-            {
-                _offset = offset >= 0 ? offset : 0;
-            }
-        }
-
-        // set default polarity to positive
-        if (_polarity == null && _language == null && _offset == 0)
-        {
-            _polarity = "Positive";
-            var newUri = $"{uri}?polarity=Positive";
-            // using JS to change url without reloading page and saving it to browser history
-            await JSRuntime.InvokeVoidAsync("history.pushState", null, string.Empty, newUri);
-        }
-
         // calculate page size based on screen size
         var windowHeight = await JSRuntime.InvokeAsync<int>("eval", "window.innerHeight");
         var windowWidth = await JSRuntime.InvokeAsync<int>("eval", "window.innerWidth");
         windowWidth = windowWidth > 1024 ? 1024 : windowWidth;
         _pageSize = (int)Math.Round((windowHeight * 2.0D) * (windowWidth * 0.5D) / 55000D);
         _pageSize = _pageSize < 9 ? 9 : _pageSize; // min 9 articles per page
-
-        await Fetch();
     }
 }

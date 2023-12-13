@@ -3,12 +3,23 @@
 @inject NavigationManager NavigationManager
 
 <div class="fixed bottom-0 right-0 xs:mb-1 xs:mr-1 md:mb-4 md:mr-4 lg:mb-8 lg:mr-8">
+
     @if (_isTrendButtonVisible)
     {
         <div>
             <button type="button" class="menuButton" aria-label="news trends">
                 <NavLink href="/trends" aria-label="news trends">
                     <Icon Name="file-earmark-bar-graph" Padding=@IconPadding Size=@_iconSize />
+                </NavLink>
+            </button>
+        </div>
+    }
+    @if (_isSearchButtonVisible)
+    {
+        <div>
+            <button type="button" class="menuButton" aria-label="search articles">
+                <NavLink href="/search" aria-label="search articles">
+                    <Icon Name="search" Padding=@IconPadding Size=@_iconSize />
                 </NavLink>
             </button>
         </div>
@@ -50,6 +61,7 @@
 @code {
     private bool _darkMode = false;
     private IJSObjectReference? _js;
+    private bool _isSearchButtonVisible = false;
     private bool _isTrendButtonVisible = false;
     private bool _isStreamButtonVisible = false;
     private bool _isListButtonVisible = false;
@@ -76,18 +88,28 @@
         if (uri.Contains("trends"))
         {
             _isTrendButtonVisible = false;
+            _isSearchButtonVisible = true;
+            _isStreamButtonVisible = true;
+            _isListButtonVisible = true;
+        }
+        else if (uri.Contains("search"))
+        {
+            _isTrendButtonVisible = true;
+            _isSearchButtonVisible = false;
             _isStreamButtonVisible = true;
             _isListButtonVisible = true;
         }
         else if (uri.Contains("stream"))
         {
             _isTrendButtonVisible = true;
+            _isSearchButtonVisible = true;
             _isStreamButtonVisible = false;
             _isListButtonVisible = true;
         }
         else
         {
             _isTrendButtonVisible = true;
+            _isSearchButtonVisible = true;
             _isStreamButtonVisible = true;
             _isListButtonVisible = false;
         }

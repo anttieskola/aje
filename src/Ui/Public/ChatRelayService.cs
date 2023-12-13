@@ -35,7 +35,8 @@
                 }
 
                 await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
-                await _hubContext.Clients.All.ReceiveMessage("System", "Hello clients");
+                // disabled for spamming and not useful atm
+                // await _hubContext.Clients.All.ReceiveMessage("System", "Hello clients");
             }
         }
 

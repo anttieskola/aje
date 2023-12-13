@@ -138,8 +138,6 @@ public class ArticleRepository : IArticleRepository
 
     public async Task<PaginatedList<ArticleHeader>> GetHeadersAsync(ArticleGetHeadersQuery query)
     {
-        var db = _connection.GetDatabase();
-
         var builder = new QueryBuilder();
         if (query.Category != null)
             builder.Conditions.Add(new QueryCondition { Expression = $"@category:[{(int)query.Category} {(int)query.Category}]" });
@@ -151,7 +149,29 @@ public class ArticleRepository : IArticleRepository
             builder.Conditions.Add(new QueryCondition { Expression = $"@polarityVersion:[-inf {query.MaxPolarityVersion}]" });
         var queryString = builder.Build();
 
-        var arguments = new string[] { _index.Name, queryString, "SORTBY", "modified", "DESC", "RETURN", "3", "$.id", "$.title", "$.polarity", "LIMIT", query.Offset.ToString(), query.PageSize.ToString() };
+        return await GetHeadersAsync(queryString, query.Offset, query.PageSize);
+    }
+
+    public async Task<PaginatedList<ArticleHeader>> GetHeadersAsync(ArticleSearchHeadersQuery query)
+    {
+        ArgumentNullException.ThrowIfNull(query, nameof(query));
+
+        try
+        {
+            _logger.LogInformation("GetHeadersAsync: {}", query.Keyword);
+            return await GetHeadersAsync(query.Keyword, query.Offset, query.PageSize);
+        }
+        catch (RedisException re)
+        {
+            _logger.LogError(re, "RedisException in GetHeadersAsync");
+            return new PaginatedList<ArticleHeader>(new List<ArticleHeader>(), 0, 0);
+        }
+    }
+
+    private async Task<PaginatedList<ArticleHeader>> GetHeadersAsync(string queryString, int offset, int pageSize)
+    {
+        var db = _connection.GetDatabase();
+        var arguments = new string[] { _index.Name, queryString, "SORTBY", "modified", "DESC", "RETURN", "3", "$.id", "$.title", "$.polarity", "LIMIT", offset.ToString(), pageSize.ToString() };
         var result = await db.ExecuteAsync("FT.SEARCH", arguments);
         // first item is total count (integer)
         var rows = (RedisResult[])result!;
@@ -161,16 +181,9 @@ public class ArticleRepository : IArticleRepository
         for (long i = 1; i < rows.LongLength; i += 2)
         {
             // value is in this case defined in return statement (with labels)
-            // $.id, id-value, $.title, title-value
+            // $.id, id-value, $.title, title-value, $.polarity, polarity-value
             var data = (RedisResult[])rows[i + 1]!;
-            if (data.Length == 4)
-            {
-                var id = (string)data[1]! ?? throw new DataException($"invalid data value in key {rows[i]}");
-                var title = (string)data[3]! ?? throw new DataException($"invalid data value in key {rows[i]}");
-                var polarity = Polarity.Unknown;
-                list.Add(new ArticleHeader { Id = Guid.Parse(id), Title = title, Polarity = polarity });
-            }
-            else if (data.Length == 6)
+            if (data.Length == 6)
             {
                 var id = (string)data[1]! ?? throw new DataException($"invalid data value in key {rows[i]}");
                 var title = (string)data[3]! ?? throw new DataException($"invalid data value in key {rows[i]}");
@@ -188,7 +201,7 @@ public class ArticleRepository : IArticleRepository
             }
         }
 
-        return new PaginatedList<ArticleHeader>(list, query.Offset, totalCount);
+        return new PaginatedList<ArticleHeader>(list, offset, totalCount);
     }
 
     public async Task<bool> ExistsAsync(string source)
