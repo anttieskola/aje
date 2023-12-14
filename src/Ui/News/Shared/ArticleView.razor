@@ -26,12 +26,29 @@ else
     </div>
 
     <div class="xl:w-3/4 lg:w-4/5 md:w-5/6 xs:w-full xl:m-10 xl:ml-14 lg:m-6 lg:ml-12 md:m-4 md:ml-10 xs:ml-10">
-        <button class="submitButton" @onclick="ToggleSummary">@(_showSummary ? "Hide summary" : "Show summary")</button>
+        @if (HasPositiveThings)
+        {
+            <button class="p-1 border-2 rounded border-lime-600" @onclick="TogglePositiveThings">@(_showPositiveThings ? "Hide positive" : "Show positive")</button>
+        }
+        @if (HasSummary)
+        {
+            <button class="ml-1 p-1 border-2 rounded border-sky-600" @onclick="ToggleSummary">@(_showSummary ? "Hide summary" : "Show summary")</button>
+        }
     </div>
 
     <div class="xl:w-3/4 lg:w-4/5 md:w-5/6 xs:w-full xl:m-10 xl:ml-14 lg:m-6 lg:ml-12 md:m-4 md:ml-10 xs:m-1">
-        <div class="@(_showSummary ? "border-sky-600 border-b-2" : "hidden")">
-            @Model.Analysis.Summary
+        <div class="@(_showPositiveThings ? "border-lime-600 border-b-2 border-t-2" : "hidden")">
+            <pre>
+                @PreRender(Model.Analysis.PositiveThings)
+            </pre>
+        </div>
+    </div>
+
+    <div class="xl:w-3/4 lg:w-4/5 md:w-5/6 xs:w-full xl:m-10 xl:ml-14 lg:m-6 lg:ml-12 md:m-4 md:ml-10 xs:m-1">
+        <div class="@(_showSummary ? "border-sky-600 border-b-2 border-t-2" : "hidden")">
+            <pre>
+                @PreRender(Model.Analysis.Summary)
+            </pre>
         </div>
     </div>
 
@@ -70,12 +87,15 @@ else
     [Parameter]
     public Article? Model { get; set; }
 
+    private bool HasSummary => Model?.Analysis.Summary != string.Empty;
     private bool _showSummary = false;
+    private void ToggleSummary() => _showSummary = !_showSummary;
 
-    private void ToggleSummary()
-    {
-        _showSummary = !_showSummary;
-    }
+    private bool HasPositiveThings => Model?.Analysis.PositiveThings != string.Empty;
+    private bool _showPositiveThings = false;
+    private void TogglePositiveThings() => _showPositiveThings = !_showPositiveThings;
+
+    private int _windowWidth = 1024;
 
     private DateTimeOffset Published
     {
@@ -98,4 +118,39 @@ else
         await JSRuntime.InvokeVoidAsync("history.back");
     }
 
+    private string PreRender(string text)
+    {
+        var cols = (int)Math.Round(_windowWidth / 12.0);
+        var sb = new StringBuilder();
+        var lines = text.Split("\n");
+        foreach(var line in lines)
+        {
+            if (line.Length > cols)
+                sb.Append(SplitLine(line, cols));
+            else
+            {
+                sb.Append(line);
+                sb.Append("\n");
+            }
+        }
+        return sb.ToString();
+    }
+
+    private string SplitLine(string line, int cols)
+    {
+        var sb = new StringBuilder();
+        int position = 0;
+        while (position < line.Length)
+        {
+            var length = line.Length < position + cols ? line.Length - position : cols;
+            sb.Append(line.Substring(position, length));
+            sb.Append("\n");
+            position += cols;
+        }
+        return sb.ToString();
+    }
+    protected override async Task OnInitializedAsync()
+    {
+       _windowWidth = await JSRuntime.InvokeAsync<int>("eval", "window.innerWidth");
+    }
 }

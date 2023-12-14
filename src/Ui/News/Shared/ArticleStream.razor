@@ -5,12 +5,6 @@
 <table class="table-auto">
     <tr>
         <td>
-            @if (_article != null && _article.Polarity != Polarity.Unknown)
-            {
-                <SentimentIcon Polarity="@_article.Polarity" IconSize="20" IconPadding="0" />
-            }
-        </td>
-        <td>
             <label for="updateFrequence">Delay</label>
             <select name="updateFrequence" @onchange="UpdateFrequence">
                 <option value="10">10 sec</option>
