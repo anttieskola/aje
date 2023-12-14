@@ -89,17 +89,31 @@ public class ArticleRepository : IArticleRepository
         var db = _connection.GetDatabase();
         var redisId = _index.RedisId(id.ToString());
 
-        // summaryVersion
         var summaryVersionJson = JsonSerializer.Serialize(summaryVersion);
         var setResult = await db.ExecuteAsync("JSON.SET", redisId, "$.analysis.summaryVersion", summaryVersionJson);
         if (setResult.ToString() != "OK")
             throw new DataException($"failed to set $.analysis.summaryVersion on article {redisId}");
 
-        // summary
         var summaryJson = JsonSerializer.Serialize(summary);
         setResult = await db.ExecuteAsync("JSON.SET", redisId, "$.analysis.summary", summaryJson);
         if (setResult.ToString() != "OK")
             throw new DataException($"failed to set $.analysis.summary on article {redisId}");
+    }
+
+    public async Task UpdatePositiveThingsAsync(Guid id, int positiveThingsVersion, string positiveThings)
+    {
+        var db = _connection.GetDatabase();
+        var redisId = _index.RedisId(id.ToString());
+
+        var positiveThingsVersionJson = JsonSerializer.Serialize(positiveThingsVersion);
+        var setResult = await db.ExecuteAsync("JSON.SET", redisId, "$.analysis.positiveThingsVersion", positiveThingsVersionJson);
+        if (setResult.ToString() != "OK")
+            throw new DataException($"failed to set $.analysis.positiveThingsVersion on article {redisId}");
+
+        var positiveThingsJson = JsonSerializer.Serialize(positiveThings);
+        setResult = await db.ExecuteAsync("JSON.SET", redisId, "$.analysis.positiveThings", positiveThingsJson);
+        if (setResult.ToString() != "OK")
+            throw new DataException($"failed to set $.analysis.positiveThings on article {redisId}");
     }
 
     #endregion modifications
@@ -138,6 +152,8 @@ public class ArticleRepository : IArticleRepository
             builder.Conditions.Add(new QueryCondition { Expression = $"@isLiveNews:{{{query.IsLiveNews}}}" });
         if (query.MaxSummaryVersion != null)
             builder.Conditions.Add(new QueryCondition { Expression = $"@summaryVersion:[-inf {query.MaxSummaryVersion}]" });
+        if (query.MaxPositiveThingsVersion != null)
+            builder.Conditions.Add(new QueryCondition { Expression = $"@positiveThingsVersion:[-inf {query.MaxPositiveThingsVersion}]" });
         var queryString = builder.Build();
 
         var arguments = new string[] { _index.Name, queryString, "SORTBY", "modified", "DESC", "LIMIT", query.Offset.ToString(), query.PageSize.ToString() };

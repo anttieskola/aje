@@ -27,6 +27,7 @@ public class ArticleIndex : IRedisIndex
         + "$.tokenCount AS tokenCount NUMERIC" + " "
         // analysis
         + "$.analysis.summaryVersion AS summaryVersion NUMERIC" + " "
+        + "$.analysis.positiveThingsVersion AS positiveThingsVersion NUMERIC" + " "
         + "$.analysis.sentimentScoreVersion AS sentimentScoreVersion NUMERIC" + " "
         + "$.analysis.sentimentScore AS sentimentScore NUMERIC" + " "
         + "$.analysis.newsType AS newsType NUMERIC" + " "

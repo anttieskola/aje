@@ -37,6 +37,14 @@ public class ArticleAnalysisRow
     [JsonPropertyName("summary")]
     [Column("summary")]
     public string Summary { get; set; } = string.Empty;
+
+    [JsonPropertyName("positiveThingsVersion")]
+    [Column("positivethingsversion")]
+    public int PositiveThingsVersion { get; set; } = 0;
+
+    [JsonPropertyName("positiveThings")]
+    [Column("positivethings")]
+    public string PositiveThings { get; set; } = string.Empty;
 }
 
 public class NewsAnalyzerContext : DbContext

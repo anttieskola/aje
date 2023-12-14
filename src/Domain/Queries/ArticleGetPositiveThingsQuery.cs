@@ -1,19 +1,19 @@
 ﻿namespace AJE.Domain.Queries;
 
-public record ArticleGetSummaryQuery : IRequest<string>
+public record ArticleGetPositiveThingsQuery : IRequest<string>
 {
-    public const int CURRENT_SUMMARY_VERSION = 2;
+    public const int CURRENT_POSITIVE_THINGS_VERSION = 1;
     public required Article Article { get; init; }
 }
 
-public class ArticleGetSummaryQueryHandler : IRequestHandler<ArticleGetSummaryQuery, string>
+public class ArticleGetPositiveThingsQueryHandler : IRequestHandler<ArticleGetPositiveThingsQuery, string>
 {
     private readonly IContextCreator<Article> _contextCreator;
-    private readonly SummaryChatML _summaryChatML = new();
+    private readonly PositiveThingsChatML _positiveThingsChatML = new();
     private readonly WhatLanguageChatML _whatLanguageChatML = new();
     private readonly IAiModel _aiModel;
     private readonly IAiLogger _aiLogger;
-    public ArticleGetSummaryQueryHandler(
+    public ArticleGetPositiveThingsQueryHandler(
         IContextCreator<Article> contextCreator,
         IAiModel aiModel,
         IAiLogger aiLogger)
@@ -23,25 +23,24 @@ public class ArticleGetSummaryQueryHandler : IRequestHandler<ArticleGetSummaryQu
         _aiLogger = aiLogger;
     }
 
-    public async Task<string> Handle(ArticleGetSummaryQuery query, CancellationToken cancellationToken)
+    public async Task<string> Handle(ArticleGetPositiveThingsQuery query, CancellationToken cancellationToken)
     {
         // never gonna give you up
         // never gonna let you down
         int tries = 1;
         while (true)
         {
-            // create summary
+            // create list of positive things
             var context = _contextCreator.Create(query.Article);
-            var prompt = _summaryChatML.Context(context);
+            var prompt = _positiveThingsChatML.Context(context);
             var settings = CompletionAdjustor.GetSettings(tries);
             var summaryRequest = new CompletionRequest
             {
                 Prompt = prompt,
                 Temperature = settings.Temperature,
                 TopK = settings.TopK,
-                Stop = _summaryChatML.StopWords,
+                Stop = _positiveThingsChatML.StopWords,
                 NumberOfTokensToPredict = 16192,
-
             };
             var summaryResponse = await _aiModel.CompletionAsync(summaryRequest, cancellationToken);
 
@@ -59,7 +58,7 @@ public class ArticleGetSummaryQueryHandler : IRequestHandler<ArticleGetSummaryQu
             {
                 return summaryResponse.Content;
             }
-            _aiLogger.Log($"Summary was not in english, retrying... Tries:{tries} Article id:{query.Article.Id} source:{query.Article.Source}");
+            _aiLogger.Log($"Positive things list was not in english, retrying... Tries:{tries} Article id:{query.Article.Id} source:{query.Article.Source}");
             await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
             tries++;
         }

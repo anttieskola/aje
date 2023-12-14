@@ -15,6 +15,7 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddDummyFileSystem();
         services.AddHostedService<SentimentPolarityWorker>();
         services.AddHostedService<SummaryWorker>();
+        services.AddHostedService<PositiveThingsWorker>();
     })
     .ConfigureLogging(logging =>
     {

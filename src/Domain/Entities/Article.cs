@@ -79,6 +79,12 @@ public record Analysis
     [JsonPropertyName("summary")]
     public string Summary { get; set; } = string.Empty;
 
+    [JsonPropertyName("positiveThingsVersion")]
+    public int PositiveThingsVersion { get; set; } = 0;
+
+    [JsonPropertyName("positiveThings")]
+    public string PositiveThings {get;set;} = string.Empty;
+
     [JsonPropertyName("sentimentScoreVersion")]
     public int SentimentScoreVersion { get; set; } = 0;
 

@@ -35,6 +35,11 @@ public class DummyAiModel : IAiModel
 
 public class DummyAiLogger : IAiLogger
 {
+    public void Log(string message)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task LogAsync(string fileNamePrefix, CompletionRequest request, CompletionResponse response)
     {
         throw new NotSupportedException();

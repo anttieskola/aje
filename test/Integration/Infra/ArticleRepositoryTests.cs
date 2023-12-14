@@ -138,6 +138,13 @@ public class ArticleRepositoryTests : IClassFixture<RedisFixture>
         Assert.Equal(1, article.Analysis.SummaryVersion);
         Assert.Equal("summary", article.Analysis.Summary);
 
+        // positive things
+        await repository.UpdatePositiveThingsAsync(_idForIsValidated, 1, "positive");
+        article = await repository.GetAsync(_idForIsValidated);
+        Assert.NotNull(article);
+        Assert.Equal(1, article.Analysis.PositiveThingsVersion);
+        Assert.Equal("positive", article.Analysis.PositiveThings);
+
         // clean
         await _redisFixture.Database.KeyDeleteAsync(_index.RedisId(_idForIsValidated.ToString()));
     }

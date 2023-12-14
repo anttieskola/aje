@@ -8,6 +8,7 @@ public interface IArticleRepository
     Task UpdateIsValidatedAsync(Guid id, bool isValidated);
     Task UpdateTokenCountAsync(Guid id, int tokenCount);
     Task UpdateSummaryAsync(Guid id, int summaryVersion, string summary);
+    Task UpdatePositiveThingsAsync(Guid id, int positiveThingsVersion, string positiveThings);
     Task<Article> GetAsync(Guid id);
     Task<PaginatedList<Article>> GetAsync(ArticleGetManyQuery query);
     Task<Article> GetBySourceAsync(string source);

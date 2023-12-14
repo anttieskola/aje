@@ -32,7 +32,7 @@ public class SentimentPolarityWorker : BackgroundService
         {
             await LoopAsync();
             // small throttle to give other components time with AI
-            await Task.Delay(TimeSpan.FromSeconds(1), _cancellationToken);
+            await Task.Delay(TimeSpan.FromSeconds(3), _cancellationToken);
         }
     }
 
