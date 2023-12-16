@@ -7,6 +7,7 @@
 /// </summary>
 public class LlamaAiModel : IAiModel
 {
+    private const int MaxTries = 10;
     private readonly ILogger<LlamaAiModel> _logger;
     private readonly LlamaConfiguration _configuration;
     private readonly IHttpClientFactory _httpClientFactory;
@@ -39,18 +40,41 @@ public class LlamaAiModel : IAiModel
             throw new ArgumentException($"Use {nameof(CompletionStreamAsync)} when Stream enabled", nameof(request));
 
         await CheckContentIsNotTooLarge(request.Prompt, cancellationToken);
+        int tries = 1;
+        while (tries <= MaxTries)
+        {
+            using var httpRequest = new HttpRequestMessage(HttpMethod.Post, new Uri(_serverUri, "completion"));
+            httpRequest.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            httpRequest.Content = Serialize(request);
+            try
+            {
+                return await CompletionAsync(httpRequest, cancellationToken);
+            }
+            catch (AiBusyException)
+            {
+                var delay = TimeSpan.FromMilliseconds(new Random().Next(200, 3000));
+                _logger.LogWarning("Server is busy, retrying {tries}/{maxTries} after {delay} ms", tries, MaxTries, delay);
+                await Task.Delay(delay, cancellationToken);
+                tries++;
+            }
+        }
+        throw new AiBusyException($"Server is busy, tried {MaxTries} times");
+    }
 
+    private async Task<CompletionResponse> CompletionAsync(HttpRequestMessage httpRequest, CancellationToken cancellationToken)
+    {
         using var client = _httpClientFactory.CreateClient();
         client.Timeout = TimeSpan.FromSeconds(_configuration.TimeoutInSeconds);
-        var httpRequest = new HttpRequestMessage(HttpMethod.Post, new Uri(_serverUri, "completion"));
-        httpRequest.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-        httpRequest.Content = Serialize(request);
         var httpResponse = await client.SendAsync(httpRequest, cancellationToken);
         var json = await httpResponse.Content.ReadAsStringAsync(cancellationToken);
-
         if (string.IsNullOrEmpty(json))
             throw new InvalidOperationException("Empty response from server");
-
+        // server can be busy (File Not Found)
+        if (json.StartsWith("File Not Found"))
+        {
+            throw new AiBusyException("Server is busy");
+        }
+        await File.AppendAllTextAsync("/home/antti/dump.txt", $"{json}\n", cancellationToken);
         var response = JsonSerializer.Deserialize<CompletionResponse>(json)
             ?? throw new InvalidOperationException($"Failed to deserialize response from server: {json}");
 
@@ -64,14 +88,33 @@ public class LlamaAiModel : IAiModel
             throw new ArgumentException($"Use {nameof(CompletionAsync)} when Stream disabled", nameof(request));
 
         ArgumentNullException.ThrowIfNull(tokenCreatedCallback);
-
         await CheckContentIsNotTooLarge(request.Prompt, cancellationToken);
 
+        int tries = 1;
+        while (tries <= MaxTries)
+        {
+            using var httpRequest = new HttpRequestMessage(HttpMethod.Post, new Uri(_serverUri, "completion"));
+            httpRequest.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            httpRequest.Content = Serialize(request);
+            try
+            {
+                return await CompletionStreamAsync(httpRequest, tokenCreatedCallback, cancellationToken);
+            }
+            catch (AiBusyException)
+            {
+                var delay = TimeSpan.FromMilliseconds(new Random().Next(100, 2000));
+                _logger.LogWarning("Server is busy, retrying {tries}/{maxTries} after {delay} ms", tries, MaxTries, delay);
+                await Task.Delay(delay, cancellationToken);
+                tries++;
+            }
+        }
+        throw new AiBusyException($"Server is busy, tried {MaxTries} times");
+    }
+
+    private async Task<CompletionResponse> CompletionStreamAsync(HttpRequestMessage httpRequest, TokenCreatedCallback tokenCreatedCallback, CancellationToken cancellationToken)
+    {
         using var client = _httpClientFactory.CreateClient();
         client.Timeout = TimeSpan.FromSeconds(_configuration.TimeoutInSeconds);
-        var httpRequest = new HttpRequestMessage(HttpMethod.Post, new Uri(_serverUri, "completion"));
-        httpRequest.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-        httpRequest.Content = Serialize(request);
         var httpResponse = await client.SendAsync(httpRequest, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
         using var stream = await httpResponse.Content.ReadAsStreamAsync(cancellationToken);
         using var reader = new StreamReader(stream);
@@ -81,10 +124,14 @@ public class LlamaAiModel : IAiModel
             var line = await reader.ReadLineAsync(cancellationToken);
             if (!string.IsNullOrWhiteSpace(line))
             {
+                // server can be busy (error: {"content":"slot unavailable"})
+                if (line.StartsWith("error"))
+                {
+                    throw new AiBusyException("Server is busy");
+                }
                 var data = line.Replace("data: ", string.Empty);
                 try
                 {
-
                     var completion = JsonSerializer.Deserialize<CompletionResponse>(data);
                     if (completion != null)
                     {
