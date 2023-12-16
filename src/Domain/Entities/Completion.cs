@@ -457,7 +457,7 @@ public class TimingInformation
     public double? PredictedPerSecond { get; set; }
 
     [JsonPropertyName("predicted_per_token_ms")]
-    public double PredictedPerTokenMS { get; set; }
+    public double? PredictedPerTokenMS { get; set; }
 
     [JsonPropertyName("prompt_ms")]
     public double PromptMS { get; set; }
