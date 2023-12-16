@@ -259,6 +259,18 @@ public class CompletionResponse
     /// </summary>
     [JsonPropertyName("truncated")]
     public bool Truncated { get; set; }
+
+    /// <summary>
+    /// Assign the completion task to an specific slot. If is -1 the task will be assigned to a Idle slot (default: -1)
+    /// </summary>
+    [JsonPropertyName("slotId")]
+    public int SlotId { get; set; }
+
+    /// <summary>
+    /// Is model Multimodal
+    /// </summary>
+    [JsonPropertyName("multimodal")]
+    public bool Multimodal { get; set; } = false;
 }
 
 /// <summary>
