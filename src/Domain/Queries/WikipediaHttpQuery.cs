@@ -1,12 +1,12 @@
 ﻿namespace AJE.Domain;
 
-public record WikipediaHttpQuery
+public record WikipediaHttpQuery : IRequest<string>
 {
-
+    public required Uri Uri { get; set; }
 }
 
 // https://www.mediawiki.org/wiki/API:Main_page
-public class WikipediaHttpQueryHandler : IRequestHandler<YleHttpQuery, string>
+public class WikipediaHttpQueryHandler : IRequestHandler<WikipediaHttpQuery, string>
 {
     private readonly IHttpClientFactory _httpClientFactory;
 
@@ -15,7 +15,7 @@ public class WikipediaHttpQueryHandler : IRequestHandler<YleHttpQuery, string>
         _httpClientFactory = httpClientFactory;
     }
 
-    public async Task<string> Handle(YleHttpQuery query, CancellationToken cancellationToken)
+    public async Task<string> Handle(WikipediaHttpQuery query, CancellationToken cancellationToken)
     {
         // https://en.wikipedia.org/w/api.php?action=opensearch&search=
         using var client = _httpClientFactory.CreateClient();
