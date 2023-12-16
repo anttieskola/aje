@@ -8,6 +8,7 @@
 public class LlamaAiModel : IAiModel
 {
     private const int MaxTries = 10;
+    private static TimeSpan GetDelay() => TimeSpan.FromMilliseconds(new Random().Next(500, 5000));
     private readonly ILogger<LlamaAiModel> _logger;
     private readonly LlamaConfiguration _configuration;
     private readonly IHttpClientFactory _httpClientFactory;
@@ -52,7 +53,7 @@ public class LlamaAiModel : IAiModel
             }
             catch (AiBusyException)
             {
-                var delay = TimeSpan.FromMilliseconds(new Random().Next(200, 3000));
+                var delay = GetDelay();
                 _logger.LogWarning("Server is busy, retrying {tries}/{maxTries} after {delay} ms", tries, MaxTries, delay);
                 await Task.Delay(delay, cancellationToken);
                 tries++;
@@ -74,10 +75,8 @@ public class LlamaAiModel : IAiModel
         {
             throw new AiBusyException("Server is busy");
         }
-        await File.AppendAllTextAsync("/home/antti/dump.txt", $"{json}\n", cancellationToken);
         var response = JsonSerializer.Deserialize<CompletionResponse>(json)
             ?? throw new InvalidOperationException($"Failed to deserialize response from server: {json}");
-
         _logger.LogTrace("Model response: {}", response.Content);
         return response;
     }
@@ -102,7 +101,7 @@ public class LlamaAiModel : IAiModel
             }
             catch (AiBusyException)
             {
-                var delay = TimeSpan.FromMilliseconds(new Random().Next(100, 2000));
+                var delay = GetDelay();
                 _logger.LogWarning("Server is busy, retrying {tries}/{maxTries} after {delay} ms", tries, MaxTries, delay);
                 await Task.Delay(delay, cancellationToken);
                 tries++;
@@ -172,6 +171,7 @@ public class LlamaAiModel : IAiModel
         var json = await httpResponse.Content.ReadAsStringAsync(cancellationToken);
         try
         {
+            // Can't get this to give errors from unavailability like other api's
             var response = JsonSerializer.Deserialize<TokenizeResponse>(json);
             return response ?? throw new AiException($"invalid response from server: {json}");
         }
@@ -213,15 +213,39 @@ public class LlamaAiModel : IAiModel
 
     public async Task<EmbeddingResponse> EmbeddingAsync(EmbeddingRequest request, CancellationToken cancellationToken)
     {
+        int tries = 1;
+        while (tries <= MaxTries)
+        {
+            var httpRequest = new HttpRequestMessage(HttpMethod.Post, new Uri(_serverUri, "embedding"));
+            httpRequest.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            httpRequest.Content = Serialize(request);
+            try
+            {
+                return await EmbeddingAsync(httpRequest, cancellationToken);
+            }
+            catch (AiBusyException)
+            {
+                var delay = GetDelay();
+                _logger.LogWarning("Server is busy, retrying {tries}/{maxTries} after {delay} ms", tries, MaxTries, delay);
+                await Task.Delay(delay, cancellationToken);
+                tries++;
+            }
+        }
+        throw new AiBusyException($"Server is busy, tried {MaxTries} times");
+    }
+
+    private async Task<EmbeddingResponse> EmbeddingAsync(HttpRequestMessage httpRequest, CancellationToken cancellationToken)
+    {
         using var client = _httpClientFactory.CreateClient();
         client.Timeout = TimeSpan.FromSeconds(_configuration.TimeoutInSeconds);
-        var httpRequest = new HttpRequestMessage(HttpMethod.Post, new Uri(_serverUri, "embedding"));
-        httpRequest.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-        httpRequest.Content = Serialize(request);
         var httpResponse = await client.SendAsync(httpRequest, cancellationToken);
         var json = await httpResponse.Content.ReadAsStringAsync(cancellationToken);
+        // server response in case of busy: {"content":"slot unavailable"}
+        if (json.StartsWith("{\"content\":\"slot unavailable\"}"))
+            throw new AiBusyException("Server is busy");
         try
         {
+            // server can be busy returns nothing
             var response = JsonSerializer.Deserialize<EmbeddingResponse>(json);
             return response ?? throw new AiException($"invalid response from server: {json}");
         }
