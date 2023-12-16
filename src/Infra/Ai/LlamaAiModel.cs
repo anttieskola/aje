@@ -7,8 +7,8 @@
 /// </summary>
 public class LlamaAiModel : IAiModel
 {
-    private const int MaxTries = 10;
-    private static TimeSpan GetDelay() => TimeSpan.FromMilliseconds(new Random().Next(500, 5000));
+    private const int MaxTries = 30;
+    private static TimeSpan GetDelay() => TimeSpan.FromMilliseconds(new Random().Next(500, 6000));
     private readonly ILogger<LlamaAiModel> _logger;
     private readonly LlamaConfiguration _configuration;
     private readonly IHttpClientFactory _httpClientFactory;
