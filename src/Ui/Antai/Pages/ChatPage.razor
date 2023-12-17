@@ -2,6 +2,7 @@
 @inject NavigationManager NavigationManager
 @inject ISender Sender
 @inject IConnectionMultiplexer Connection
+@inject IJSRuntime JSRuntime
 
 <PageTitle>Antai - Chat - @ChatId</PageTitle>
 
@@ -44,7 +45,6 @@ else
     </div>
 }
 
-
 @code {
 
     [Parameter]
@@ -83,6 +83,7 @@ else
                 InvokeAsync(async () =>
                 {
                     await Refresh();
+                    await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 999999);
                 });
             }
         }

@@ -1,7 +1,6 @@
-﻿@inject IJSRuntime JS
+﻿@inject IJSRuntime JSRuntime
 @inject ISender Sender
 @inject IConnectionMultiplexer Connection
-@implements IAsyncDisposable
 
 <div class="container w-9/12 m-1 p-2 rounded-lg rounded-bl-none bg-slate-800 ">
     <div class="container">
@@ -32,17 +31,17 @@
 @if (_output == null && _inputDisabled)
 {
     <div class="container items-center text-center">
-    <p class="text-green-300">Waiting on turn on the graphics card/llama.cpp server...</p>
-</div>
+        <p class="text-green-300">.............</p>
+    </div>
 }
 else if (_output != null)
 {
     <div class="flex justify-end m-1">
-    <div class="container w-11/12 m-1 p-2 rounded-lg rounded-br-none bg-slate-800">
-        <textarea id="output" class="mr-1 w-full text-sm" spellcheck="false" disabled aria-label="output"
-            rows="@_outputRows">@_output</textarea>
+        <div class="container w-11/12 m-1 p-2 rounded-lg rounded-br-none bg-slate-800">
+            <textarea id="output" class="mr-1 w-full text-sm" spellcheck="false" disabled aria-label="output"
+                rows="@_outputRows">@_output</textarea>
+        </div>
     </div>
-</div>
 }
 
 @code {
@@ -54,9 +53,9 @@ else if (_output != null)
     private string? _inputError;
     private bool _inputDisabled = false;
     private string? _output;
-    private IJSObjectReference? _js;
     private int _inputRows = 1;
     private int _outputRows = 1;
+
     protected override async Task OnInitializedAsync()
     {
         var pubsub = Connection.GetSubscriber();
@@ -67,8 +66,8 @@ else if (_output != null)
     {
         if (firstRender)
         {
-            _js = await JS.InvokeAsync<IJSObjectReference>("import", "./Shared/InteractionCreator.razor.js");
-            await _js.InvokeVoidAsync("focusElement", "input");
+            await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 999999);
+            await JSRuntime.InvokeVoidAsync("eval", "document.getElementById('input').focus();");
         }
         await CalculateRows();
     }
@@ -86,8 +85,7 @@ else if (_output != null)
                 {
                     _output += tokenEvent.Token;
                     StateHasChanged();
-                    if (_js != null)
-                        await _js.InvokeVoidAsync("focusElement", "scrollToBottom");
+                    await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 999999);
                 });
             }
         }
@@ -103,7 +101,8 @@ else if (_output != null)
         _inputError = null;
         _inputDisabled = true;
         StateHasChanged();
-        await Task.Delay(TimeSpan.FromMilliseconds(200));
+        await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 999999);
+        await Task.Delay(TimeSpan.FromMilliseconds(500));
         await Sender.Send(new AiChatSendMessageCommand
             {
                 ChatId = ChatId,
@@ -124,8 +123,8 @@ else if (_output != null)
         _inputDisabled = false;
         StateHasChanged();
 
-        if (_js is not null)
-            await _js.InvokeVoidAsync("focusElement", "input");
+        await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 999999);
+        await JSRuntime.InvokeVoidAsync("eval", "document.getElementById('input').focus();");
     }
 
     // TODO: Keyevents should be send using SignalR (redis channels) to all browsers that have chat open
@@ -183,7 +182,7 @@ else if (_output != null)
     // TODO: Similar code with InteractionView.razor
     async Task CalculateRows()
     {
-        var windowWidth = await JS.InvokeAsync<int>("eval", "window.innerWidth");
+        var windowWidth = await JSRuntime.InvokeAsync<int>("eval", "window.innerWidth");
         if (!_inputDisabled)
             _inputRows = CalculateRows(_input ?? string.Empty, windowWidth);
         _outputRows = CalculateRows(_output ?? string.Empty, windowWidth);
@@ -221,21 +220,5 @@ else if (_output != null)
                 rows += 2;
         }
         return rows == 0 ? 1 : rows;
-    }
-    async ValueTask IAsyncDisposable.DisposeAsync()
-    {
-        if (_js is not null)
-        {
-            try
-            {
-                await _js.DisposeAsync();
-                _js = null;
-            }
-            catch (JSDisconnectedException)
-            {
-                // We do not want to see this in logs, DisposeAsync call also throws exception if circuit lost
-                // https://github.com/dotnet/aspnetcore/issues/44180
-            }
-        }
     }
 }
