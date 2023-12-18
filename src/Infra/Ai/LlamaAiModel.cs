@@ -39,7 +39,7 @@ public class LlamaAiModel : IAiModel
         {
             throw new AiException("No servers configured");
         }
-        var index = new Random().Next(0, count + 1);
+        var index = new Random().Next(0, count);
         return _configuration.Servers[index];
     }
 
