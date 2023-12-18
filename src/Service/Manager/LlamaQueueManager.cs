@@ -50,25 +50,18 @@ public class LlamaQueueManager : BackgroundService
         var length = db.ListLength(released.ResourceIdentifier);
         if (length > 0)
         {
-            var last = db.ListGetByIndex(released.ResourceIdentifier, length - 1);
-            if (last.ToString() == released.RequestId.ToString())
+            // after testing due messages arriving order is not guranteed to be correct
+            // we can push left when resource reserved in wrong order
+            db.ListRemove(released.ResourceIdentifier, released.RequestId.ToString());
+            length = db.ListLength(released.ResourceIdentifier);
+            if (length > 0)
             {
-                db.ListRightPop(released.ResourceIdentifier);
-                length = db.ListLength(released.ResourceIdentifier);
-                if (length > 0)
+                var nextId = db.ListGetByIndex(released.ResourceIdentifier, length - 1);
+                Publish(new ResourceGrantedEvent
                 {
-                    var nextId = db.ListGetByIndex(released.ResourceIdentifier, length - 1);
-                    Publish(new ResourceGrantedEvent
-                    {
-                        ResourceIdentifier = released.ResourceIdentifier,
-                        RequestId = Guid.ParseExact(nextId.ToString(), "D"),
-                    });
-                }
-            }
-            else
-            {
-                _logger.LogWarning("Resource {ResourceIdentifier} released but not last request, requestId:{RequestId}", released.ResourceIdentifier, released.RequestId);
-                db.ListRemove(released.ResourceIdentifier, released.RequestId.ToString());
+                    ResourceIdentifier = released.ResourceIdentifier,
+                    RequestId = Guid.ParseExact(nextId.ToString(), "D"),
+                });
             }
         }
         else
