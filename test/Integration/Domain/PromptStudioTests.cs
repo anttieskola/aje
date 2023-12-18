@@ -52,7 +52,7 @@ public class PromptStudioTests : IClassFixture<HttpClientFixture>, IClassFixture
         await _redisFixture.Database.KeyDeleteAsync(_index.RedisId(_idPromptStudioSession.ToString()));
         var promptStudioRepository = new PromptStudioRepository(new Mock<ILogger<PromptStudioRepository>>().Object, _redisFixture.Connection);
         var promptStudioEventHandler = new PromptStudioEventHandler(_redisFixture.Connection);
-        var aiModel = new LlamaAiModel(CreateMockServiceProvider(), TestConstants.LlamaConfiguration, _redisFixture.Connection, true);
+        var aiModel = new LlamaAiModel(new Mock<ILogger<LlamaAiModel>>().Object, CreateMockServiceProvider(), TestConstants.LlamaConfiguration, _redisFixture.Connection, true);
 
         var startHandler = new PromptStudioStartCommandHandler(promptStudioRepository, promptStudioEventHandler);
         var runHandler = new PromptStudioRunCommandHandler(promptStudioRepository, promptStudioEventHandler, aiModel);

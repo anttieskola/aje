@@ -107,7 +107,7 @@ public class ArticleGetPolarityCommandHandlerTests : IClassFixture<HttpClientFix
         var handler = new ArticleGetSentimentPolarityQueryHandler(
             new ArticleContextCreator(new MarkDownSimplifier()),
             new PolarityChatML(),
-            new LlamaAiModel(CreateMockServiceProvider(), TestConstants.LlamaConfiguration, _redisFixture.Connection, true),
+            new LlamaAiModel(new Mock<ILogger<LlamaAiModel>>().Object, CreateMockServiceProvider(), TestConstants.LlamaConfiguration, _redisFixture.Connection, true),
             new AiLogger(new Mock<ILogger<AiLogger>>().Object, TestConstants.LlamaConfiguration));
         var command = new ArticleGetSentimentPolarityQuery { Article = article };
         var response = await handler.Handle(command, CancellationToken.None);

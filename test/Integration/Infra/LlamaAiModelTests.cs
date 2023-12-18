@@ -37,7 +37,7 @@ public class LlamaAiModelTests : IClassFixture<HttpClientFixture>, IClassFixture
     [Fact]
     public async Task CompletionAsyncTest()
     {
-        var model = new LlamaAiModel(CreateMockServiceProvider(), TestConstants.LlamaConfiguration, _redisFixture.Connection, true);
+        var model = new LlamaAiModel(new Mock<ILogger<LlamaAiModel>>().Object, CreateMockServiceProvider(), TestConstants.LlamaConfiguration, _redisFixture.Connection, true);
         var request = new CompletionRequest
         {
             Prompt = "<|im_start|>system\nyou are starship captain\nrussia has launched nukes towards finland\nyou are currently above finland on earths orbit\n<|im_end|><im_start|>user\nbeam up Antti before nukes land, hurry up!<|im_end|><|im_start|>captain\n",
@@ -54,7 +54,7 @@ public class LlamaAiModelTests : IClassFixture<HttpClientFixture>, IClassFixture
     [Fact]
     public async Task CompletionStreamAsync()
     {
-        var model = new LlamaAiModel(CreateMockServiceProvider(), TestConstants.LlamaConfiguration, _redisFixture.Connection, true);
+        var model = new LlamaAiModel(new Mock<ILogger<LlamaAiModel>>().Object, CreateMockServiceProvider(), TestConstants.LlamaConfiguration, _redisFixture.Connection, true);
         var request = new CompletionRequest
         {
             Prompt = "<|im_start|>system\nyou are starship captain\nrussia has launched nukes towards finland\nyou are currently above finland on earths orbit\n<|im_end|><im_start|>user\nbeam up Antti before nukes land, hurry up!<|im_end|><|im_start|>captain\n",
@@ -79,7 +79,7 @@ public class LlamaAiModelTests : IClassFixture<HttpClientFixture>, IClassFixture
     [Fact]
     public async Task TokenizeAndDeTokenize()
     {
-        var model = new LlamaAiModel(CreateMockServiceProvider(), TestConstants.LlamaConfiguration, _redisFixture.Connection, true);
+        var model = new LlamaAiModel(new Mock<ILogger<LlamaAiModel>>().Object, CreateMockServiceProvider(), TestConstants.LlamaConfiguration, _redisFixture.Connection, true);
         var tokenizeRequest = new TokenizeRequest
         {
             Content = "Antti",
@@ -101,7 +101,7 @@ public class LlamaAiModelTests : IClassFixture<HttpClientFixture>, IClassFixture
     [Fact]
     public async Task Embedding()
     {
-        var model = new LlamaAiModel(CreateMockServiceProvider(), TestConstants.LlamaConfiguration, _redisFixture.Connection, true);
+        var model = new LlamaAiModel(new Mock<ILogger<LlamaAiModel>>().Object, CreateMockServiceProvider(), TestConstants.LlamaConfiguration, _redisFixture.Connection, true);
         var embeddingRequest = new EmbeddingRequest
         {
             Content = "Antti",
@@ -114,7 +114,7 @@ public class LlamaAiModelTests : IClassFixture<HttpClientFixture>, IClassFixture
     [Fact]
     public async Task AnttiChatMLCreatorPromptLength()
     {
-        var model = new LlamaAiModel(CreateMockServiceProvider(), TestConstants.LlamaConfiguration, _redisFixture.Connection, true);
+        var model = new LlamaAiModel(new Mock<ILogger<LlamaAiModel>>().Object, CreateMockServiceProvider(), TestConstants.LlamaConfiguration, _redisFixture.Connection, true);
         var a = new AntaiChatML();
         var tokenizeRequest = new TokenizeRequest
         {

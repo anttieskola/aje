@@ -10,6 +10,7 @@
 /// </summary>
 public class LlamaAiModel : IAiModel
 {
+    private readonly ILogger<LlamaAiModel> _logger;
     private readonly IServiceProvider _serviceProvider;
     private readonly LlamaConfiguration _configuration;
     private readonly IConnectionMultiplexer _connection;
@@ -17,11 +18,13 @@ public class LlamaAiModel : IAiModel
     private readonly bool _isTest;
 
     public LlamaAiModel(
+        ILogger<LlamaAiModel> logger,
         IServiceProvider serviceProvider,
         LlamaConfiguration configuration,
         IConnectionMultiplexer connection,
         bool isTestMode = false)
     {
+        _logger = logger;
         _serviceProvider = serviceProvider;
         _configuration = configuration;
         _connection = connection;
@@ -74,6 +77,8 @@ public class LlamaAiModel : IAiModel
             RequestId = id,
         });
 
+        _logger.LogDebug("Waiting: {}", id);
+
         // wait for resource to be granted
         if (await Wait(id, server.ResourceName, cancellationToken))
         {
@@ -87,6 +92,7 @@ public class LlamaAiModel : IAiModel
                 ResourceIdentifier = server.ResourceName,
                 RequestId = id,
             });
+            _logger.LogDebug("Done: {}", id);
 
             // cleanup and return
             _granted.Remove(id);

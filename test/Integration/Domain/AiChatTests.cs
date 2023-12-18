@@ -56,7 +56,7 @@ public class AiChatTests : IClassFixture<HttpClientFixture>, IClassFixture<Redis
 
         var aiChatRepository = new AiChatRepository(new Mock<ILogger<AiChatRepository>>().Object, _redisFixture.Connection);
         var aiEventHandler = new AiChatEventHandler(_redisFixture.Connection);
-        var aiModel = new LlamaAiModel(CreateMockServiceProvider(), TestConstants.LlamaConfiguration, _redisFixture.Connection, true);
+        var aiModel = new LlamaAiModel(new Mock<ILogger<LlamaAiModel>>().Object, CreateMockServiceProvider(), TestConstants.LlamaConfiguration, _redisFixture.Connection, true);
         var antai = new AntaiChatML();
         var startHandler = new AiChatStartCommandHandler(aiChatRepository, aiEventHandler);
         var sendHandler = new AiChatSendMessageCommandHandler(aiChatRepository, aiEventHandler, antai, aiModel);
