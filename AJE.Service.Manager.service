@@ -1,0 +1,35 @@
+# /etc/systemd/system/AJE.Service.Manager.service
+
+# install
+# sudo systemctl daemon-reload
+# sudo systemctl enable AJE.Service.Manager.service
+# sudo systemctl start AJE.Service.Manager.service
+
+# removal
+# sudo systemctl stop AJE.Service.Manager.service
+# sudo systemctl disable AJE.Service.Manager.service
+# remove the service file
+# reload daemon
+
+# full log you can see with
+# journalctl -u AJE.Service.Manager
+
+[Unit]
+Description=AJE.Service.Manager
+After=network.target
+
+[Service]
+Type=simple
+Restart=always
+# Note working directory is a must
+# otherwiser process can't find resources -> odd errors
+WorkingDirectory=/usr/local/bin/AJE.Service.Manager
+ExecStart=/usr/local/bin/AJE.Service.Manager/AJE.Service.Manager
+User=antti
+
+SyslogIdentifier=AJE.Service.Manager
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target
