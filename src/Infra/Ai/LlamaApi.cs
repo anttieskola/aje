@@ -1,4 +1,4 @@
-﻿namespace AJE.Infra.AiRedis;
+﻿namespace AJE.Infra.Ai;
 
 /// <summary>
 /// This class is responsible for the communication with the llama.cpp server

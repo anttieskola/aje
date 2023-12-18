@@ -10,13 +10,23 @@ namespace AJE.Test.Integration.Domain;
 /// <summary>
 /// Tests require a llama.cpp server running in localhost:8080
 /// </summary>
-public class ArticleGetPolarityCommandHandlerTests : IClassFixture<HttpClientFixture>
+#pragma warning disable xUnit1033
+[Collection("Llama")]
+public class ArticleGetPolarityCommandHandlerTests : IClassFixture<HttpClientFixture>, IClassFixture<RedisFixture>, IClassFixture<LlamaQueueFixture>
 {
-    private readonly HttpClientFixture _fixture;
+#pragma warning restore xUnit1033
+    private readonly HttpClientFixture _httpClientFixture;
+    private readonly RedisFixture _redisFixture;
+    private readonly LlamaQueueFixture _llamaQueueFixture;
 
-    public ArticleGetPolarityCommandHandlerTests(HttpClientFixture fixture)
+    public ArticleGetPolarityCommandHandlerTests(
+        HttpClientFixture httpClientFixture,
+        RedisFixture redisFixture,
+        LlamaQueueFixture llamaQueueFixture)
     {
-        _fixture = fixture;
+        _httpClientFixture = httpClientFixture;
+        _redisFixture = redisFixture;
+        _llamaQueueFixture = llamaQueueFixture;
     }
 
     #region json
@@ -81,17 +91,24 @@ public class ArticleGetPolarityCommandHandlerTests : IClassFixture<HttpClientFix
 
     #endregion json
 
+    private IServiceProvider CreateMockServiceProvider()
+    {
+        var mockServiceProvider = new Mock<IServiceProvider>();
+        mockServiceProvider.Setup(x => x.GetService(typeof(ILogger<LlamaApi>))).Returns(new Mock<ILogger<LlamaApi>>().Object);
+        mockServiceProvider.Setup(x => x.GetService(typeof(IHttpClientFactory))).Returns(_httpClientFixture.HttpClientFactory);
+        return mockServiceProvider.Object;
+    }
+
     [Fact]
     public async Task Ok()
     {
         var article = JsonSerializer.Deserialize<Article>(_article);
         Assert.NotNull(article);
-        var configuration = new LlamaConfiguration { Host = TestConstants.LlamaAddress, LogFolder = "/tmp" };
         var handler = new ArticleGetSentimentPolarityQueryHandler(
             new ArticleContextCreator(new MarkDownSimplifier()),
             new PolarityChatML(),
-            new LlamaAiModel(new Mock<ILogger<LlamaAiModel>>().Object, configuration, _fixture.HttpClientFactory),
-            new AiLogger(new Mock<ILogger<AiLogger>>().Object, configuration));
+            new LlamaAiModel(CreateMockServiceProvider(), TestConstants.LlamaConfiguration, _redisFixture.Connection, true),
+            new AiLogger(new Mock<ILogger<AiLogger>>().Object, TestConstants.LlamaConfiguration));
         var command = new ArticleGetSentimentPolarityQuery { Article = article };
         var response = await handler.Handle(command, CancellationToken.None);
         Assert.NotNull(response);

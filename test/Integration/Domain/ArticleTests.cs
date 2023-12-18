@@ -5,7 +5,7 @@ using AJE.Domain.Events;
 using AJE.Domain.Queries;
 using AJE.Infra.Redis.Indexes;
 
-namespace AJE.Test.Integration.Application;
+namespace AJE.Test.Integration.Domain;
 
 /// <summary>
 /// Tests require redis running

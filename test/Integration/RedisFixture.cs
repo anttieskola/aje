@@ -1,13 +1,13 @@
 ﻿using AJE.Domain.Data;
 using AJE.Infra.Redis;
 using AJE.Infra.Redis.Data;
+using AJE.Service.Manager;
 using Microsoft.Extensions.Logging;
 
 namespace AJE.Test.Integration;
 
 public class RedisFixture : IDisposable
 {
-
     public IConnectionMultiplexer Connection { get; }
     public IDatabase Database { get; }
     public IArticleRepository ArticleRepository { get; }

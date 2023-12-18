@@ -34,7 +34,6 @@
     <ProjectReference Include="..\..\src\Service\NewsDownloader\NewsDownloader.csproj" />
     <ProjectReference Include="..\..\src\Infra\Ai\Ai.csproj" />
     <ProjectReference Include="..\..\src\Infra\Redis\Redis.csproj" />
-    <ProjectReference Include="..\..\src\Infra\AiRedis\AiRedis.csproj" />
     <ProjectReference Include="..\..\src\Service\Manager\Manager.csproj" />
   </ItemGroup>
 

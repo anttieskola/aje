@@ -9,20 +9,35 @@ namespace AJE.Test.Integration.Infra;
 /// <summary>
 /// Tests require llama.cpp
 /// </summary>
-public class LlamaAiModelTests : IClassFixture<HttpClientFixture>
+[Collection("Llama")]
+public class LlamaAiModelTests : IClassFixture<HttpClientFixture>, IClassFixture<RedisFixture>, IClassFixture<LlamaQueueFixture>
 {
-    private readonly HttpClientFixture _fixture;
+    private readonly HttpClientFixture _httpClientFixture;
+    private readonly RedisFixture _redisFixture;
+    private readonly LlamaQueueFixture _llamaQueueFixture;
 
-    public LlamaAiModelTests(HttpClientFixture fixture)
+    public LlamaAiModelTests(
+        HttpClientFixture fixture,
+        RedisFixture redisFixture,
+        LlamaQueueFixture llamaQueueFixture)
     {
-        _fixture = fixture;
+        _httpClientFixture = fixture;
+        _redisFixture = redisFixture;
+        _llamaQueueFixture = llamaQueueFixture;
+    }
+
+    private IServiceProvider CreateMockServiceProvider()
+    {
+        var mockServiceProvider = new Mock<IServiceProvider>();
+        mockServiceProvider.Setup(x => x.GetService(typeof(ILogger<LlamaApi>))).Returns(new Mock<ILogger<LlamaApi>>().Object);
+        mockServiceProvider.Setup(x => x.GetService(typeof(IHttpClientFactory))).Returns(_httpClientFixture.HttpClientFactory);
+        return mockServiceProvider.Object;
     }
 
     [Fact]
     public async Task CompletionAsyncTest()
     {
-        var configuration = new LlamaConfiguration { Host = TestConstants.LlamaAddress, LogFolder = "/var/aje/ai" };
-        var model = new LlamaAiModel(new Mock<ILogger<LlamaAiModel>>().Object, configuration, _fixture.HttpClientFactory);
+        var model = new LlamaAiModel(CreateMockServiceProvider(), TestConstants.LlamaConfiguration, _redisFixture.Connection, true);
         var request = new CompletionRequest
         {
             Prompt = "<|im_start|>system\nyou are starship captain\nrussia has launched nukes towards finland\nyou are currently above finland on earths orbit\n<|im_end|><im_start|>user\nbeam up Antti before nukes land, hurry up!<|im_end|><|im_start|>captain\n",
@@ -39,8 +54,7 @@ public class LlamaAiModelTests : IClassFixture<HttpClientFixture>
     [Fact]
     public async Task CompletionStreamAsync()
     {
-        var configuration = new LlamaConfiguration { Host = TestConstants.LlamaAddress, LogFolder = "/var/aje/ai" };
-        var model = new LlamaAiModel(new Mock<ILogger<LlamaAiModel>>().Object, configuration, _fixture.HttpClientFactory);
+        var model = new LlamaAiModel(CreateMockServiceProvider(), TestConstants.LlamaConfiguration, _redisFixture.Connection, true);
         var request = new CompletionRequest
         {
             Prompt = "<|im_start|>system\nyou are starship captain\nrussia has launched nukes towards finland\nyou are currently above finland on earths orbit\n<|im_end|><im_start|>user\nbeam up Antti before nukes land, hurry up!<|im_end|><|im_start|>captain\n",
@@ -65,8 +79,7 @@ public class LlamaAiModelTests : IClassFixture<HttpClientFixture>
     [Fact]
     public async Task TokenizeAndDeTokenize()
     {
-        var configuration = new LlamaConfiguration { Host = TestConstants.LlamaAddress, LogFolder = "/var/aje/ai" };
-        var model = new LlamaAiModel(new Mock<ILogger<LlamaAiModel>>().Object, configuration, _fixture.HttpClientFactory);
+        var model = new LlamaAiModel(CreateMockServiceProvider(), TestConstants.LlamaConfiguration, _redisFixture.Connection, true);
         var tokenizeRequest = new TokenizeRequest
         {
             Content = "Antti",
@@ -88,8 +101,7 @@ public class LlamaAiModelTests : IClassFixture<HttpClientFixture>
     [Fact]
     public async Task Embedding()
     {
-        var configuration = new LlamaConfiguration { Host = TestConstants.LlamaAddress, LogFolder = "/var/aje/ai" };
-        var model = new LlamaAiModel(new Mock<ILogger<LlamaAiModel>>().Object, configuration, _fixture.HttpClientFactory);
+        var model = new LlamaAiModel(CreateMockServiceProvider(), TestConstants.LlamaConfiguration, _redisFixture.Connection, true);
         var embeddingRequest = new EmbeddingRequest
         {
             Content = "Antti",
@@ -102,8 +114,7 @@ public class LlamaAiModelTests : IClassFixture<HttpClientFixture>
     [Fact]
     public async Task AnttiChatMLCreatorPromptLength()
     {
-        var configuration = new LlamaConfiguration { Host = TestConstants.LlamaAddress, LogFolder = "/var/aje/ai" };
-        var model = new LlamaAiModel(new Mock<ILogger<LlamaAiModel>>().Object, configuration, _fixture.HttpClientFactory);
+        var model = new LlamaAiModel(CreateMockServiceProvider(), TestConstants.LlamaConfiguration, _redisFixture.Connection, true);
         var a = new AntaiChatML();
         var tokenizeRequest = new TokenizeRequest
         {

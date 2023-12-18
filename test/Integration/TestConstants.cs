@@ -1,3 +1,5 @@
+using AJE.Infra.Ai;
+
 namespace AJE.Test.Integration;
 public static class TestConstants
 {
@@ -9,5 +11,27 @@ public static class TestConstants
         var random = new Random();
         return new string(Enumerable.Repeat(RANDOMCHARACTERS, length)
             .Select(s => s[random.Next(s.Length)]).ToArray());
+    }
+    public static LlamaConfiguration LlamaConfiguration
+    {
+        get
+        {
+            return new LlamaConfiguration
+            {
+
+                Servers =
+                [
+                    new LlamaServer
+                    {
+                        Host = LlamaAddress,
+                        ResourceName = "integration-test-llama",
+                        MaxTokenCount = 8096,
+                        TimeoutInSeconds = 30,
+                    }
+                ],
+                LogFolder = "/tmp",
+
+            };
+        }
     }
 }

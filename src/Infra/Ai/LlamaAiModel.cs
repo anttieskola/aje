@@ -1,269 +1,282 @@
 ﻿namespace AJE.Infra.Ai;
 
 /// <summary>
-/// This class is responsible for the communication with the llama.cpp server
-/// NOTE!!! The request content must be very carefully inspected & filtered as there
-/// is NO SAFETY in this class or server, all input is directly fed to model.
+/// "Drop-in" replacement for LlamaAiModel but this
+/// uses redis via Manager service to coordinate requests
+/// into queue to grant access to the resource.
+///
+/// Also provides posssiblity to use multiple Llama.cpp servers
+/// and chooses one randomly from the list.
 /// </summary>
 public class LlamaAiModel : IAiModel
 {
-    private const int MaxTries = 30;
-    private static TimeSpan GetDelay() => TimeSpan.FromMilliseconds(new Random().Next(500, 6000));
-    private readonly ILogger<LlamaAiModel> _logger;
+    private readonly IServiceProvider _serviceProvider;
     private readonly LlamaConfiguration _configuration;
-    private readonly IHttpClientFactory _httpClientFactory;
-    private readonly Uri _serverUri;
-
-    // We gotta allow the < and > ('\u003C', '\u003E') characters as llama.cpp won't decode anything
-    // for the model. It does not work to use AllowCharacters as if character is in the Global block list
-    // like these are there is no other way to allow them than to use UnsafeRelaxedJsonEscaping.
-    // https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/character-encoding
-    // We have to be carefull what input we allow to this class as it will be passed to the model.
-    private readonly JsonSerializerOptions _unsafeJsonSerializerOptions = new()
-    {
-        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-    };
+    private readonly IConnectionMultiplexer _connection;
+    private readonly RedisChannel _channel;
+    private readonly bool _isTest;
 
     public LlamaAiModel(
-        ILogger<LlamaAiModel> logger,
+        IServiceProvider serviceProvider,
         LlamaConfiguration configuration,
-        IHttpClientFactory httpClientFactory)
+        IConnectionMultiplexer connection,
+        bool isTestMode = false)
     {
-        _logger = logger;
+        _serviceProvider = serviceProvider;
         _configuration = configuration;
-        _httpClientFactory = httpClientFactory;
-        _serverUri = new Uri(_configuration.Host);
+        _connection = connection;
+        _isTest = isTestMode;
+        _channel = new RedisChannel(ResourceEventChannels.LlamaAi, RedisChannel.PatternMode.Auto);
+
+        var subscriber = _connection.GetSubscriber();
+        subscriber.Subscribe(_channel, OnMessage);
     }
+
+    private LlamaServer GetServer()
+    {
+        var count = _configuration.Servers.Length;
+        if (count == 0)
+        {
+            throw new AiException("No servers configured");
+        }
+        var index = new Random().Next(0, count);
+        return _configuration.Servers[index];
+    }
+
+    private readonly List<Guid> _granted = [];
+
+    private void OnMessage(RedisChannel channel, RedisValue message)
+    {
+        if (!message.HasValue)
+            return;
+
+        var resourceEvent = JsonSerializer.Deserialize<ResourceEvent>(message.ToString());
+        if (resourceEvent is ResourceGrantedEvent granted && granted.IsTest == _isTest)
+        {
+            _granted.Add(granted.RequestId);
+        }
+    }
+
+    #region IAiModel
 
     public async Task<CompletionResponse> CompletionAsync(CompletionRequest request, CancellationToken cancellationToken)
     {
-        if (request.Stream)
-            throw new ArgumentException($"Use {nameof(CompletionStreamAsync)} when Stream enabled", nameof(request));
+        // get random server
+        var server = GetServer();
 
-        await CheckContentIsNotTooLarge(request.Prompt, cancellationToken);
-        int tries = 1;
-        while (tries <= MaxTries)
-        {
-            using var httpRequest = new HttpRequestMessage(HttpMethod.Post, new Uri(_serverUri, "completion"));
-            httpRequest.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            httpRequest.Content = Serialize(request);
-            try
-            {
-                return await CompletionAsync(httpRequest, cancellationToken);
-            }
-            catch (AiBusyException)
-            {
-                var delay = GetDelay();
-                _logger.LogWarning("Server is busy, retrying {tries}/{maxTries} after {delay} ms", tries, MaxTries, delay);
-                await Task.Delay(delay, cancellationToken);
-                tries++;
-            }
-        }
-        throw new AiBusyException($"Server is busy, tried {MaxTries} times");
-    }
+        // request id
+        var id = Guid.NewGuid();
 
-    private async Task<CompletionResponse> CompletionAsync(HttpRequestMessage httpRequest, CancellationToken cancellationToken)
-    {
-        using var client = _httpClientFactory.CreateClient();
-        client.Timeout = TimeSpan.FromSeconds(_configuration.TimeoutInSeconds);
-        var httpResponse = await client.SendAsync(httpRequest, cancellationToken);
-        var json = await httpResponse.Content.ReadAsStringAsync(cancellationToken);
-        if (string.IsNullOrEmpty(json))
-            throw new InvalidOperationException("Empty response from server");
-        // server can be busy (File Not Found)
-        if (json.StartsWith("File Not Found"))
+        // event: resource requested
+        await PublishAsync(new ResourceRequestEvent
         {
-            throw new AiBusyException("Server is busy");
+            ResourceIdentifier = server.ResourceName,
+            RequestId = id,
+        });
+
+        // wait for resource to be granted
+        if (await Wait(id, server.ResourceName, cancellationToken))
+        {
+            // use resource
+            var api = CreateApiForServer(server);
+            var response = await api.CompletionAsync(request, cancellationToken);
+
+            // event: resource released
+            await PublishAsync(new ResourceReleasedEvent
+            {
+                ResourceIdentifier = server.ResourceName,
+                RequestId = id,
+            });
+
+            // cleanup and return
+            _granted.Remove(id);
+            return response;
         }
-        var response = JsonSerializer.Deserialize<CompletionResponse>(json)
-            ?? throw new InvalidOperationException($"Failed to deserialize response from server: {json}");
-        _logger.LogTrace("Model response: {}", response.Content);
-        return response;
+        throw new AiException("Request cancelled");
     }
 
     public async Task<CompletionResponse> CompletionStreamAsync(CompletionRequest request, TokenCreatedCallback tokenCreatedCallback, CancellationToken cancellationToken)
     {
-        if (!request.Stream)
-            throw new ArgumentException($"Use {nameof(CompletionAsync)} when Stream disabled", nameof(request));
+        // get random server
+        var server = GetServer();
 
-        ArgumentNullException.ThrowIfNull(tokenCreatedCallback);
-        await CheckContentIsNotTooLarge(request.Prompt, cancellationToken);
+        // request id
+        var id = Guid.NewGuid();
 
-        int tries = 1;
-        while (tries <= MaxTries)
+        // event: resource requested
+        await PublishAsync(new ResourceRequestEvent
         {
-            using var httpRequest = new HttpRequestMessage(HttpMethod.Post, new Uri(_serverUri, "completion"));
-            httpRequest.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            httpRequest.Content = Serialize(request);
-            try
+            ResourceIdentifier = server.ResourceName,
+            RequestId = id,
+        });
+
+        // wait for resource to be granted
+        if (await Wait(id, server.ResourceName, cancellationToken))
+        {
+            // use resource
+            var api = CreateApiForServer(server);
+            var response = await api.CompletionStreamAsync(request, tokenCreatedCallback, cancellationToken);
+
+            // event: resource released
+            await PublishAsync(new ResourceReleasedEvent
             {
-                return await CompletionStreamAsync(httpRequest, tokenCreatedCallback, cancellationToken);
-            }
-            catch (AiBusyException)
-            {
-                var delay = GetDelay();
-                _logger.LogWarning("Server is busy, retrying {tries}/{maxTries} after {delay} ms", tries, MaxTries, delay);
-                await Task.Delay(delay, cancellationToken);
-                tries++;
-            }
-        }
-        throw new AiBusyException($"Server is busy, tried {MaxTries} times");
-    }
+                ResourceIdentifier = server.ResourceName,
+                RequestId = id,
+            });
 
-    private async Task<CompletionResponse> CompletionStreamAsync(HttpRequestMessage httpRequest, TokenCreatedCallback tokenCreatedCallback, CancellationToken cancellationToken)
-    {
-        using var client = _httpClientFactory.CreateClient();
-        client.Timeout = TimeSpan.FromSeconds(_configuration.TimeoutInSeconds);
-        var httpResponse = await client.SendAsync(httpRequest, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
-        using var stream = await httpResponse.Content.ReadAsStreamAsync(cancellationToken);
-        using var reader = new StreamReader(stream);
-        var sb = new StringBuilder();
-        while (!reader.EndOfStream)
-        {
-            var line = await reader.ReadLineAsync(cancellationToken);
-            if (!string.IsNullOrWhiteSpace(line))
-            {
-                // server can be busy (error: {"content":"slot unavailable"})
-                if (line.StartsWith("error"))
-                {
-                    throw new AiBusyException("Server is busy");
-                }
-                var data = line.Replace("data: ", string.Empty);
-                try
-                {
-                    var completion = JsonSerializer.Deserialize<CompletionResponse>(data);
-                    if (completion != null)
-                    {
-                        if (!completion.Stop)
-                        {
-                            await tokenCreatedCallback.Invoke(completion.Content);
-                            sb.Append(completion.Content);
-                        }
-                        else
-                        {
-                            completion.Content = sb.ToString();
-                            _logger.LogTrace("Model response: {}", completion.Content);
-                            return completion;
-                        }
-                    }
-                    else
-                        throw new AiException($"invalid response from server: {data}");
-                }
-                catch (JsonException e)
-                {
-                    _logger.LogError("Error parsing json: {}", e.Message);
-                    throw;
-                }
-            }
+            // cleanup and return
+            _granted.Remove(id);
+            return response;
         }
-        _logger.LogError("Model response: {}", sb.ToString());
-        throw new InvalidOperationException("Stream ended without stop");
-    }
-
-    public async Task<TokenizeResponse> TokenizeAsync(TokenizeRequest request, CancellationToken cancellationToken)
-    {
-        using var client = _httpClientFactory.CreateClient();
-        client.Timeout = TimeSpan.FromSeconds(_configuration.TimeoutInSeconds);
-        var httpRequest = new HttpRequestMessage(HttpMethod.Post, new Uri(_serverUri, "tokenize"));
-        httpRequest.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-        httpRequest.Content = Serialize(request);
-        var httpResponse = await client.SendAsync(httpRequest, cancellationToken);
-        var json = await httpResponse.Content.ReadAsStringAsync(cancellationToken);
-        try
-        {
-            // Can't get this to give errors from unavailability like other api's
-            var response = JsonSerializer.Deserialize<TokenizeResponse>(json);
-            return response ?? throw new AiException($"invalid response from server: {json}");
-        }
-        catch (JsonException e)
-        {
-            _logger.LogError("Error parsing json: {}", e.Message);
-            throw;
-        }
-    }
-
-    private async Task CheckContentIsNotTooLarge(string content, CancellationToken cancellationToken)
-    {
-        var response = await TokenizeAsync(new TokenizeRequest { Content = content }, cancellationToken);
-        int tokenCount = response.Tokens.Length;
-        if (tokenCount > _configuration.MaxTokenCount)
-            throw new AiException($"Content is too large, token count: {tokenCount}, max token count: {_configuration.MaxTokenCount}");
+        throw new AiException("Request cancelled");
     }
 
     public async Task<DeTokenizeResponse> DeTokenizeAsync(DeTokenizeRequest request, CancellationToken cancellationToken)
     {
-        using var client = _httpClientFactory.CreateClient();
-        client.Timeout = TimeSpan.FromSeconds(_configuration.TimeoutInSeconds);
-        var httpRequest = new HttpRequestMessage(HttpMethod.Post, new Uri(_serverUri, "detokenize"));
-        httpRequest.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-        httpRequest.Content = Serialize(request);
-        var httpResponse = await client.SendAsync(httpRequest, cancellationToken);
-        var json = await httpResponse.Content.ReadAsStringAsync(cancellationToken);
-        try
+        // get random server
+        var server = GetServer();
+
+        // request id
+        var id = Guid.NewGuid();
+
+        // event: resource requested
+        await PublishAsync(new ResourceRequestEvent
         {
-            var response = JsonSerializer.Deserialize<DeTokenizeResponse>(json);
-            return response ?? throw new AiException($"invalid response from server: {json}");
-        }
-        catch (JsonException e)
+            ResourceIdentifier = server.ResourceName,
+            RequestId = id,
+        });
+
+        // wait for resource to be granted
+        if (await Wait(id, server.ResourceName, cancellationToken))
         {
-            _logger.LogError("Error parsing json: {}", e.Message);
-            throw;
+            // use resource
+            var api = CreateApiForServer(server);
+            var response = await api.DeTokenizeAsync(request, cancellationToken);
+
+            // event: resource released
+            await PublishAsync(new ResourceReleasedEvent
+            {
+                ResourceIdentifier = server.ResourceName,
+                RequestId = id,
+            });
+
+            // cleanup and return
+            _granted.Remove(id);
+            return response;
         }
+        throw new AiException("Request cancelled");
     }
 
     public async Task<EmbeddingResponse> EmbeddingAsync(EmbeddingRequest request, CancellationToken cancellationToken)
     {
-        int tries = 1;
-        while (tries <= MaxTries)
+        // get random server
+        var server = GetServer();
+
+        // request id
+        var id = Guid.NewGuid();
+
+        // event: resource requested
+        await PublishAsync(new ResourceRequestEvent
         {
-            var httpRequest = new HttpRequestMessage(HttpMethod.Post, new Uri(_serverUri, "embedding"));
-            httpRequest.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            httpRequest.Content = Serialize(request);
-            try
+            ResourceIdentifier = server.ResourceName,
+            RequestId = id,
+        });
+
+        // wait for resource to be granted
+        if (await Wait(id, server.ResourceName, cancellationToken))
+        {
+
+            // use resource
+            var api = CreateApiForServer(server);
+            var response = await api.EmbeddingAsync(request, cancellationToken);
+
+            // event: resource released
+            await PublishAsync(new ResourceReleasedEvent
             {
-                return await EmbeddingAsync(httpRequest, cancellationToken);
-            }
-            catch (AiBusyException)
+                ResourceIdentifier = server.ResourceName,
+                RequestId = id,
+            });
+
+            // cleanup and return
+            _granted.Remove(id);
+            return response;
+        }
+        throw new AiException("Request cancelled");
+    }
+
+    public async Task<TokenizeResponse> TokenizeAsync(TokenizeRequest request, CancellationToken cancellationToken)
+    {
+        // get random server
+        var server = GetServer();
+
+        // request id
+        var id = Guid.NewGuid();
+
+        // event: resource requested
+        await PublishAsync(new ResourceRequestEvent
+        {
+            ResourceIdentifier = server.ResourceName,
+            RequestId = id,
+        });
+
+        // wait for resource to be granted
+        if (await Wait(id, server.ResourceName, cancellationToken))
+        {
+            // use resource
+            var api = CreateApiForServer(server);
+            var response = await api.TokenizeAsync(request, cancellationToken);
+
+            // event: resource released
+            await PublishAsync(new ResourceReleasedEvent
             {
-                var delay = GetDelay();
-                _logger.LogWarning("Server is busy, retrying {tries}/{maxTries} after {delay} ms", tries, MaxTries, delay);
-                await Task.Delay(delay, cancellationToken);
-                tries++;
+                ResourceIdentifier = server.ResourceName,
+                RequestId = id,
+            });
+
+            // cleanup and return
+            _granted.Remove(id);
+            return response;
+        }
+        throw new AiException("Request cancelled");
+    }
+
+    // TODO: problematic because multiple servers
+    public Task<int> MaxTokenCountAsync(CancellationToken cancellationToken)
+    {
+        var server = GetServer();
+        return Task.FromResult(server.MaxTokenCount);
+    }
+
+    #endregion IAiModel
+
+    private async Task<bool> Wait(Guid requestId, string resourceIdentifier, CancellationToken cancellationToken)
+    {
+        while (_granted.Contains(requestId) == false)
+        {
+            await Task.Delay(TimeSpan.FromMilliseconds(100), cancellationToken);
+            if (cancellationToken.IsCancellationRequested)
+            {
+                await PublishAsync(new ResourceReleasedEvent
+                {
+                    ResourceIdentifier = resourceIdentifier,
+                    RequestId = requestId,
+                });
+                return false;
             }
         }
-        throw new AiBusyException($"Server is busy, tried {MaxTries} times");
+        return true;
     }
 
-    private async Task<EmbeddingResponse> EmbeddingAsync(HttpRequestMessage httpRequest, CancellationToken cancellationToken)
+    private async Task PublishAsync(ResourceEvent resourceEvent)
     {
-        using var client = _httpClientFactory.CreateClient();
-        client.Timeout = TimeSpan.FromSeconds(_configuration.TimeoutInSeconds);
-        var httpResponse = await client.SendAsync(httpRequest, cancellationToken);
-        var json = await httpResponse.Content.ReadAsStringAsync(cancellationToken);
-        // server response in case of busy: {"content":"slot unavailable"}
-        if (json.StartsWith("{\"content\":\"slot unavailable\"}"))
-            throw new AiBusyException("Server is busy");
-        try
-        {
-            // server can be busy returns nothing
-            var response = JsonSerializer.Deserialize<EmbeddingResponse>(json);
-            return response ?? throw new AiException($"invalid response from server: {json}");
-        }
-        catch (JsonException e)
-        {
-            _logger.LogError("Error parsing json: {}", e.Message);
-            throw;
-        }
+        resourceEvent.IsTest = _isTest;
+        await _connection.GetSubscriber().PublishAsync(_channel, JsonSerializer.Serialize(resourceEvent));
     }
 
-    public async Task<int> MaxTokenCountAsync(CancellationToken cancellationToken)
+    private LlamaApi CreateApiForServer(LlamaServer server)
     {
-        return await Task.FromResult(_configuration.MaxTokenCount);
-    }
-
-    private StringContent Serialize(object request)
-    {
-        var json = JsonSerializer.Serialize(request, _unsafeJsonSerializerOptions);
-        return new StringContent(json, Encoding.UTF8, "application/json");
+        var logger = _serviceProvider.GetService<ILogger<LlamaApi>>() ?? throw new PlatformException("Could not get logger");
+        var factory = _serviceProvider.GetService<IHttpClientFactory>() ?? throw new PlatformException("Could not get http client factory");
+        return new LlamaApi(logger, factory, server);
     }
 }

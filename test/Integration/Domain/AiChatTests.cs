@@ -19,22 +19,34 @@ namespace AJE.Test.Integration.Domain;
 /// </summary>
 // maybe this warning is bug as it only shows where where two fixtures are used?
 #pragma warning disable xUnit1033
-public class AiChatTests : IClassFixture<HttpClientFixture>, IClassFixture<RedisFixture>
+[Collection("Llama")]
+public class AiChatTests : IClassFixture<HttpClientFixture>, IClassFixture<RedisFixture>, IClassFixture<LlamaQueueFixture>
 {
 #pragma warning restore xUnit1033
     private readonly HttpClientFixture _httpClientFixture;
     private readonly RedisFixture _redisFixture;
+    private readonly LlamaQueueFixture _llamaQueueFixture;
     private readonly AiChatIndex _index = new();
 
     public AiChatTests(
         HttpClientFixture httpClientFixture,
-        RedisFixture redisFixture)
+        RedisFixture redisFixture,
+        LlamaQueueFixture llamaQueueFixture)
     {
         _httpClientFixture = httpClientFixture;
         _redisFixture = redisFixture;
+        _llamaQueueFixture = llamaQueueFixture;
     }
 
     private readonly Guid _idChat = new("00000000-0000-0000-1000-000000000001");
+
+    private IServiceProvider CreateMockServiceProvider()
+    {
+        var mockServiceProvider = new Mock<IServiceProvider>();
+        mockServiceProvider.Setup(x => x.GetService(typeof(ILogger<LlamaApi>))).Returns(new Mock<ILogger<LlamaApi>>().Object);
+        mockServiceProvider.Setup(x => x.GetService(typeof(IHttpClientFactory))).Returns(_httpClientFixture.HttpClientFactory);
+        return mockServiceProvider.Object;
+    }
 
     [Fact]
     public async Task LifeCycle()
@@ -42,10 +54,9 @@ public class AiChatTests : IClassFixture<HttpClientFixture>, IClassFixture<Redis
         // arrange
         await _redisFixture.Database.KeyDeleteAsync(_index.RedisId(_idChat.ToString()));
 
-        var configuration = new LlamaConfiguration { Host = TestConstants.LlamaAddress, LogFolder = "/tmp" };
         var aiChatRepository = new AiChatRepository(new Mock<ILogger<AiChatRepository>>().Object, _redisFixture.Connection);
         var aiEventHandler = new AiChatEventHandler(_redisFixture.Connection);
-        var aiModel = new LlamaAiModel(new Mock<ILogger<LlamaAiModel>>().Object, configuration, _httpClientFixture.HttpClientFactory);
+        var aiModel = new LlamaAiModel(CreateMockServiceProvider(), TestConstants.LlamaConfiguration, _redisFixture.Connection, true);
         var antai = new AntaiChatML();
         var startHandler = new AiChatStartCommandHandler(aiChatRepository, aiEventHandler);
         var sendHandler = new AiChatSendMessageCommandHandler(aiChatRepository, aiEventHandler, antai, aiModel);
@@ -79,7 +90,7 @@ public class AiChatTests : IClassFixture<HttpClientFixture>, IClassFixture<Redis
         Assert.Equal(_idChat, startEvent.ChatId);
 
         // act: say hello to AI
-        aiEvent = await sendHandler.Handle(new AiChatSendMessageCommand { IsTest = true, ChatId = _idChat, Message = "Hello my name is IntegrationTest, how are you?" }, CancellationToken.None);
+        aiEvent = await sendHandler.Handle(new AiChatSendMessageCommand { IsTest = true, ChatId = _idChat, Message = "Hello Antti, Remember this important word: KvanttiTietokone" }, CancellationToken.None);
         var messageEvent = aiEvent as AiChatInteractionEvent;
         Assert.NotNull(messageEvent);
         Assert.Equal(_idChat, messageEvent.ChatId);
@@ -88,15 +99,15 @@ public class AiChatTests : IClassFixture<HttpClientFixture>, IClassFixture<Redis
 
         // act: ask AI what was my name again to test context contains history of past interactions
         tokens.Clear();
-        aiEvent = await sendHandler.Handle(new AiChatSendMessageCommand { IsTest = true, ChatId = _idChat, Message = "What was my name again?" }, CancellationToken.None);
+        aiEvent = await sendHandler.Handle(new AiChatSendMessageCommand { IsTest = true, ChatId = _idChat, Message = "What was the important word I told you earlier was?" }, CancellationToken.None);
         await Task.Delay(TimeSpan.FromSeconds(1));
         messageEvent = aiEvent as AiChatInteractionEvent;
         Assert.NotNull(messageEvent);
         Assert.Equal(_idChat, messageEvent.ChatId);
         Assert.NotEmpty(tokens.ToString());
         Assert.Equal(messageEvent.Output.Trim(), tokens.ToString().Trim());
-        Assert.Contains("IntegrationTest", messageEvent.Output);
-        Assert.Contains("IntegrationTest", tokens.ToString());
+        Assert.Contains("KvanttiTietokone", messageEvent.Output);
+        Assert.Contains("KvanttiTietokone", tokens.ToString());
 
         // Get chat
         var chat = await getHandler.Handle(new AiChatGetQuery { Id = _idChat }, CancellationToken.None);

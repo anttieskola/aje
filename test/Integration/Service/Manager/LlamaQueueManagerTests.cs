@@ -9,7 +9,7 @@ public class LlamaQueueManagerTests : IClassFixture<RedisFixture>
 {
     private readonly RedisFixture _redisFixture;
     private readonly RedisChannel _channel;
-    private const string _resourceIdentifier = "llama-integration-test-resource";
+    private const string _resourceIdentifier = "llama-integration-test-queuemanager";
     public LlamaQueueManagerTests(RedisFixture redisFixture)
     {
         _redisFixture = redisFixture;
@@ -36,6 +36,11 @@ public class LlamaQueueManagerTests : IClassFixture<RedisFixture>
             new Mock<ILogger<LlamaQueueManager>>().Object,
              _redisFixture.Connection, true);
 
+        var requestOneId = Guid.NewGuid();
+        var requestTwoId = Guid.NewGuid();
+        var requestThreeId = Guid.NewGuid();
+        var requestIds = new List<Guid> { requestOneId, requestTwoId, requestThreeId };
+
         var cancellationTokenSource = new CancellationTokenSource();
         var task = Task.Factory.StartNew(() =>
         {
@@ -43,19 +48,29 @@ public class LlamaQueueManagerTests : IClassFixture<RedisFixture>
         });
         await Task.Delay(50);
 
-        var grantedMessages = new List<ResourceEvent>();
+        var grantedMessages = new List<ResourceGrantedEvent>();
         _redisFixture.Connection.GetSubscriber().Subscribe(_channel, (channel, message) =>
         {
             if (!message.HasValue)
                 return;
 
             var resourceEvent = JsonSerializer.Deserialize<ResourceEvent>(message.ToString());
-            if (resourceEvent != null && resourceEvent.IsTest && resourceEvent is ResourceGrantedEvent)
-                grantedMessages.Add(resourceEvent);
+            if (resourceEvent == null || !resourceEvent.IsTest)
+                return;
+
+            var granted = resourceEvent as ResourceGrantedEvent;
+            if (granted != null)
+            {
+                if (requestIds.Contains(granted.RequestId))
+                {
+                    if (!grantedMessages.Any(x => x.RequestId == granted.RequestId))
+                        grantedMessages.Add(granted);
+                }
+            }
         });
 
         // Act create first request
-        var requestOneId = Guid.NewGuid();
+
         Publish(new ResourceRequestEvent
         {
             ResourceIdentifier = _resourceIdentifier,
@@ -71,7 +86,6 @@ public class LlamaQueueManagerTests : IClassFixture<RedisFixture>
         }
 
         // Act create second request
-        var requestTwoId = Guid.NewGuid();
         Publish(new ResourceRequestEvent
         {
             ResourceIdentifier = _resourceIdentifier,
@@ -82,7 +96,6 @@ public class LlamaQueueManagerTests : IClassFixture<RedisFixture>
         Assert.Single(grantedMessages);
 
         // Act create third request
-        var requestThreeId = Guid.NewGuid();
         Publish(new ResourceRequestEvent
         {
             ResourceIdentifier = _resourceIdentifier,

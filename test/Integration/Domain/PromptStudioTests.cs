@@ -8,40 +8,51 @@ using AJE.Infra.Redis.Events;
 using AJE.Infra.Redis.Indexes;
 using Microsoft.Extensions.Logging;
 
-namespace AJE.Test.Integration;
+namespace AJE.Test.Integration.Domain;
 
 /// <summary>
 /// This test requires a running Llama server and Redis server.
 /// </summary>
 #pragma warning disable xUnit1033
-public class PromptStudioTests : IClassFixture<HttpClientFixture>, IClassFixture<RedisFixture>
+[Collection("Llama")]
+public class PromptStudioTests : IClassFixture<HttpClientFixture>, IClassFixture<RedisFixture>, IClassFixture<LlamaQueueFixture>
 {
 #pragma warning restore xUnit1033
 
     private readonly HttpClientFixture _httpClientFixture;
     private readonly RedisFixture _redisFixture;
+    private readonly LlamaQueueFixture _llamaQueueFixture;
     private readonly PromptStudioIndex _index = new();
 
     public PromptStudioTests(
         HttpClientFixture httpClientFixture,
-        RedisFixture redisFixture)
+        RedisFixture redisFixture,
+        LlamaQueueFixture llamaQueueFixture)
     {
         _httpClientFixture = httpClientFixture;
         _redisFixture = redisFixture;
+        _llamaQueueFixture = llamaQueueFixture;
     }
 
     private readonly Guid _idPromptStudioSession = new("00000000-0000-1000-0000-000000000001");
     private readonly Guid _idPromptStudioRun = new("00000000-0000-1000-0000-000000000002");
+
+    private IServiceProvider CreateMockServiceProvider()
+    {
+        var mockServiceProvider = new Mock<IServiceProvider>();
+        mockServiceProvider.Setup(x => x.GetService(typeof(ILogger<LlamaApi>))).Returns(new Mock<ILogger<LlamaApi>>().Object);
+        mockServiceProvider.Setup(x => x.GetService(typeof(IHttpClientFactory))).Returns(_httpClientFixture.HttpClientFactory);
+        return mockServiceProvider.Object;
+    }
 
     [Fact]
     public async Task LifeCycle()
     {
         // arrange
         await _redisFixture.Database.KeyDeleteAsync(_index.RedisId(_idPromptStudioSession.ToString()));
-        var configuration = new LlamaConfiguration { Host = TestConstants.LlamaAddress, LogFolder = "/tmp" };
         var promptStudioRepository = new PromptStudioRepository(new Mock<ILogger<PromptStudioRepository>>().Object, _redisFixture.Connection);
         var promptStudioEventHandler = new PromptStudioEventHandler(_redisFixture.Connection);
-        var aiModel = new LlamaAiModel(new Mock<ILogger<LlamaAiModel>>().Object, configuration, _httpClientFixture.HttpClientFactory);
+        var aiModel = new LlamaAiModel(CreateMockServiceProvider(), TestConstants.LlamaConfiguration, _redisFixture.Connection, true);
 
         var startHandler = new PromptStudioStartCommandHandler(promptStudioRepository, promptStudioEventHandler);
         var runHandler = new PromptStudioRunCommandHandler(promptStudioRepository, promptStudioEventHandler, aiModel);
