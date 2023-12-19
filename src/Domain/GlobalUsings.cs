@@ -8,6 +8,7 @@ global using AJE.Domain.Events;
 global using AJE.Domain.Queries;
 global using Microsoft.Extensions.DependencyInjection;
 global using Polly;
+global using System.Collections.Concurrent;
 global using System.ComponentModel.DataAnnotations;
 global using System.Globalization;
 global using System.Diagnostics.CodeAnalysis;

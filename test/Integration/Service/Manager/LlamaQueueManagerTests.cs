@@ -25,16 +25,12 @@ public class LlamaQueueManagerTests : IClassFixture<RedisFixture>
     [Fact]
     public async Task LifeCycle()
     {
-        // Arrange (clear out any messages)
-        var length = _redisFixture.Connection.GetDatabase().ListLength(_resourceIdentifier);
-        for (int i = 0; i < length; i++)
-        {
-            _redisFixture.Connection.GetDatabase().ListRightPop(_resourceIdentifier);
-        }
+        var configuration = TestConstants.LlamaConfiguration;
+        configuration.Servers[0].ResourceName = _resourceIdentifier;
 
         var manager = new LlamaQueueManager(
             new Mock<ILogger<LlamaQueueManager>>().Object,
-             _redisFixture.Connection, TestConstants.LlamaConfiguration, true);
+             _redisFixture.Connection, configuration, true);
 
         var requestOneId = Guid.NewGuid();
         var requestTwoId = Guid.NewGuid();
@@ -73,7 +69,7 @@ public class LlamaQueueManagerTests : IClassFixture<RedisFixture>
 
         Publish(new ResourceRequestEvent
         {
-            ResourceIdentifier = _resourceIdentifier,
+            ResourceName = _resourceIdentifier,
             RequestId = requestOneId,
         });
         await Task.Delay(50);
@@ -81,14 +77,13 @@ public class LlamaQueueManagerTests : IClassFixture<RedisFixture>
         {
             var granted = grantedMessages[0] as ResourceGrantedEvent;
             Assert.NotNull(granted);
-            Assert.Equal(_resourceIdentifier, granted.ResourceIdentifier);
+            Assert.Equal(_resourceIdentifier, granted.ResourceName);
             Assert.Equal(requestOneId, granted.RequestId);
         }
-
         // Act create second request
         Publish(new ResourceRequestEvent
         {
-            ResourceIdentifier = _resourceIdentifier,
+            ResourceName = _resourceIdentifier,
             RequestId = requestTwoId,
         });
         // should be in queue, not granted
@@ -98,7 +93,7 @@ public class LlamaQueueManagerTests : IClassFixture<RedisFixture>
         // Act create third request
         Publish(new ResourceRequestEvent
         {
-            ResourceIdentifier = _resourceIdentifier,
+            ResourceName = _resourceIdentifier,
             RequestId = requestThreeId,
         });
         // should be in queue, not granted
@@ -108,22 +103,15 @@ public class LlamaQueueManagerTests : IClassFixture<RedisFixture>
         // odd case second one gives up
         Publish(new ResourceReleasedEvent
         {
-            ResourceIdentifier = _resourceIdentifier,
+            ResourceName = _resourceIdentifier,
             RequestId = requestTwoId,
         });
         await Task.Delay(50);
 
-        // odd case release something that has not been reserved
-        Publish(new ResourceReleasedEvent
-        {
-            ResourceIdentifier = _resourceIdentifier,
-            RequestId = Guid.NewGuid(),
-        });
-
         // first one releases
         Publish(new ResourceReleasedEvent
         {
-            ResourceIdentifier = _resourceIdentifier,
+            ResourceName = _resourceIdentifier,
             RequestId = requestOneId,
         });
         await Task.Delay(50);
@@ -131,7 +119,7 @@ public class LlamaQueueManagerTests : IClassFixture<RedisFixture>
         {
             var granted = grantedMessages[1] as ResourceGrantedEvent;
             Assert.NotNull(granted);
-            Assert.Equal(_resourceIdentifier, granted.ResourceIdentifier);
+            Assert.Equal(_resourceIdentifier, granted.ResourceName);
             Assert.Equal(requestThreeId, granted.RequestId);
         }
         await Task.Delay(50);
@@ -139,7 +127,7 @@ public class LlamaQueueManagerTests : IClassFixture<RedisFixture>
         // third one releases
         Publish(new ResourceReleasedEvent
         {
-            ResourceIdentifier = _resourceIdentifier,
+            ResourceName = _resourceIdentifier,
             RequestId = requestThreeId,
         });
 

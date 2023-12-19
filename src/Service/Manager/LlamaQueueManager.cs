@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using AJE.Domain.Entities;
+using AJE.Domain.Exceptions;
 
 namespace AJE.Service.Manager;
 
@@ -24,18 +25,16 @@ public class LlamaQueueManager : BackgroundService
         _isTest = isTestMode;
     }
 
-    private readonly ConcurrentDictionary<Guid, ResourceRequest> _requests = new();
+    private readonly ConcurrentDictionary<string, ResourceQueue> _resources = new();
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        // clean queues
         foreach (var server in _configuration.Servers)
         {
-            var db = _connection.GetDatabase();
-            var lenght = db.ListLength(server.ResourceName);
-            for (int i = 0; i < lenght; i++)
+            var management = new ResourceQueue(server.ResourceName);
+            if (!_resources.TryAdd(server.ResourceName, management))
             {
-                db.ListRightPop(server.ResourceName);
+                throw new PlatformException("Failed to add resource management");
             }
         }
 
@@ -47,33 +46,6 @@ public class LlamaQueueManager : BackgroundService
         {
             await Task.Delay(TimeSpan.FromSeconds(60), stoppingToken);
             Statistics();
-            Cleanup();
-        }
-    }
-
-    private void Statistics()
-    {
-        foreach (var server in _configuration.Servers)
-        {
-            var db = _connection.GetDatabase();
-            var length = db.ListLength(server.ResourceName);
-            _logger.LogInformation("Resource {ResourceIdentifier} has queue lenght {Length}", server.ResourceName, length);
-        }
-    }
-
-    private void Cleanup()
-    {
-        foreach (var request in _requests)
-        {
-            if (request.Value.Time.AddMinutes(10) < DateTimeOffset.UtcNow)
-            {
-                _logger.LogWarning("Use of resource {ResourceName} with id {Key} has been running over 10 minutes releasing...", request.Value.ResourceName, request.Key);
-                Publish(new ResourceReleasedEvent
-                {
-                    ResourceIdentifier = request.Value.ResourceName,
-                    RequestId = request.Key,
-                });
-            }
         }
     }
 
@@ -94,78 +66,39 @@ public class LlamaQueueManager : BackgroundService
         }
     }
 
-    private void HandleReleased(ResourceReleasedEvent released)
+    private void HandleRequest(ResourceRequestEvent request)
     {
-        var db = _connection.GetDatabase();
-        var length = db.ListLength(released.ResourceIdentifier);
-        if (length > 0)
+        if (_resources.TryGetValue(request.ResourceName, out var management))
         {
-            // after testing due messages arriving order is not guranteed to be correct
-            // we can push left when resource reserved in wrong order
-            _logger.LogInformation("Resource {ResourceIdentifier} released from id {}", released.ResourceIdentifier, released.RequestId);
-            db.ListRemove(released.ResourceIdentifier, released.RequestId.ToString());
-            length = db.ListLength(released.ResourceIdentifier);
-            if (length > 0)
+            management.Request(request);
+            if (management.IsFree())
             {
-                var nextId = db.ListGetByIndex(released.ResourceIdentifier, length - 1);
-                var nextIdGuid = Guid.ParseExact(nextId.ToString(), "D");
-                _logger.LogInformation("Resource {ResourceIdentifier} granted to id {RequestId}", released.ResourceIdentifier, nextIdGuid);
-                Publish(new ResourceGrantedEvent
-                {
-                    ResourceIdentifier = released.ResourceIdentifier,
-                    RequestId = nextIdGuid,
-                });
+                var grant = management.GetNext();
+                if (grant != null)
+                    Publish(grant);
             }
         }
         else
         {
-            _logger.LogWarning("Resource {ResourceIdentifier} released but no requests pending", released.ResourceIdentifier);
-        }
-
-        // remove from requests
-        if (!_requests.TryRemove(released.RequestId, out _))
-        {
-            _logger.LogCritical("Could not remove usage of {ResourceIdentifier} with id {RequestId} from request cache", released.ResourceIdentifier, released.RequestId);
-        }
-        else
-        {
-            foreach (var request in _requests)
-            {
-                _logger.LogCritical("(REMOVE) Pending in cache: {ResourceName} with id {Key}", request.Value.ResourceName, request.Key);
-            }
+            throw new PlatformException($"Failed to find resource management for {request.ResourceName}");
         }
     }
 
-    private void HandleRequest(ResourceRequestEvent request)
+    private void HandleReleased(ResourceReleasedEvent released)
     {
-        var db = _connection.GetDatabase();
-        var length = db.ListLeftPush(request.ResourceIdentifier, request.RequestId.ToString());
-        if (length == 1)
+        if (_resources.TryGetValue(released.ResourceName, out var management))
         {
-            _logger.LogInformation("Resource {ResourceIdentifier} granted to id {RequestId}", request.ResourceIdentifier, request.RequestId);
-            Publish(new ResourceGrantedEvent
+            management.Release(released);
+            if (management.IsFree())
             {
-                ResourceIdentifier = request.ResourceIdentifier,
-                RequestId = request.RequestId,
-            });
-        }
-
-        // add to requests
-        if (!_requests.TryAdd(request.RequestId, new ResourceRequest
-        {
-            ResourceName = request.ResourceIdentifier,
-            RequestId = request.RequestId,
-            Time = DateTimeOffset.UtcNow,
-        }))
-        {
-            _logger.LogCritical("Could not add usage of {ResourceIdentifier} with id {RequestId} to request cache", request.ResourceIdentifier, request.RequestId);
+                var grant = management.GetNext();
+                if (grant != null)
+                    Publish(grant);
+            }
         }
         else
         {
-            foreach (var req in _requests)
-            {
-                _logger.LogCritical("(ADD) Pending in cache: {ResourceName} with id {Key}", req.Value.ResourceName, req.Key);
-            }
+            throw new PlatformException($"Failed to find resource management for {released.ResourceName}");
         }
     }
 
@@ -174,5 +107,13 @@ public class LlamaQueueManager : BackgroundService
         resourceEvent.IsTest = _isTest;
         var publisher = _connection.GetSubscriber();
         publisher.Publish(_channel, JsonSerializer.Serialize(resourceEvent));
+    }
+
+    private void Statistics()
+    {
+        foreach (var resource in _resources)
+        {
+            _logger.LogInformation("Resource: {resourceName} Total: {TotalCount} Queue: {QueueCount} Active: {Current}", resource.Key, resource.Value.TotalCount(), resource.Value.QueueCount(), resource.Value.Current());
+        }
     }
 }
