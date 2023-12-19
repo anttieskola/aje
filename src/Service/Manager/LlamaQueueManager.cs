@@ -1,3 +1,5 @@
+using System.Collections.Concurrent;
+
 namespace AJE.Service.Manager;
 
 public class LlamaQueueManager : BackgroundService
@@ -18,7 +20,7 @@ public class LlamaQueueManager : BackgroundService
         _isTest = isTestMode;
     }
 
-    private List<string> _resources = [];
+    private ConcurrentDictionary<string, DateTimeOffset> _resources = new();
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -35,7 +37,7 @@ public class LlamaQueueManager : BackgroundService
         foreach (var resource in _resources)
         {
             var db = _connection.GetDatabase();
-            var length = db.ListLength(resource);
+            var length = db.ListLength(resource.Key);
             _logger.LogInformation("Resource {ResourceIdentifier} has {Length} requests", resource, length);
         }
     }
@@ -48,9 +50,9 @@ public class LlamaQueueManager : BackgroundService
         var resourceEvent = JsonSerializer.Deserialize<ResourceEvent>(message.ToString());
         if (resourceEvent is ResourceRequestEvent request && request.IsTest == _isTest)
         {
-            if (!_resources.Contains(request.ResourceIdentifier))
+            if (!_resources.ContainsKey(request.ResourceIdentifier))
             {
-                _resources.Add(request.ResourceIdentifier);
+                _resources.TryAdd(request.ResourceIdentifier, DateTimeOffset.UtcNow);
                 _logger.LogInformation("Resource {ResourceIdentifier} added", request.ResourceIdentifier);
             }
 
@@ -71,15 +73,18 @@ public class LlamaQueueManager : BackgroundService
         {
             // after testing due messages arriving order is not guranteed to be correct
             // we can push left when resource reserved in wrong order
+            _logger.LogInformation("Resource {ResourceIdentifier} released from id {}", released.ResourceIdentifier, released.RequestId);
             db.ListRemove(released.ResourceIdentifier, released.RequestId.ToString());
             length = db.ListLength(released.ResourceIdentifier);
             if (length > 0)
             {
                 var nextId = db.ListGetByIndex(released.ResourceIdentifier, length - 1);
+                var nextIdGuid = Guid.ParseExact(nextId.ToString(), "D");
+                _logger.LogInformation("Resource {ResourceIdentifier} granted to id {RequestId}", released.ResourceIdentifier, nextIdGuid);
                 Publish(new ResourceGrantedEvent
                 {
                     ResourceIdentifier = released.ResourceIdentifier,
-                    RequestId = Guid.ParseExact(nextId.ToString(), "D"),
+                    RequestId = nextIdGuid,
                 });
             }
         }
@@ -95,6 +100,7 @@ public class LlamaQueueManager : BackgroundService
         var length = db.ListLeftPush(request.ResourceIdentifier, request.RequestId.ToString());
         if (length == 1)
         {
+            _logger.LogInformation("Resource {ResourceIdentifier} granted to id {RequestId}", request.ResourceIdentifier, request.RequestId);
             Publish(new ResourceGrantedEvent
             {
                 ResourceIdentifier = request.ResourceIdentifier,

@@ -1,4 +1,6 @@
-﻿namespace AJE.Infra.Ai;
+﻿using System.Collections.Concurrent;
+
+namespace AJE.Infra.Ai;
 
 /// <summary>
 /// "Drop-in" replacement for LlamaAiModel but this
@@ -46,7 +48,7 @@ public class LlamaAiModel : IAiModel
         return _configuration.Servers[index];
     }
 
-    private readonly List<Guid> _granted = [];
+    private readonly ConcurrentDictionary<Guid, Guid> _granted = new();
 
     private void OnMessage(RedisChannel channel, RedisValue message)
     {
@@ -56,7 +58,10 @@ public class LlamaAiModel : IAiModel
         var resourceEvent = JsonSerializer.Deserialize<ResourceEvent>(message.ToString());
         if (resourceEvent is ResourceGrantedEvent granted && granted.IsTest == _isTest)
         {
-            _granted.Add(granted.RequestId);
+            if (!_granted.TryAdd(granted.RequestId, granted.RequestId))
+            {
+                _logger.LogCritical("Could not add request id {RequestId} to granted list", granted.RequestId);
+            }
         }
     }
 
@@ -95,7 +100,10 @@ public class LlamaAiModel : IAiModel
             _logger.LogInformation("Done: {}", id);
 
             // cleanup and return
-            _granted.Remove(id);
+            if (!_granted.TryRemove(id, out _))
+            {
+                _logger.LogCritical("Could not remove request id {RequestId} from granted list", id);
+            }
             return response;
         }
         throw new AiException("Request cancelled");
@@ -131,7 +139,10 @@ public class LlamaAiModel : IAiModel
             });
 
             // cleanup and return
-            _granted.Remove(id);
+            if (!_granted.TryRemove(id, out _))
+            {
+                _logger.LogCritical("Could not remove request id {RequestId} from granted list", id);
+            }
             return response;
         }
         throw new AiException("Request cancelled");
@@ -167,7 +178,10 @@ public class LlamaAiModel : IAiModel
             });
 
             // cleanup and return
-            _granted.Remove(id);
+            if (!_granted.TryRemove(id, out _))
+            {
+                _logger.LogCritical("Could not remove request id {RequestId} from granted list", id);
+            }
             return response;
         }
         throw new AiException("Request cancelled");
@@ -204,7 +218,10 @@ public class LlamaAiModel : IAiModel
             });
 
             // cleanup and return
-            _granted.Remove(id);
+            if (!_granted.TryRemove(id, out _))
+            {
+                _logger.LogCritical("Could not remove request id {RequestId} from granted list", id);
+            }
             return response;
         }
         throw new AiException("Request cancelled");
@@ -240,7 +257,10 @@ public class LlamaAiModel : IAiModel
             });
 
             // cleanup and return
-            _granted.Remove(id);
+            if (!_granted.TryRemove(id, out _))
+            {
+                _logger.LogCritical("Could not remove request id {RequestId} from granted list", id);
+            }
             return response;
         }
         throw new AiException("Request cancelled");
@@ -257,7 +277,7 @@ public class LlamaAiModel : IAiModel
 
     private async Task<bool> Wait(Guid requestId, string resourceIdentifier, CancellationToken cancellationToken)
     {
-        while (_granted.Contains(requestId) == false)
+        while (!_granted.ContainsKey(requestId))
         {
             await Task.Delay(TimeSpan.FromMilliseconds(100), cancellationToken);
             if (cancellationToken.IsCancellationRequested)
