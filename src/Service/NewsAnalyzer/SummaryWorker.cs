@@ -26,7 +26,7 @@ public class SummaryWorker : BackgroundService
         while (!_cancellationToken.IsCancellationRequested)
         {
             await LoopAsync();
-            await Task.Delay(TimeSpan.FromSeconds(3), _cancellationToken);
+            await Task.Delay(TimeSpan.FromMilliseconds(100), _cancellationToken);
         }
     }
 

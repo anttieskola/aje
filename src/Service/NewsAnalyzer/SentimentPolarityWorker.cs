@@ -31,8 +31,7 @@ public class SentimentPolarityWorker : BackgroundService
         while (!_cancellationToken.IsCancellationRequested)
         {
             await LoopAsync();
-            // small throttle to give other components time with AI
-            await Task.Delay(TimeSpan.FromSeconds(3), _cancellationToken);
+            await Task.Delay(TimeSpan.FromMilliseconds(100), _cancellationToken);
         }
     }
 
