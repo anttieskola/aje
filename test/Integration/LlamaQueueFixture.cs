@@ -22,6 +22,7 @@ public class LlamaQueueFixture : IDisposable
         _llamaQueueManager = new LlamaQueueManager(
             new Mock<ILogger<LlamaQueueManager>>().Object,
             _connection,
+            TestConstants.LlamaConfiguration,
             true);
 
         Task.Factory.StartNew(() =>

@@ -7,7 +7,7 @@ var host = Host.CreateDefaultBuilder(args)
             .Build();
         services.AddDomain();
         services.AddRedis(config);
-        services.AddDummyAi();
+        services.AddAi(config);
         services.AddDummyFileSystem();
         services.AddHostedService<LlamaQueueManager>();
     })

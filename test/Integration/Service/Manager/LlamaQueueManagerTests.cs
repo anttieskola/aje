@@ -34,7 +34,7 @@ public class LlamaQueueManagerTests : IClassFixture<RedisFixture>
 
         var manager = new LlamaQueueManager(
             new Mock<ILogger<LlamaQueueManager>>().Object,
-             _redisFixture.Connection, true);
+             _redisFixture.Connection, TestConstants.LlamaConfiguration, true);
 
         var requestOneId = Guid.NewGuid();
         var requestTwoId = Guid.NewGuid();

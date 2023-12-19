@@ -61,6 +61,10 @@ public class LlamaAiModel : IAiModel
             if (!_granted.TryAdd(granted.RequestId, granted.RequestId))
             {
                 _logger.LogCritical("Could not add request id {RequestId} to granted list", granted.RequestId);
+                foreach (var item in _granted)
+                {
+                    _logger.LogCritical("Granted: {RequestId}", item.Key);
+                }
             }
         }
     }
@@ -81,25 +85,31 @@ public class LlamaAiModel : IAiModel
             ResourceIdentifier = server.ResourceName,
             RequestId = id,
         });
-
-        _logger.LogInformation("Waiting: {}", id);
-
         // wait for resource to be granted
         if (await Wait(id, server.ResourceName, cancellationToken))
         {
             // use resource
-            var api = CreateApiForServer(server);
-            var response = await api.CompletionAsync(request, cancellationToken);
-
-            // event: resource released
-            await PublishAsync(new ResourceReleasedEvent
+            CompletionResponse? response = null;
+            try
             {
-                ResourceIdentifier = server.ResourceName,
-                RequestId = id,
-            });
-            _logger.LogInformation("Done: {}", id);
+                var api = CreateApiForServer(server);
+                response = await api.CompletionAsync(request, cancellationToken);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                await PublishAsync(new ResourceReleasedEvent
+                {
+                    ResourceIdentifier = server.ResourceName,
+                    RequestId = id,
+                });
+            }
 
             // cleanup and return
+            _logger.LogInformation("Done {ResourceName} - {id}", server.ResourceName, id);
             if (!_granted.TryRemove(id, out _))
             {
                 _logger.LogCritical("Could not remove request id {RequestId} from granted list", id);
@@ -123,22 +133,31 @@ public class LlamaAiModel : IAiModel
             ResourceIdentifier = server.ResourceName,
             RequestId = id,
         });
-
         // wait for resource to be granted
         if (await Wait(id, server.ResourceName, cancellationToken))
         {
             // use resource
-            var api = CreateApiForServer(server);
-            var response = await api.CompletionStreamAsync(request, tokenCreatedCallback, cancellationToken);
-
-            // event: resource released
-            await PublishAsync(new ResourceReleasedEvent
+            CompletionResponse? response = null;
+            try
             {
-                ResourceIdentifier = server.ResourceName,
-                RequestId = id,
-            });
+                var api = CreateApiForServer(server);
+                response = await api.CompletionStreamAsync(request, tokenCreatedCallback, cancellationToken);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                await PublishAsync(new ResourceReleasedEvent
+                {
+                    ResourceIdentifier = server.ResourceName,
+                    RequestId = id,
+                });
+            }
 
             // cleanup and return
+            _logger.LogInformation("Done {ResourceName} - {id}", server.ResourceName, id);
             if (!_granted.TryRemove(id, out _))
             {
                 _logger.LogCritical("Could not remove request id {RequestId} from granted list", id);
@@ -167,17 +186,28 @@ public class LlamaAiModel : IAiModel
         if (await Wait(id, server.ResourceName, cancellationToken))
         {
             // use resource
-            var api = CreateApiForServer(server);
-            var response = await api.DeTokenizeAsync(request, cancellationToken);
-
-            // event: resource released
-            await PublishAsync(new ResourceReleasedEvent
+            DeTokenizeResponse? response = null;
+            try
             {
-                ResourceIdentifier = server.ResourceName,
-                RequestId = id,
-            });
+
+                var api = CreateApiForServer(server);
+                response = await api.DeTokenizeAsync(request, cancellationToken);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                await PublishAsync(new ResourceReleasedEvent
+                {
+                    ResourceIdentifier = server.ResourceName,
+                    RequestId = id,
+                });
+            }
 
             // cleanup and return
+            _logger.LogInformation("Done {ResourceName} - {id}", server.ResourceName, id);
             if (!_granted.TryRemove(id, out _))
             {
                 _logger.LogCritical("Could not remove request id {RequestId} from granted list", id);
@@ -205,19 +235,28 @@ public class LlamaAiModel : IAiModel
         // wait for resource to be granted
         if (await Wait(id, server.ResourceName, cancellationToken))
         {
-
             // use resource
-            var api = CreateApiForServer(server);
-            var response = await api.EmbeddingAsync(request, cancellationToken);
-
-            // event: resource released
-            await PublishAsync(new ResourceReleasedEvent
+            EmbeddingResponse? response = null;
+            try
             {
-                ResourceIdentifier = server.ResourceName,
-                RequestId = id,
-            });
+                var api = CreateApiForServer(server);
+                response = await api.EmbeddingAsync(request, cancellationToken);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                await PublishAsync(new ResourceReleasedEvent
+                {
+                    ResourceIdentifier = server.ResourceName,
+                    RequestId = id,
+                });
+            }
 
             // cleanup and return
+            _logger.LogInformation("Done {ResourceName} - {id}", server.ResourceName, id);
             if (!_granted.TryRemove(id, out _))
             {
                 _logger.LogCritical("Could not remove request id {RequestId} from granted list", id);
@@ -246,17 +285,27 @@ public class LlamaAiModel : IAiModel
         if (await Wait(id, server.ResourceName, cancellationToken))
         {
             // use resource
-            var api = CreateApiForServer(server);
-            var response = await api.TokenizeAsync(request, cancellationToken);
-
-            // event: resource released
-            await PublishAsync(new ResourceReleasedEvent
+            TokenizeResponse? response = null;
+            try
             {
-                ResourceIdentifier = server.ResourceName,
-                RequestId = id,
-            });
+                var api = CreateApiForServer(server);
+                response = await api.TokenizeAsync(request, cancellationToken);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                await PublishAsync(new ResourceReleasedEvent
+                {
+                    ResourceIdentifier = server.ResourceName,
+                    RequestId = id,
+                });
+            }
 
             // cleanup and return
+            _logger.LogInformation("Done {ResourceName} - {id}", server.ResourceName, id);
             if (!_granted.TryRemove(id, out _))
             {
                 _logger.LogCritical("Could not remove request id {RequestId} from granted list", id);
@@ -266,17 +315,16 @@ public class LlamaAiModel : IAiModel
         throw new AiException("Request cancelled");
     }
 
-    // TODO: problematic because multiple servers
     public Task<int> MaxTokenCountAsync(CancellationToken cancellationToken)
     {
-        var server = GetServer();
-        return Task.FromResult(server.MaxTokenCount);
+        return Task.FromResult(_configuration.Servers.Min(s => s.MaxTokenCount));
     }
 
     #endregion IAiModel
 
     private async Task<bool> Wait(Guid requestId, string resourceIdentifier, CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Wait {resourceIdentifier} - {requestId}", resourceIdentifier, requestId);
         while (!_granted.ContainsKey(requestId))
         {
             await Task.Delay(TimeSpan.FromMilliseconds(100), cancellationToken);
