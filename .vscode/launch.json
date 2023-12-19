@@ -24,6 +24,17 @@
             "console": "externalTerminal"
         },
         {
+            "name": "Manager",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/src/Service/Manager/bin/Debug/net8.0/AJE.Service.Manager",
+            "args": [],
+            "cwd": "${workspaceFolder}/src/Service/Manager",
+            "stopAtEntry": false,
+            "console": "internalConsole"
+        },
+        {
             "name": "NewsDownloader",
             "type": "coreclr",
             "request": "launch",

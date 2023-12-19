@@ -33,9 +33,9 @@ public class LlamaQueueManager : BackgroundService
         {
             var db = _connection.GetDatabase();
             var lenght = db.ListLength(server.ResourceName);
-            if (lenght > 0)
+            for (int i = 0; i < lenght; i++)
             {
-                db.ListTrim(server.ResourceName, 0, 0);
+                db.ListRightPop(server.ResourceName);
             }
         }
 
