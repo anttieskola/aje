@@ -131,7 +131,7 @@ public class LlamaQueueManager : BackgroundService
         {
             foreach (var request in _requests)
             {
-                _logger.LogCritical("Pending in cache: {ResourceName} with id {Key}", request.Value.ResourceName, request.Key);
+                _logger.LogCritical("(REMOVE) Pending in cache: {ResourceName} with id {Key}", request.Value.ResourceName, request.Key);
             }
         }
     }
@@ -164,7 +164,7 @@ public class LlamaQueueManager : BackgroundService
         {
             foreach (var req in _requests)
             {
-                _logger.LogCritical("Pending in cache: {ResourceName} with id {Key}", req.Value.ResourceName, req.Key);
+                _logger.LogCritical("(ADD) Pending in cache: {ResourceName} with id {Key}", req.Value.ResourceName, req.Key);
             }
         }
     }
