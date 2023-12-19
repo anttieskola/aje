@@ -1,5 +1,10 @@
 ﻿namespace AJE.Domain.Entities;
 
+/// <summary>
+/// Queue manager that works directly witht he resource events
+/// Queue is stored in memory only so will be lost on restart
+/// </summary>
+/// <param name="resourceName"></param>
 public class ResourceQueue(
     string resourceName)
 {

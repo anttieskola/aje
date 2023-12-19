@@ -1,7 +1,3 @@
-using System.Collections.Concurrent;
-using AJE.Domain.Entities;
-using AJE.Domain.Exceptions;
-
 namespace AJE.Service.Manager;
 
 public class LlamaQueueManager : BackgroundService
@@ -29,6 +25,7 @@ public class LlamaQueueManager : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        // add resources
         foreach (var server in _configuration.Servers)
         {
             var management = new ResourceQueue(server.ResourceName);
@@ -44,7 +41,7 @@ public class LlamaQueueManager : BackgroundService
         // loop
         while (!stoppingToken.IsCancellationRequested)
         {
-            await Task.Delay(TimeSpan.FromSeconds(60), stoppingToken);
+            await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
             Statistics();
         }
     }
@@ -89,7 +86,7 @@ public class LlamaQueueManager : BackgroundService
         if (_resources.TryGetValue(released.ResourceName, out var management))
         {
             management.Release(released);
-            if (management.IsFree())
+            if (management.IsFree()) // gotta check as someone might give up queue position
             {
                 var grant = management.GetNext();
                 if (grant != null)
@@ -113,7 +110,7 @@ public class LlamaQueueManager : BackgroundService
     {
         foreach (var resource in _resources)
         {
-            _logger.LogInformation("Resource: {resourceName} Total: {TotalCount} Queue: {QueueCount} Active: {Current}", resource.Key, resource.Value.TotalCount(), resource.Value.QueueCount(), resource.Value.Current());
+            _logger.LogInformation("Resource:{resourceName}\tTotal:{TotalCount}\tQueue:{QueueCount}\tActive:{Current}", resource.Key, resource.Value.TotalCount(), resource.Value.QueueCount(), resource.Value.Current() == Guid.Empty ? "None/Free" : resource.Value.Current());
         }
     }
 }

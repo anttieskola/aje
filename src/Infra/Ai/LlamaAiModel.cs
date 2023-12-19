@@ -107,7 +107,7 @@ public class LlamaAiModel : IAiModel
             }
 
             // cleanup and return
-            _logger.LogInformation("Done {ResourceName} - {id}", server.ResourceName, id);
+            _logger.LogInformation("Done\t{ResourceName}\t{id}", server.ResourceName, id);
             if (!_granted.TryRemove(id, out _))
             {
                 _logger.LogCritical("Could not remove request id {RequestId} from granted list", id);
@@ -155,7 +155,7 @@ public class LlamaAiModel : IAiModel
             }
 
             // cleanup and return
-            _logger.LogInformation("Done {ResourceName} - {id}", server.ResourceName, id);
+            _logger.LogInformation("Done\t{ResourceName}\t{id}", server.ResourceName, id);
             if (!_granted.TryRemove(id, out _))
             {
                 _logger.LogCritical("Could not remove request id {RequestId} from granted list", id);
@@ -205,7 +205,7 @@ public class LlamaAiModel : IAiModel
             }
 
             // cleanup and return
-            _logger.LogInformation("Done {ResourceName} - {id}", server.ResourceName, id);
+            _logger.LogInformation("Done\t{ResourceName}\t{id}", server.ResourceName, id);
             if (!_granted.TryRemove(id, out _))
             {
                 _logger.LogCritical("Could not remove request id {RequestId} from granted list", id);
@@ -254,7 +254,7 @@ public class LlamaAiModel : IAiModel
             }
 
             // cleanup and return
-            _logger.LogInformation("Done {ResourceName} - {id}", server.ResourceName, id);
+            _logger.LogInformation("Done\t{ResourceName}\t{id}", server.ResourceName, id);
             if (!_granted.TryRemove(id, out _))
             {
                 _logger.LogCritical("Could not remove request id {RequestId} from granted list", id);
@@ -303,7 +303,7 @@ public class LlamaAiModel : IAiModel
             }
 
             // cleanup and return
-            _logger.LogInformation("Done {ResourceName} - {id}", server.ResourceName, id);
+            _logger.LogInformation("Done\t{ResourceName}\t{id}", server.ResourceName, id);
             if (!_granted.TryRemove(id, out _))
             {
                 _logger.LogCritical("Could not remove request id {RequestId} from granted list", id);
@@ -322,7 +322,7 @@ public class LlamaAiModel : IAiModel
 
     private async Task<bool> Wait(Guid requestId, string resourceName, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Wait {resourceName} - {requestId}", resourceName, requestId);
+        _logger.LogInformation("Wait\t{resourceName}\t{requestId}", resourceName, requestId);
         while (!_granted.ContainsKey(requestId))
         {
             await Task.Delay(TimeSpan.FromMilliseconds(100), cancellationToken);
