@@ -18,12 +18,25 @@ public class LlamaQueueManager : BackgroundService
         _isTest = isTestMode;
     }
 
+    private List<string> _resources = [];
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _connection.GetSubscriber().Subscribe(_channel, OnMessage);
         while (!stoppingToken.IsCancellationRequested)
         {
-            await Task.Delay(100, stoppingToken);
+            Statistics();
+            await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
+        }
+    }
+
+    private void Statistics()
+    {
+        foreach (var resource in _resources)
+        {
+            var db = _connection.GetDatabase();
+            var length = db.ListLength(resource);
+            _logger.LogInformation("Resource {ResourceIdentifier} has {Length} requests", resource, length);
         }
     }
 
@@ -35,6 +48,12 @@ public class LlamaQueueManager : BackgroundService
         var resourceEvent = JsonSerializer.Deserialize<ResourceEvent>(message.ToString());
         if (resourceEvent is ResourceRequestEvent request && request.IsTest == _isTest)
         {
+            if (!_resources.Contains(request.ResourceIdentifier))
+            {
+                _resources.Add(request.ResourceIdentifier);
+                _logger.LogInformation("Resource {ResourceIdentifier} added", request.ResourceIdentifier);
+            }
+
             HandleRequest(request);
 
         }
