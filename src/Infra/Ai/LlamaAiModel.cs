@@ -77,7 +77,7 @@ public class LlamaAiModel : IAiModel
             RequestId = id,
         });
 
-        _logger.LogDebug("Waiting: {}", id);
+        _logger.LogInformation("Waiting: {}", id);
 
         // wait for resource to be granted
         if (await Wait(id, server.ResourceName, cancellationToken))
@@ -92,7 +92,7 @@ public class LlamaAiModel : IAiModel
                 ResourceIdentifier = server.ResourceName,
                 RequestId = id,
             });
-            _logger.LogDebug("Done: {}", id);
+            _logger.LogInformation("Done: {}", id);
 
             // cleanup and return
             _granted.Remove(id);
