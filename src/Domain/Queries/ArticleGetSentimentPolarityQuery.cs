@@ -2,10 +2,7 @@
 
 public record ArticleGetSentimentPolarityQuery : IRequest<ArticleSentimentPolarity>
 {
-    /// <summary>
-    /// Current of the polarity model & prompt settings
-    /// </summary>
-    public const int CURRENT_POLARITY_VERSION = 1;
+    public const int CURRENT_POLARITY_VERSION = 2;
     public required Article Article { get; init; }
 }
 
@@ -39,6 +36,7 @@ public class ArticleGetSentimentPolarityQueryHandler : IRequestHandler<ArticleGe
             Prompt = prompt,
             Temperature = 0.1,
             Stop = _polarity.StopWords,
+            NumberOfTokensToPredict = 256,
         };
         var response = await _aiModel.CompletionAsync(request, cancellationToken);
         var polarity = _polarity.Parse(response.Content);

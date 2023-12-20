@@ -1,5 +1,9 @@
 ﻿namespace AJE.Domain.Ai;
 
+/// <summary>
+/// LLM's just can't do this in reliable way
+/// Better to create service using lingua-rs and use that
+/// </summary>
 public class WhatLanguageChatML : ChatMLCreator
 {
     public const string EntityName = "assistant";

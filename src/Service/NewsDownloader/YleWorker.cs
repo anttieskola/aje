@@ -50,7 +50,13 @@ public class YleWorker : BackgroundService
     {
         var article = await _sender.Send(new YleHtmlParseQuery { Html = html }, _stoppingToken);
         article.Id = await _sender.Send(new GuidGetQuery { Category = _guidCategory, UniqueString = link.ToString() }, _stoppingToken);
-        await _sender.Send(new ArticleAddCommand { Article = article }, _stoppingToken);
+        if (_configuration.PublishOnlyEnglish)
+        {
+            if (article.Language == "en")
+                await _sender.Send(new ArticleAddCommand { Article = article }, _stoppingToken);
+        }
+        else
+            await _sender.Send(new ArticleAddCommand { Article = article }, _stoppingToken);
     }
 
     private async Task Reload()
