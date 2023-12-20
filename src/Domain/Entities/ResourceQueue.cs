@@ -50,6 +50,41 @@ public class ResourceQueue(
         return null;
     }
 
+    /// <summary>
+    /// If current active request has been running more than given minutes
+    /// we remove it, make resource free and return the event for releasing
+    /// Purpose is to remove crashed requests from the queue one by one
+    /// Bad thing is that if crashed component has multiple requests...
+    /// it takes time to get them all removed
+    /// </summary>
+    /// <param name="intMinutesOlderThan"></param>
+    /// <returns></returns>
+    /// <exception cref="PlatformException"></exception>
+    public ResourceReleasedEvent? Cleanup(int intMinutesOlderThan)
+    {
+        if (_current != Guid.Empty)
+        {
+            var r = _requests.Single(r => r.Key == _current);
+            if (r.Value <= DateTimeOffset.UtcNow.AddMinutes(-1 * intMinutesOlderThan))
+            {
+                if (!_requests.TryRemove(r.Key, out _))
+                {
+                    throw new PlatformException("Failed to remove request");
+                }
+                else
+                {
+                    _current = Guid.Empty;
+                    return new ResourceReleasedEvent
+                    {
+                        ResourceName = _resourceName,
+                        RequestId = r.Key
+                    };
+                }
+            }
+        }
+        return null;
+    }
+
     public bool IsFree() => _current == Guid.Empty;
     public Guid Current() => _current;
     public bool IsQueue() => _requests.Count > 1;

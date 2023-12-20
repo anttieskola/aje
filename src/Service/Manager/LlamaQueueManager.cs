@@ -29,6 +29,7 @@ public class LlamaQueueManager : BackgroundService
     private readonly LlamaConfiguration _configuration;
     private readonly RedisChannel _channel;
     private readonly bool _isTest;
+    private int _cleanupAfterMinutes = 3;
 
     public LlamaQueueManager(
         ILogger<LlamaQueueManager> logger,
@@ -65,6 +66,7 @@ public class LlamaQueueManager : BackgroundService
         {
             await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
             Statistics();
+            Cleanup();
         }
     }
 
@@ -133,6 +135,23 @@ public class LlamaQueueManager : BackgroundService
         foreach (var resource in _resources)
         {
             _logger.LogInformation("Resource:{resourceName}\tTotal:{TotalCount}\tQueue:{QueueCount}\tActive:{Current}", resource.Key, resource.Value.TotalCount(), resource.Value.QueueCount(), resource.Value.Current() == Guid.Empty ? "None/Free" : resource.Value.Current());
+        }
+    }
+
+    private void Cleanup()
+    {
+        foreach (var resource in _resources)
+        {
+            var releaseEvent = resource.Value.Cleanup(_cleanupAfterMinutes);
+            if (releaseEvent != null)
+            {
+                _cleanupAfterMinutes += 2;
+                Publish(releaseEvent);
+            }
+            else
+            {
+                _cleanupAfterMinutes = 3;
+            }
         }
     }
 }
