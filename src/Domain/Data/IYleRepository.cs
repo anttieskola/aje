@@ -20,6 +20,15 @@ public interface IYleRepository
     /// <returns></returns>
     Task UpdateAsync(Uri uri, string html, CancellationToken cancellationToken);
 
+
+    /// <summary>
+    /// Check if html content exists in repository
+    /// </summary>
+    /// <param name="uri"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<bool> ExistsAsync(Uri uri, CancellationToken cancellationToken);
+
     /// <summary>
     /// Get list of stored html content's uri's
     /// </summary>

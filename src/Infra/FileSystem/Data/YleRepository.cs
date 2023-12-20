@@ -24,6 +24,12 @@ public class YleRepository : IYleRepository
         return File.ReadAllTextAsync(fileWithPath, cancellationToken);
     }
 
+    public Task<bool> ExistsAsync(Uri uri, CancellationToken cancellationToken)
+    {
+        var fileWithPath = Path.Combine(_yleFolder, GetFileName(uri));
+        return Task.FromResult(File.Exists(fileWithPath));
+    }
+
     public Task<Uri[]> GetUriList()
     {
         var files = Directory.GetFiles(_yleFolder, "*.html");

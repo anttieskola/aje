@@ -3,6 +3,11 @@ namespace AJE.Infra.DummyFileSystem;
 
 public class DummyYleRepository : IYleRepository
 {
+    public Task<bool> ExistsAsync(Uri uri, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task<string> GetHtmlAsync(Uri uri, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
