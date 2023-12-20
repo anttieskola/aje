@@ -1,5 +1,27 @@
 namespace AJE.Service.Manager;
 
+/// <summary>
+/// Nostin LlamaAPI:Sta odotus ajan 3-6 sec x 10, serveri oli jumissa jostain syystä...
+/// riittäisö min 30 sekunttia et se toimisi taas?
+///
+/// Ongelma oli että serveri oli busy, threadi kaatui ja koko analyysi sovellus.
+/// Kaatumisessa se vapautti resurssin, manageri varmaan lähetti seuraavalle käyttäjälle
+/// joka oli samasssa sovelluksessa toinen threadi mutta koska sekiin kaatui niin sitä ei vapautettu.
+///
+// Dec 20 01:09:56 zeus AJE.Service.Manager[202773]: info: AJE.Service.Manager.LlamaQueueManager[0] Resource:llama-apollo        Total:380        Queue:2        Active:16b4bfef-935c-4009-9344-3aa7b513910c
+// NewsAnalyzer kaatuu
+// Dec 20 01:03:13 zeus AJE.Service.NewsAnalyzer[202892]: warn: AJE.Infra.Ai.LlamaApi[0] Server is busy, retrying 10/10 after 00:00:01.8840000 ms
+// Dec 20 01:03:11 zeus AJE.Service.NewsAnalyzer[202892]: warn: AJE.Infra.Ai.LlamaApi[0] Server is busy, retrying 9/10 after 00:00:01.9820000 ms
+// Dec 20 01:03:10 zeus AJE.Service.NewsAnalyzer[202892]: warn: AJE.Infra.Ai.LlamaApi[0] Server is busy, retrying 8/10 after 00:00:00.8460000 ms
+// Dec 20 01:03:10 zeus AJE.Service.NewsAnalyzer[202892]: warn: AJE.Infra.Ai.LlamaApi[0] Server is busy, retrying 7/10 after 00:00:00.1900000 ms
+// Dec 20 01:03:08 zeus AJE.Service.NewsAnalyzer[202892]: warn: AJE.Infra.Ai.LlamaApi[0] Server is busy, retrying 6/10 after 00:00:01.8510000 ms
+// Dec 20 01:03:06 zeus AJE.Service.NewsAnalyzer[202892]: warn: AJE.Infra.Ai.LlamaApi[0] Server is busy, retrying 5/10 after 00:00:01.9620000 ms
+// Dec 20 01:03:06 zeus AJE.Service.NewsAnalyzer[202892]: warn: AJE.Infra.Ai.LlamaApi[0] Server is busy, retrying 4/10 after 00:00:00.4280000 ms
+// Dec 20 01:03:04 zeus AJE.Service.NewsAnalyzer[202892]: warn: AJE.Infra.Ai.LlamaApi[0] Server is busy, retrying 3/10 after 00:00:01.6480000 ms
+// Dec 20 01:03:03 zeus AJE.Service.NewsAnalyzer[202892]: warn: AJE.Infra.Ai.LlamaApi[0] Server is busy, retrying 2/10 after 00:00:00.7290000 ms
+// Dec 20 01:03:01 zeus AJE.Service.NewsAnalyzer[202892]: warn: AJE.Infra.Ai.LlamaApi[0] Server is busy, retrying 1/10 after 00:00:01.7830000 ms
+// Dec 20 01:02:43 zeus AJE.Service.NewsAnalyzer[202892]: info: AJE.Infra.Ai.LlamaAiModel[0] Wait        llama-apollo        16b4bfef-935c-4009-9344-3aa7b513910c
+/// </summary>
 public class LlamaQueueManager : BackgroundService
 {
     private readonly ILogger<LlamaQueueManager> _logger;

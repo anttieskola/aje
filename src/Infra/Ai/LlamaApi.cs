@@ -8,7 +8,7 @@
 public class LlamaApi
 {
     private const int MaxTries = 10;
-    private static TimeSpan GetDelay() => TimeSpan.FromMilliseconds(new Random().Next(100, 2000));
+    private static TimeSpan GetDelay() => TimeSpan.FromMilliseconds(new Random().Next(3000, 6000));
     private readonly ILogger<LlamaApi> _logger;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly Uri _serverUri;
