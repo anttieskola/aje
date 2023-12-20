@@ -25,8 +25,8 @@ public static class TestConstants
                     {
                         Host = LlamaAddress,
                         ResourceName = "integration-test-llama",
-                        MaxTokenCount = 8096,
-                        TimeoutInSeconds = 30,
+                        MaxTokenCount = 32768,
+                        TimeoutInSeconds = 60,
                     }
                 ],
                 LogFolder = "/tmp",
