@@ -53,7 +53,10 @@ else
     </div>
 
     <div class="xl:w-3/4 lg:w-4/5 md:w-5/6 xs:w-full xl:m-10 xl:ml-14 lg:m-6 lg:ml-12 md:m-4 md:ml-10 xs:m-1">
-    @foreach (var content in Model.Content)
+
+        <h1 class="text-center justify-center">@Model.Title</h1>
+
+        @foreach (var content in Model.Content)
         {
             switch (content)
             {
