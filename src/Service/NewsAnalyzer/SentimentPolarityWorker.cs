@@ -69,6 +69,7 @@ public class SentimentPolarityWorker : BackgroundService
         {
             Category = ArticleCategory.NEWS,
             IsLiveNews = false,
+            IsValidForAnalysis = true,
             MaxPolarityVersion = ArticleGetSentimentPolarityQuery.CURRENT_POLARITY_VERSION - 1,
             Offset = 0,
             PageSize = 1

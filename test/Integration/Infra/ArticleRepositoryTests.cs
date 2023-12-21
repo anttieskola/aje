@@ -35,7 +35,7 @@ public class ArticleRepositoryTests : IClassFixture<RedisFixture>
             Content = TestArticle.Content,
             Polarity = Polarity.Positive,
             PolarityVersion = 1,
-            IsValidated = true,
+            IsValidForAnalysis = true,
         };
     }
     [Fact]
@@ -76,7 +76,7 @@ public class ArticleRepositoryTests : IClassFixture<RedisFixture>
             Content = TestArticle.Content,
             Polarity = Polarity.Positive,
             PolarityVersion = 1,
-            IsValidated = false,
+            IsValidForAnalysis = false,
         };
     }
     [Fact]
@@ -97,7 +97,7 @@ public class ArticleRepositoryTests : IClassFixture<RedisFixture>
         var result = await repository.GetAsync(new ArticleGetManyQuery
         {
             Category = ArticleCategory.BOGUS,
-            IsValidated = false,
+            IsValidForAnalysis = false,
             Offset = 0,
             PageSize = 100,
         });
@@ -105,18 +105,6 @@ public class ArticleRepositoryTests : IClassFixture<RedisFixture>
         Assert.NotEmpty(result.Items);
         var articleCopy = result.Items.Single(i => i.Id == _idForIsValidated);
         Assert.True(article == articleCopy);
-
-        await repository.UpdateIsValidatedAsync(_idForIsValidated, true);
-        result = await repository.GetAsync(new ArticleGetManyQuery
-        {
-            Category = ArticleCategory.BOGUS,
-            IsValidated = false,
-            Offset = 0,
-            PageSize = 100,
-        });
-        Assert.NotNull(result);
-        var notExistingCopy = result.Items.SingleOrDefault(i => i.Id == _idForIsValidated);
-        Assert.Null(notExistingCopy);
 
         // polarity update
         await repository.UpdatePolarityAsync(_idForIsValidated, 2, Polarity.Negative);

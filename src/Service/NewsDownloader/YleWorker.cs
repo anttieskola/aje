@@ -104,14 +104,6 @@ public class YleWorker : BackgroundService
         if (await _sender.Send(new ArticleExistsQuery { Source = article.Source }, _stoppingToken))
             return;
 
-        if (article.Language == "en")
-        {
-            await _sender.Send(new ArticleAddCommand { Article = article }, _stoppingToken);
-        }
-        else if (article.Language == "fi" || article.Language == "se" || article.Language == "ru")
-        {
-            var translated = await _sender.Send(new TranslateArticleQuery { Article = article, TargetLanguage = "en", }, _stoppingToken);
-            await _sender.Send(new ArticleAddCommand { Article = translated }, _stoppingToken);
-        }
+        await _sender.Send(new ArticleAddCommand { Article = article }, _stoppingToken);
     }
 }

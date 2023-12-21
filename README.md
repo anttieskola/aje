@@ -98,7 +98,6 @@ List of current components and used software
 - Microservices
 	- [NewsDownloader](./doc/NewsDownloader.md) Downloads news from internet, convert and store them into Redis
 	- [NewsAnalyzer](./doc/NewsAnalyzer.md) Classifies news articles with large language models
-	- [NewsFixer](./doc/NewsFixer.md) Tries to fix news articles that are "broken"
 - [Ui.Public](./doc/UiPublic.md) User interface for the application
 	- Using server rendered blazor as I want to learn to use it better and I think it is
 	fits my needs best

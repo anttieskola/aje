@@ -29,7 +29,6 @@ public class ArticleGetSentimentPolarityQueryHandler : IRequestHandler<ArticleGe
     {
         var context = _contextCreator.Create(query.Article);
         var prompt = _polarity.Context(context);
-        // TODO: Token calculation using tokenizer API, to prevent hogging all GPU resources
         // update version if prompt changes
         var request = new CompletionRequest
         {

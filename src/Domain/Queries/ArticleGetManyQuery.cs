@@ -4,11 +4,12 @@ public record ArticleGetManyQuery : PaginatedQuery, IRequest<PaginatedList<Artic
 {
     public ArticleCategory? Category { get; init; }
     public string? Language { get; init; }
+    public string[]? Languages { get; init; }
     public Polarity? Polarity { get; init; }
-    public int? MaxPolarityVersion { get; init; }
-    public bool? IsValidated { get; init; }
-    public int? MaxTokenCount { get; init; }
     public bool? IsLiveNews { get; init; }
+    public int? MaxTokenCount { get; init; }
+    public bool? IsValidForAnalysis { get; init; }
+    public int? MaxPolarityVersion { get; init; }
     public int? MaxSummaryVersion { get; init; }
     public int? MaxPositiveThingsVersion { get; init; }
 }

@@ -1,4 +1,4 @@
-﻿namespace AJE.Service.NewsFixer;
+﻿namespace AJE.Service.NewsDownloader;
 
 public class YleLifeFeedUpdateWorker : BackgroundService
 {

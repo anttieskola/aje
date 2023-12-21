@@ -57,17 +57,6 @@
             "console": "internalConsole"
         },
         {
-            "name": "NewsFixer",
-            "type": "coreclr",
-            "request": "launch",
-            "preLaunchTask": "build",
-            "program": "${workspaceFolder}/src/Service/NewsFixer/bin/Debug/net8.0/AJE.Service.NewsFixer",
-            "args": [],
-            "cwd": "${workspaceFolder}/src/Service/NewsFixer",
-            "stopAtEntry": false,
-            "console": "internalConsole"
-        },
-        {
             // Use IntelliSense to find out which attributes exist for C# debugging
             // Use hover for the description of the existing attributes
             // For further information visit https://github.com/dotnet/vscode-csharp/blob/main/debugger-launchjson.md.

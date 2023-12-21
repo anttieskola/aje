@@ -57,6 +57,7 @@ public class PositiveThingsWorker : BackgroundService
         {
             Category = ArticleCategory.NEWS,
             IsLiveNews = false,
+            IsValidForAnalysis = true,
             MaxPositiveThingsVersion = ArticleGetPositiveThingsQuery.CURRENT_POSITIVE_THINGS_VERSION - 1,
             Offset = 0,
             PageSize = 1

@@ -58,6 +58,7 @@ public class SummaryWorker : BackgroundService
         {
             Category = ArticleCategory.NEWS,
             IsLiveNews = false,
+            IsValidForAnalysis = true,
             MaxSummaryVersion = ArticleGetSummaryQuery.CURRENT_SUMMARY_VERSION - 1,
             Offset = 0,
             PageSize = 1
