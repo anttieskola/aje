@@ -117,6 +117,7 @@ FakesAssemblies/
 
 # llama.cpp source
 llama.cpp/*
+llama.cpp
 
 # LibreTranslate source
 LibreTranslate/*
