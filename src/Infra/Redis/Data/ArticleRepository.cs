@@ -131,7 +131,7 @@ public class ArticleRepository : IArticleRepository
         if (query.Language != null)
             builder.Conditions.Add(new QueryCondition { Expression = $"@language:{{{query.Language}}}" });
         if (query.Languages != null)
-            builder.Conditions.Add(new QueryCondition { Expression = $"@language:{{{string.Join(" ", query.Languages)}}}" });
+            builder.Conditions.Add(new QueryCondition { Expression = $"@language:{{{string.Join("|", query.Languages)}}}" });
         if (query.Polarity != null)
             builder.Conditions.Add(new QueryCondition { Expression = $"@polarity:[{(int)query.Polarity} {(int)query.Polarity}]" });
         if (query.MaxPolarityVersion != null)

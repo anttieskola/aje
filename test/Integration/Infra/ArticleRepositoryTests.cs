@@ -21,6 +21,23 @@ public class ArticleRepositoryTests : IClassFixture<RedisFixture>
         _redisFixture = fixture;
     }
 
+    [Fact]
+    private async Task SearchMultipleLanguages()
+    {
+        var repository = new ArticleRepository(new Mock<ILogger<ArticleRepository>>().Object, _redisFixture.Connection);
+        var result = await repository.GetAsync(new ArticleGetManyQuery
+        {
+            Category = ArticleCategory.NEWS,
+            IsLiveNews = false,
+            IsValidForAnalysis = false,
+            Languages = ["en", "fi", "sv"],
+            Offset = 0,
+            PageSize = 10
+        });
+        Assert.NotNull(result);
+        Assert.NotEmpty(result.Items);
+    }
+
     private readonly Guid _idForOk = new("00000000-0000-0000-0000-000000000010");
     private Article TestArticleForOk()
     {

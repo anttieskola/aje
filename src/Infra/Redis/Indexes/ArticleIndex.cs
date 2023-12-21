@@ -20,7 +20,7 @@ public class ArticleIndex : IRedisIndex
         + "$.modified AS modified NUMERIC SORTABLE" + " "
         + "$.isLiveNews AS isLiveNews TAG" + " "
         + "$.source AS source TAG" + " "
-        + "$.language AS language TAG SEPARATOR \";\"" + " "
+        + "$.language AS language TAG" + " "
         + "$.polarity AS polarity NUMERIC" + " "
         + "$.polarityVersion AS polarityVersion NUMERIC" + " "
         + "$.isValidForAnalysis AS isValidForAnalysis TAG" + " "
