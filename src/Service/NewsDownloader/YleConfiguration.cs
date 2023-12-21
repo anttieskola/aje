@@ -8,7 +8,6 @@ public class YleFeed
 
 public class YleConfiguration
 {
-    public required bool PublishOnlyEnglish { get; set; }
     public required int RefreshDelayInSeconds { get; set; }
     public required List<YleFeed> Feeds { get; set; }
 }

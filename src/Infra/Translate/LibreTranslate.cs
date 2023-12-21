@@ -6,6 +6,7 @@ public class LibreTranslate : ITranslate
     private readonly TranslateConfiguration _config;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly JsonSerializerOptions _jsonSerializerOptions;
+    private readonly Uri _serverUri;
 
     public LibreTranslate(
         ILogger<LibreTranslate> logger,
@@ -16,12 +17,13 @@ public class LibreTranslate : ITranslate
         _config = config;
         _httpClientFactory = httpClientFactory;
         _jsonSerializerOptions = new JsonSerializerOptions { WriteIndented = false };
+        _serverUri = new Uri(_config.Host);
     }
 
     public async Task<TranslateResponse> TranslateAsync(TranslateRequest request, CancellationToken cancellationToken)
     {
         // create request
-        using var httpRequest = new HttpRequestMessage(HttpMethod.Post, new Uri(new Uri(_config.Host), "translate"));
+        using var httpRequest = new HttpRequestMessage(HttpMethod.Post, new Uri(_serverUri, "translate"));
         httpRequest.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         httpRequest.Content = new StringContent(JsonSerializer.Serialize(request, _jsonSerializerOptions), Encoding.UTF8, "application/json");
 

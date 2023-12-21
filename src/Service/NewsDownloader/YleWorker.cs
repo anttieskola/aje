@@ -51,17 +51,11 @@ public class YleWorker : BackgroundService
         var links = await _sender.Send(new YleListQuery { }, _stoppingToken);
         foreach (var link in links)
         {
+            // parse -> publish
             var html = await _sender.Send(new YleGetQuery { Uri = link }, _stoppingToken);
             var article = await _sender.Send(new YleHtmlParseQuery { Html = html }, _stoppingToken);
             article.Id = await _sender.Send(new GuidGetQuery { Category = _guidCategory, UniqueString = link.ToString() }, _stoppingToken);
-
-            if (_configuration.PublishOnlyEnglish && article.Language != "en")
-                continue;
-
-            if (!await _sender.Send(new ArticleExistsQuery { Source = link.ToString() }, _stoppingToken))
-            {
-                await _sender.Send(new ArticleAddCommand { Article = article }, _stoppingToken);
-            }
+            await HandleArticlePublish(article);
         }
     }
 
@@ -89,26 +83,36 @@ public class YleWorker : BackgroundService
         {
             if (!await _sender.Send(new YleExistsQuery { Uri = link }, _stoppingToken))
             {
+                // save to repo
                 var html = await _sender.Send(new YleHttpQuery { Uri = link });
                 await _sender.Send(new YleAddCommand { Uri = link, Html = html }, _stoppingToken);
 
+                // parse -> publish
                 var article = await _sender.Send(new YleHtmlParseQuery { Html = html }, _stoppingToken);
                 article.Id = await _sender.Send(new GuidGetQuery { Category = _guidCategory, UniqueString = link.ToString() }, _stoppingToken);
-
-                if (_configuration.PublishOnlyEnglish)
-                {
-                    if (article.Language == "en")
-                        await _sender.Send(new ArticleAddCommand { Article = article }, _stoppingToken);
-                }
-                else
-                {
-                    await _sender.Send(new ArticleAddCommand { Article = article }, _stoppingToken);
-                }
+                await HandleArticlePublish(article);
             }
         }
         catch (Exception e)
         {
             _logger.LogError(e, "Error handling link {}", link);
+        }
+    }
+
+    private async Task HandleArticlePublish(Article article)
+    {
+        if (await _sender.Send(new ArticleExistsQuery { Source = article.Source }, _stoppingToken))
+            return;
+
+        if (article.Language == "en")
+        {
+            await _sender.Send(new ArticleAddCommand { Article = article }, _stoppingToken);
+        }
+        else if (article.Language == "fi" || article.Language == "se" || article.Language == "ru")
+        {
+            var translated = await _sender.Send(new TranslateArticleQuery { Article = article, TargetLanguage = "en", }, _stoppingToken);
+
+            await _sender.Send(new ArticleAddCommand { Article = translated }, _stoppingToken);
         }
     }
 }
