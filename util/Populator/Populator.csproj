@@ -19,7 +19,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Domain\Domain.csproj" />
+    <ProjectReference Include="..\..\src\Infra\Ai\Ai.csproj" />
     <ProjectReference Include="..\..\src\Infra\Redis\Redis.csproj" />
+    <ProjectReference Include="..\..\src\Infra\FileSystem\FileSystem.csproj" />
+    <ProjectReference Include="..\..\src\Infra\Translate\Translate.csproj" />
   </ItemGroup>
 
 </Project>

@@ -10,6 +10,7 @@ global using AJE.Infra.Ai;
 global using AJE.Infra.Redis;
 global using AJE.Infra.Redis.Indexes;
 global using AJE.Infra.FileSystem;
+global using AJE.Infra.Translate;
 global using MediatR;
 global using Microsoft.EntityFrameworkCore;
 global using StackExchange.Redis;

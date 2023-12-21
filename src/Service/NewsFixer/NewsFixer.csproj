@@ -23,5 +23,6 @@
     <ProjectReference Include="..\..\Infra\Ai\Ai.csproj" />
     <ProjectReference Include="..\..\Infra\Redis\Redis.csproj" />
     <ProjectReference Include="..\..\Infra\FileSystem\FileSystem.csproj" />
+    <ProjectReference Include="..\..\Infra\Translate\Translate.csproj" />
   </ItemGroup>
 </Project>

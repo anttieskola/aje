@@ -18,8 +18,9 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Domain\Domain.csproj" />
     <ProjectReference Include="..\..\Infra\Redis\Redis.csproj" />
-    <ProjectReference Include="..\..\Infra\DummyAi\DummyAi.csproj" />
-    <ProjectReference Include="..\..\Infra\DummyFileSystem\DummyFileSystem.csproj" />
+    <ProjectReference Include="..\..\Infra\Ai\Ai.csproj" />
+    <ProjectReference Include="..\..\Infra\FileSystem\FileSystem.csproj" />
+    <ProjectReference Include="..\..\Infra\Translate\Translate.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -32,6 +33,7 @@
   </ItemGroup>
 
   <Target Name="Build Tailwind" AfterTargets="PreBuildEvent">
-    <Exec Condition="'$(Configuration)' == 'Release'" Command="npx tailwindcss -i tailwind.css --minify --output wwwroot/css/app.css" />
+    <Exec Condition="'$(Configuration)' == 'Release'"
+      Command="npx tailwindcss -i tailwind.css --minify --output wwwroot/css/app.css" />
   </Target>
 </Project>

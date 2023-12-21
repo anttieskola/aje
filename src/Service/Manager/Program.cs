@@ -1,3 +1,5 @@
+using AJE.Infra.FileSystem;
+
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices(services =>
     {
@@ -8,7 +10,8 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddDomain();
         services.AddRedis(config);
         services.AddAi(config);
-        services.AddDummyFileSystem();
+        services.AddFileSystem(config);
+        services.AddTranslate(config);
         services.AddHostedService<LlamaQueueManager>();
     })
     .ConfigureLogging(logging =>

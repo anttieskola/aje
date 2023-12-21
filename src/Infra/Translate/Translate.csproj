@@ -5,8 +5,8 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <RootNamespace>AJE.Infra.DummyFileSystem</RootNamespace>
-    <AssemblyName>AJE.Infra.DummyFileSystem</AssemblyName>
+    <RootNamespace>AJE.Infra.Translate</RootNamespace>
+    <AssemblyName>AJE.Infra.Translate</AssemblyName>
   </PropertyGroup>
 
   <PropertyGroup>

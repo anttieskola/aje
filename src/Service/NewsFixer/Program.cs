@@ -13,6 +13,7 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddAi(config);
         services.AddRedis(config);
         services.AddFileSystem(config);
+        services.AddTranslate(config);
         services.AddHostedService<ArticleTokenCalculatorWorker>();
         services.AddHostedService<YleLifeFeedUpdateWorker>();
     })

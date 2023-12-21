@@ -116,6 +116,8 @@ List of current components and used software
 	- Used to run large language models locally
 	- Models I use I get from [Hugginface](https://huggingface.co/)
 	- [Models I use](./doc/models.md)
+- [LibreTranslate](./doc/LibreTranslate.md)
+	- For translation of articles
 - [Nginx](https://nginx.org/en/) as front-end/proxy for Asp.Net applications
 - [Redis](./doc/redis.md)
 	- [Redis homepage](https://redis.io/) for data storage and messaging. Modules I use:

@@ -1,5 +1,4 @@
-﻿
-namespace AJE.Domain.Ai;
+﻿namespace AJE.Domain.Ai;
 
 public delegate Task TokenCreatedCallback(string token);
 

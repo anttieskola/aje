@@ -1,4 +1,5 @@
 using AJE.Infra.Ai;
+using AJE.Infra.Translate;
 
 namespace AJE.Test.Integration;
 public static class TestConstants
@@ -31,6 +32,17 @@ public static class TestConstants
                 ],
                 LogFolder = "/tmp",
 
+            };
+        }
+    }
+    public static TranslateConfiguration TranslateConfiguration
+    {
+        get
+        {
+            return new TranslateConfiguration
+            {
+                Host = "http://127.0.0.1:5888",
+                TimeoutInSeconds = 60,
             };
         }
     }

@@ -12,7 +12,8 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddDomain();
         services.AddAi(config);
         services.AddRedis(config);
-        services.AddDummyFileSystem();
+        services.AddFileSystem(config);
+        services.AddTranslate(config);
         services.AddHostedService<SentimentPolarityWorker>();
         services.AddHostedService<SummaryWorker>();
         services.AddHostedService<PositiveThingsWorker>();

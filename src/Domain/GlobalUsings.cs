@@ -5,6 +5,7 @@ global using AJE.Domain.Enums;
 global using AJE.Domain.Exceptions;
 global using AJE.Domain.Extensions;
 global using AJE.Domain.Events;
+global using AJE.Domain.Translate;
 global using AJE.Domain.Queries;
 global using Microsoft.Extensions.DependencyInjection;
 global using Polly;

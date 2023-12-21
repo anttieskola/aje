@@ -11,11 +11,12 @@ var config = new ConfigurationBuilder()
 
 var redisConfiguration = config.GetRedisConfiguration();
 
-builder.Services.AddDummyFileSystem();
 
 builder.Services.AddDomain();
 builder.Services.AddAi(config);
+builder.Services.AddFileSystem(config);
 builder.Services.AddRedis(config);
+builder.Services.AddTranslate(config);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddMemoryCache();
