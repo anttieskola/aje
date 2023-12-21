@@ -111,7 +111,6 @@ public class YleWorker : BackgroundService
         else if (article.Language == "fi" || article.Language == "se" || article.Language == "ru")
         {
             var translated = await _sender.Send(new TranslateArticleQuery { Article = article, TargetLanguage = "en", }, _stoppingToken);
-
             await _sender.Send(new ArticleAddCommand { Article = translated }, _stoppingToken);
         }
     }

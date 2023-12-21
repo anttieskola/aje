@@ -1,4 +1,5 @@
 using AJE.Infra.Ai;
+using AJE.Infra.FileSystem;
 using AJE.Infra.Translate;
 
 namespace AJE.Test.Integration;
@@ -43,6 +44,17 @@ public static class TestConstants
             {
                 Host = "http://127.0.0.1:5888",
                 TimeoutInSeconds = 60,
+            };
+        }
+    }
+
+    public static FileSystemConfiguration FileSystemConfiguration
+    {
+        get
+        {
+            return new FileSystemConfiguration
+            {
+                RootFolder = "/var/aje",
             };
         }
     }

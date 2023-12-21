@@ -11,9 +11,6 @@ public class Playground
     [Fact]
     public async Task Rollercoaster()
     {
-        // Code is commented because I need it later for development.
-        //var content = await File.ReadAllTextAsync("/var/aje/yle/74-20063011.html");
-        //var article = HtmlParser.Parse(content, Guid.NewGuid());
         await Task.Delay(TimeSpan.FromMicroseconds(1));
     }
 

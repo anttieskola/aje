@@ -17,6 +17,13 @@ public class TranslateArticleQueryHandler : IRequestHandler<TranslateArticleQuer
 
     public async Task<Article> Handle(TranslateArticleQuery query, CancellationToken cancellationToken)
     {
+        var titleResponse = await _translate.TranslateAsync(new TranslateRequest
+        {
+            SourceLanguage = query.Article.Language,
+            TargetLanguage = query.TargetLanguage,
+            Text = query.Article.Title,
+        }, cancellationToken);
+
         var translatedContent = new EquatableList<MarkdownElement>();
         foreach (var content in query.Article.Content)
         {
@@ -47,7 +54,7 @@ public class TranslateArticleQueryHandler : IRequestHandler<TranslateArticleQuer
             }
 
         }
-        var translatedArticle = query.Article with { Content = translatedContent, Language = query.TargetLanguage };
+        var translatedArticle = query.Article with { Content = translatedContent, Title = titleResponse.TranslatedText, Language = query.TargetLanguage };
         return translatedArticle;
     }
 }
