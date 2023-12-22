@@ -44,7 +44,6 @@ public class PrepperWorker : BackgroundService
                 Languages = ["en", "fi", "sv"],
                 Offset = offset,
                 PageSize = 1,
-                MaxTokenCount = -1,
             };
             var result = await _sender.Send(query, _stoppingToken);
 
@@ -65,6 +64,7 @@ public class PrepperWorker : BackgroundService
         // contentInEnglish
         // persons
         // links
+        // ...
         await _sender.Send(new ArticleUpdateCommand { Article = preppedArticle, }, _stoppingToken);
     }
 }

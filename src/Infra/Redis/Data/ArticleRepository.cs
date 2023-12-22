@@ -128,8 +128,6 @@ public class ArticleRepository : IArticleRepository
             builder.Conditions.Add(new QueryCondition { Expression = $"@polarityVersion:[-inf {query.MaxPolarityVersion}]" });
         if (query.IsValidForAnalysis != null)
             builder.Conditions.Add(new QueryCondition { Expression = $"@isValidForAnalysis:{{{query.IsValidForAnalysis}}}" });
-        if (query.MaxTokenCount != null)
-            builder.Conditions.Add(new QueryCondition { Expression = $"@tokenCount:[-inf {query.MaxTokenCount}]" });
         if (query.IsLiveNews != null)
             builder.Conditions.Add(new QueryCondition { Expression = $"@isLiveNews:{{{query.IsLiveNews}}}" });
         if (query.MaxSummaryVersion != null)

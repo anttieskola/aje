@@ -7,7 +7,6 @@ public record ArticleGetManyQuery : PaginatedQuery, IRequest<PaginatedList<Artic
     public string[]? Languages { get; init; }
     public Polarity? Polarity { get; init; }
     public bool? IsLiveNews { get; init; }
-    public int? MaxTokenCount { get; init; }
     public bool? IsValidForAnalysis { get; init; }
     public int? MaxPolarityVersion { get; init; }
     public int? MaxSummaryVersion { get; init; }
