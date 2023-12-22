@@ -63,6 +63,6 @@ public class PrepperWorker : BackgroundService
         // persons
         // links
         // ...
-        await _sender.Send(new ArticleUpdateCommand { Article = preppedArticle, }, _stoppingToken);
+        await _sender.Send(new ArticleUpdateCommand { Article = preppedArticle, ContentUpdated = false, }, _stoppingToken);
     }
 }

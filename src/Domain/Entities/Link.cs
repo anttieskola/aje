@@ -6,7 +6,10 @@ public record Link
     public required string Name { get; set; }
 
     [JsonPropertyName("uri")]
-    public required Uri Uri { get; set; }
+    public Uri Uri { get; set; } = null!;
+
+    [JsonPropertyName("url")]
+    public string Url { get; set; } = string.Empty;
 
     /// <summary>
     /// Simplified content in english

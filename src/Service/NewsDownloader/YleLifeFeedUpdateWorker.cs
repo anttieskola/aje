@@ -55,7 +55,7 @@ public class YleLifeFeedUpdateWorker : BackgroundService
         {
             _logger.LogInformation("Article {article.Source} has changed", article.Source);
             await _sender.Send(new YleUpdateCommand { Uri = new Uri(article.Source), Html = html }, _stoppingToken);
-            await _sender.Send(new ArticleUpdateCommand { Article = newVersion }, _stoppingToken);
+            await _sender.Send(new ArticleUpdateCommand { Article = newVersion, ContentUpdated = true }, _stoppingToken);
         }
     }
 }

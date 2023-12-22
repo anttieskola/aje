@@ -18,4 +18,18 @@ public class MarkDownLinkGathererTests
         ], CancellationToken.None);
         Assert.Equal(3, links.Count);
     }
+
+    [Fact]
+    public async Task OkInvalid()
+    {
+        var lg = new MarkDownLinkGatherer();
+        var links = await lg.GetLinksAsync(
+        [
+            new MarkdownTextElement
+            {
+                Text = "*The All Points North podcast went chasing the northern lights in Finnish Lapland. Listen to the episode via this embedded player, on* [*Yle Areena*](areena.yle.fi/podcastit/1-4355773) *via* [*Apple*](podcast/all-points-north/id1678541537) *or* [*Spotify*](https://open.spotify.com/show/11M4NJ3cfmNCo0qYiIXXU1) *or wherever you get your podcasts.*",
+            },
+        ], CancellationToken.None);
+        Assert.Equal(3, links.Count);
+    }
 }

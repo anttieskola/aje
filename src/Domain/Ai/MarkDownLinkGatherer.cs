@@ -15,11 +15,16 @@ public partial class MarkDownLinkGatherer : ILinkGatherer
             var matches = pattern.Matches(textElement.Text);
             foreach (Match match in matches.Where(m => m != null))
             {
-                links.Add(new Link
+                var link = new Link { Name = match.Groups[1].Value, Url = match.Groups[2].Value };
+                try
                 {
-                    Name = match.Groups[1].Value,
-                    Uri = new Uri(match.Groups[2].Value)
-                });
+                    link.Uri = new Uri(link.Url);
+                }
+                catch (UriFormatException)
+                {
+                    // noop
+                }
+                links.Add(link);
             }
         }
         return Task.FromResult(links);

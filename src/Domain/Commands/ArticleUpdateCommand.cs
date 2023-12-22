@@ -3,6 +3,7 @@
 public class ArticleUpdateCommand : IRequest<ArticleUpdatedEvent>
 {
     public required Article Article { get; init; }
+    public required bool ContentUpdated { get; init; }
 }
 
 public class ArticleUpdateCommandHandler : IRequestHandler<ArticleUpdateCommand, ArticleUpdatedEvent>
@@ -25,7 +26,7 @@ public class ArticleUpdateCommandHandler : IRequestHandler<ArticleUpdateCommand,
         {
             Id = command.Article.Id,
             Timestamp = DateTimeOffset.UtcNow,
-            ContentUpdated = true,
+            ContentUpdated = command.ContentUpdated,
         };
         await _articleEventHandler.SendAsync(e);
         return e;
