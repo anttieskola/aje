@@ -14,7 +14,7 @@ public record ArticlePrepForAnalysisQuery : IRequest<Article>
 /// </summary>
 public class ArticlePrepForAnalysisHandler : IRequestHandler<ArticlePrepForAnalysisQuery, Article>
 {
-    private readonly string[] _supportedLanguages = ["en", "fi", "sv"];
+    private readonly string[] _supportedLanguages = ["en", "fi", "sv", "ru"];
     private readonly IContextCreator<Article> _contextCreator;
     private readonly ITranslate _translate;
     private readonly IPersonGatherer _personGatherer;

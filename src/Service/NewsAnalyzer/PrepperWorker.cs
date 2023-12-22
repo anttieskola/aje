@@ -40,7 +40,7 @@ public class PrepperWorker : BackgroundService
                 Category = ArticleCategory.NEWS,
                 IsLiveNews = false,
                 IsValidForAnalysis = false,
-                Languages = ["en", "fi", "sv"],
+                Languages = ["en", "fi", "sv", "ru"],
                 Offset = 0,
                 PageSize = 1,
             };
