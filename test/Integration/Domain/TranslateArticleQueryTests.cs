@@ -39,7 +39,7 @@ public class TranslateArticleQueryTests : IClassFixture<HttpClientFixture>
         Assert.Equal(result.Content.Count, TestArticle.Content.Count);
     }
 
-    [Fact]
+    [Fact(Skip = "Was just to check translating real article")]
     public async Task TestRealArticle()
     {
         var yleRepository = new YleRepository(TestConstants.FileSystemConfiguration);

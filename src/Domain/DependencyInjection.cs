@@ -5,6 +5,8 @@ public static class DependencyInjection
     public static IServiceCollection AddDomain(this IServiceCollection services)
     {
         services.AddSingleton<IContextCreator<Article>, ArticleContextCreator>();
+        services.AddSingleton<IPersonGatherer, YlePersonGatherer>();
+        services.AddSingleton<ILinkGatherer, MarkDownLinkGatherer>();
         services.AddSingleton<ISimplifier, MarkDownSimplifier>();
         services.AddSingleton<IPolarity, PolarityChatML>();
         services.AddSingleton<IAntai, AntaiChatML>();

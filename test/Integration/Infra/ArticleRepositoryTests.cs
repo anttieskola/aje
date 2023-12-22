@@ -130,12 +130,6 @@ public class ArticleRepositoryTests : IClassFixture<RedisFixture>
         Assert.Equal(2, article.PolarityVersion);
         Assert.Equal(Polarity.Negative, article.Polarity);
 
-        // token count update
-        await repository.UpdateTokenCountAsync(_idForIsValidated, 100);
-        article = await repository.GetAsync(_idForIsValidated);
-        Assert.NotNull(article);
-        Assert.Equal(100, article.TokenCount);
-
         // summary update
         await repository.UpdateSummaryAsync(_idForIsValidated, 1, "summary");
         article = await repository.GetAsync(_idForIsValidated);

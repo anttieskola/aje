@@ -1,21 +1,12 @@
 ﻿namespace AJE.Service.NewsAnalyzer;
 
-/// <summary>
-///
-/// </summary>
-public class AnalysisPrepperWorker : BackgroundService
+public class PrepperWorker : BackgroundService
 {
-    private readonly ILogger<AnalysisPrepperWorker> _logger;
-    private readonly IServiceScopeFactory _scopeFactory;
     private readonly ISender _sender;
 
-    public AnalysisPrepperWorker(
-        ILogger<AnalysisPrepperWorker> logger,
-        IServiceScopeFactory scopeFactory,
+    public PrepperWorker(
         ISender sender)
     {
-        _logger = logger;
-        _scopeFactory = scopeFactory;
         _sender = sender;
     }
 
@@ -38,12 +29,10 @@ public class AnalysisPrepperWorker : BackgroundService
                 await Task.Delay(TimeSpan.FromMinutes(2), _stoppingToken);
             }
         }
-
     }
 
     private async Task<Article?> FindArticleToPrep()
     {
-        throw new NotImplementedException();
         var offset = 0;
         while (true)
         {
@@ -52,6 +41,7 @@ public class AnalysisPrepperWorker : BackgroundService
                 Category = ArticleCategory.NEWS,
                 IsLiveNews = false,
                 IsValidForAnalysis = false,
+                Languages = ["en", "fi", "sv"],
                 Offset = offset,
                 PageSize = 1,
                 MaxTokenCount = -1,
@@ -62,7 +52,6 @@ public class AnalysisPrepperWorker : BackgroundService
             if (result.Items.Count == 0)
                 return null;
 
-
             // try next one
             offset++;
         }
@@ -70,6 +59,12 @@ public class AnalysisPrepperWorker : BackgroundService
 
     private async Task PrepArticleAsync(Article article)
     {
-        await Task.Delay(10000);
+        var preppedArticle = await _sender.Send(new ArticlePrepForAnalysisQuery { Article = article }, _stoppingToken);
+        // to store all results we would need
+        // titleInEnglish
+        // contentInEnglish
+        // persons
+        // links
+        await _sender.Send(new ArticleUpdateCommand { Article = preppedArticle, }, _stoppingToken);
     }
 }

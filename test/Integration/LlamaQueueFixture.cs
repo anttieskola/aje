@@ -6,8 +6,8 @@ namespace AJE.Test.Integration;
 public class LlamaQueueFixture : IDisposable
 {
     private readonly IConnectionMultiplexer _connection;
-    private LlamaQueueManager _llamaQueueManager;
-    private CancellationTokenSource _cancellationTokenSource = new();
+    private readonly LlamaQueueManager _llamaQueueManager;
+    private readonly CancellationTokenSource _cancellationTokenSource = new();
 
     public LlamaQueueFixture()
     {
@@ -42,6 +42,7 @@ public class LlamaQueueFixture : IDisposable
                 _cancellationTokenSource.Cancel();
                 _connection.Dispose();
                 _llamaQueueManager.Dispose();
+                _cancellationTokenSource.Dispose();
             }
             disposedValue = true;
         }

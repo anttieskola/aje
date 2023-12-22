@@ -64,16 +64,6 @@ public class ArticleRepository : IArticleRepository
             throw new DataException($"failed to set $.polarity on article {redisId}");
     }
 
-    public async Task UpdateTokenCountAsync(Guid id, int tokenCount)
-    {
-        var db = _connection.GetDatabase();
-        var redisId = _index.RedisId(id.ToString());
-        var tokenCountJson = JsonSerializer.Serialize(tokenCount);
-        var setResult = await db.ExecuteAsync("JSON.SET", redisId, "$.tokenCount", tokenCountJson);
-        if (setResult.ToString() != "OK")
-            throw new DataException($"failed to set IsValidated on article {redisId}");
-    }
-
     public async Task UpdateSummaryAsync(Guid id, int summaryVersion, string summary)
     {
         var db = _connection.GetDatabase();

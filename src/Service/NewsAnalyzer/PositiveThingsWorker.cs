@@ -35,7 +35,9 @@ public class PositiveThingsWorker : BackgroundService
     {
         using var scope = _scopeFactory.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<NewsAnalyzerContext>();
-        var rows = context.Analyses.AsAsyncEnumerable();
+        var rows = context.Analyses
+            .Where(x => x.PositiveThingsVersion == AiGetPositiveThingsQuery.VERSION)
+            .AsAsyncEnumerable();
 
         await foreach (var row in rows)
         {
@@ -58,7 +60,7 @@ public class PositiveThingsWorker : BackgroundService
             Category = ArticleCategory.NEWS,
             IsLiveNews = false,
             IsValidForAnalysis = true,
-            MaxPositiveThingsVersion = ArticleGetPositiveThingsQuery.CURRENT_POSITIVE_THINGS_VERSION - 1,
+            MaxPositiveThingsVersion = AiGetPositiveThingsQuery.VERSION - 1,
             Offset = 0,
             PageSize = 1
         };
@@ -67,7 +69,7 @@ public class PositiveThingsWorker : BackgroundService
         if (results.Items.Count > 0)
         {
             var article = results.Items.First();
-            var positiveThings = await _sender.Send(new ArticleGetPositiveThingsQuery { Article = article }, _cancellationToken);
+            var positiveThings = await _sender.Send(new AiGetPositiveThingsQuery { Context = article.GetContextForAnalysis() }, _cancellationToken);
 
             var scope = _scopeFactory.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<NewsAnalyzerContext>();
@@ -75,20 +77,20 @@ public class PositiveThingsWorker : BackgroundService
             var analysis = context.Analyses.Where(a => a.Id == article.Id).FirstOrDefault();
             if (analysis != null)
             {
-                analysis.PositiveThingsVersion = ArticleGetPositiveThingsQuery.CURRENT_POSITIVE_THINGS_VERSION;
+                analysis.PositiveThingsVersion = AiGetPositiveThingsQuery.VERSION;
                 analysis.PositiveThings = positiveThings;
             }
             else
             {
-                context.Analyses.Add(new ArticleAnalysisRow
+                context.Analyses.Add(new AnalysisRow
                 {
                     Id = article.Id,
-                    PositiveThingsVersion = ArticleGetPositiveThingsQuery.CURRENT_POSITIVE_THINGS_VERSION,
+                    PositiveThingsVersion = AiGetPositiveThingsQuery.VERSION,
                     PositiveThings = positiveThings,
                 });
             }
             await context.SaveChangesAsync(_cancellationToken);
-            await _sender.Send(new ArticleUpdatePositiveThingsCommand { Id = article.Id, PositiveThingsVersion = ArticleGetPositiveThingsQuery.CURRENT_POSITIVE_THINGS_VERSION, PositiveThings = positiveThings }, _cancellationToken);
+            await _sender.Send(new ArticleUpdatePositiveThingsCommand { Id = article.Id, PositiveThingsVersion = AiGetPositiveThingsQuery.VERSION, PositiveThings = positiveThings }, _cancellationToken);
         }
     }
 }

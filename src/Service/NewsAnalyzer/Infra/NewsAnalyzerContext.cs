@@ -1,48 +1,28 @@
-﻿
-namespace AJE.Service.NewsAnalyzer.Infra;
+﻿namespace AJE.Service.NewsAnalyzer.Infra;
 
-[Table("sentimentpolarities")]
-public class ArticleSentimentPolarityRow
+[Table("analysis")]
+public class AnalysisRow
 {
     [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    [JsonPropertyName("serial")]
-    [Column("serial")]
-    public int Serial { get; set; }
-
-    [JsonPropertyName("source")]
-    [Column("source")]
-    public string Source { get; set; } = string.Empty;
+    [Column("id")]
+    public required Guid Id { get; set; }
 
     [JsonPropertyName("polarity")]
     [Column("polarity")]
     public Polarity Polarity { get; set; }
 
-    [JsonPropertyName("polarityVersion")]
     [Column("polarityversion")]
     public int PolarityVersion { get; set; } = 0;
-}
 
-[Table("analyses")]
-public class ArticleAnalysisRow
-{
-    [Key]
-    [Column("id")]
-    public Guid Id { get; set; } = Guid.Empty;
-
-    [JsonPropertyName("summaryVersion")]
     [Column("summaryversion")]
     public int SummaryVersion { get; set; } = 0;
 
-    [JsonPropertyName("summary")]
     [Column("summary")]
     public string Summary { get; set; } = string.Empty;
 
-    [JsonPropertyName("positiveThingsVersion")]
     [Column("positivethingsversion")]
     public int PositiveThingsVersion { get; set; } = 0;
 
-    [JsonPropertyName("positiveThings")]
     [Column("positivethings")]
     public string PositiveThings { get; set; } = string.Empty;
 }
@@ -54,6 +34,5 @@ public class NewsAnalyzerContext : DbContext
     {
     }
 
-    public DbSet<ArticleSentimentPolarityRow> SentimentPolarities { get; set; } = null!;
-    public DbSet<ArticleAnalysisRow> Analyses { get; set; } = null!;
+    public DbSet<AnalysisRow> Analyses { get; set; } = null!;
 }

@@ -2,6 +2,7 @@
 
 public class SummaryChatML : ChatMLCreator
 {
+    public const int VERSION = 1;
     public const string EntityName = "assistant";
 
     public static readonly string[] SystemInstructions = [

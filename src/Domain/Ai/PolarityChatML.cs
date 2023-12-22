@@ -7,6 +7,7 @@ public interface IPolarity : IPromptCreator
 
 public class PolarityChatML : ChatMLCreator, IPolarity
 {
+    public const int VERSION = 1;
     public const string EntityName = "assistant";
 
     public static readonly string[] SystemInstructions = {

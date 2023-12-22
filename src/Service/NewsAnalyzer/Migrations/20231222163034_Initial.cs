@@ -6,22 +6,26 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace AJE.Service.NewsAnalyzer.Migrations
 {
     /// <inheritdoc />
-    public partial class Summary : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "analyses",
+                name: "analysis",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
+                    polarity = table.Column<int>(type: "integer", nullable: false),
+                    polarityversion = table.Column<int>(type: "integer", nullable: false),
                     summaryversion = table.Column<int>(type: "integer", nullable: false),
-                    summary = table.Column<string>(type: "text", nullable: false)
+                    summary = table.Column<string>(type: "text", nullable: false),
+                    positivethingsversion = table.Column<int>(type: "integer", nullable: false),
+                    positivethings = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_analyses", x => x.id);
+                    table.PrimaryKey("PK_analysis", x => x.id);
                 });
         }
 
@@ -29,7 +33,7 @@ namespace AJE.Service.NewsAnalyzer.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "analyses");
+                name: "analysis");
         }
     }
 }

@@ -22,6 +22,8 @@ public class LibreTranslate : ITranslate
 
     public async Task<TranslateResponse> TranslateAsync(TranslateRequest request, CancellationToken cancellationToken)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(request.Text);
+
         // create request
         using var httpRequest = new HttpRequestMessage(HttpMethod.Post, new Uri(_serverUri, "translate"));
         httpRequest.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -38,7 +40,8 @@ public class LibreTranslate : ITranslate
             throw new TranslateException("Failed to translate text.");
         }
         var response = JsonSerializer.Deserialize<TranslateResponse>(json, _jsonSerializerOptions);
-        if (response == null)
+        // When server missing language packs it still returns 200 OK with empty response :(
+        if (response == null || string.IsNullOrEmpty(response.TranslatedText))
         {
             _logger.LogError("Failed to translate text, deserialization failed. Response:{json}", json);
             throw new TranslateException("Failed to translate text.");

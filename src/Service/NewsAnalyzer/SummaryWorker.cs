@@ -15,8 +15,6 @@ public class SummaryWorker : BackgroundService
 
     private CancellationToken _cancellationToken;
 
-    public ArticleCategory? NEWS { get; private set; }
-
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _cancellationToken = stoppingToken;
@@ -30,19 +28,19 @@ public class SummaryWorker : BackgroundService
         }
     }
 
-    // reloading analysis data from db to Redis
     private async Task ReloadAsync()
     {
         using var scope = _scopeFactory.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<NewsAnalyzerContext>();
-        var rows = context.Analyses.AsAsyncEnumerable();
+        var rows = context.Analyses
+            .Where(x => x.SummaryVersion == AiGetSummaryQuery.VERSION)
+            .AsAsyncEnumerable();
 
         await foreach (var row in rows)
         {
             if (_cancellationToken.IsCancellationRequested)
                 break;
 
-            // update article with saved polarity if they are missing
             var current = await _sender.Send(new ArticleGetByIdQuery { Id = row.Id }, _cancellationToken);
             if (current != null && current.Analysis.SummaryVersion < row.SummaryVersion)
             {
@@ -51,7 +49,6 @@ public class SummaryWorker : BackgroundService
         }
     }
 
-    // analyze loop
     private async Task LoopAsync()
     {
         var query = new ArticleGetManyQuery
@@ -59,16 +56,15 @@ public class SummaryWorker : BackgroundService
             Category = ArticleCategory.NEWS,
             IsLiveNews = false,
             IsValidForAnalysis = true,
-            MaxSummaryVersion = ArticleGetSummaryQuery.CURRENT_SUMMARY_VERSION - 1,
+            MaxSummaryVersion = AiGetSummaryQuery.VERSION - 1,
             Offset = 0,
             PageSize = 1
         };
         var results = await _sender.Send(query, _cancellationToken);
-
         if (results.Items.Count > 0)
         {
             var article = results.Items.First();
-            var summary = await _sender.Send(new ArticleGetSummaryQuery { Article = article }, _cancellationToken);
+            var summary = await _sender.Send(new AiGetSummaryQuery { Context = article.GetContextForAnalysis() }, _cancellationToken);
 
             var scope = _scopeFactory.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<NewsAnalyzerContext>();
@@ -76,20 +72,20 @@ public class SummaryWorker : BackgroundService
             var analysis = context.Analyses.Where(a => a.Id == article.Id).FirstOrDefault();
             if (analysis != null)
             {
-                analysis.SummaryVersion = ArticleGetSummaryQuery.CURRENT_SUMMARY_VERSION;
+                analysis.SummaryVersion = AiGetSummaryQuery.VERSION;
                 analysis.Summary = summary;
             }
             else
             {
-                context.Analyses.Add(new ArticleAnalysisRow
+                context.Analyses.Add(new AnalysisRow
                 {
                     Id = article.Id,
-                    SummaryVersion = ArticleGetSummaryQuery.CURRENT_SUMMARY_VERSION,
+                    SummaryVersion = AiGetSummaryQuery.VERSION,
                     Summary = summary
                 });
             }
             await context.SaveChangesAsync(_cancellationToken);
-            await _sender.Send(new ArticleUpdateSummaryCommand { Id = article.Id, SummaryVersion = ArticleGetSummaryQuery.CURRENT_SUMMARY_VERSION, Summary = summary }, _cancellationToken);
+            await _sender.Send(new ArticleUpdateSummaryCommand { Id = article.Id, SummaryVersion = AiGetSummaryQuery.VERSION, Summary = summary }, _cancellationToken);
         }
     }
 }

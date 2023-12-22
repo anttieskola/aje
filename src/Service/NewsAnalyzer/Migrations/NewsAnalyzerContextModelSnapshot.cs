@@ -22,49 +22,12 @@ namespace AJE.Service.NewsAnalyzer.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("AJE.Service.NewsAnalyzer.Infra.ArticleAnalysisRow", b =>
+            modelBuilder.Entity("AJE.Service.NewsAnalyzer.Infra.AnalysisRow", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
-
-                    b.Property<string>("PositiveThings")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("positivethings")
-                        .HasAnnotation("Relational:JsonPropertyName", "positiveThings");
-
-                    b.Property<int>("PositiveThingsVersion")
-                        .HasColumnType("integer")
-                        .HasColumnName("positivethingsversion")
-                        .HasAnnotation("Relational:JsonPropertyName", "positiveThingsVersion");
-
-                    b.Property<string>("Summary")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("summary")
-                        .HasAnnotation("Relational:JsonPropertyName", "summary");
-
-                    b.Property<int>("SummaryVersion")
-                        .HasColumnType("integer")
-                        .HasColumnName("summaryversion")
-                        .HasAnnotation("Relational:JsonPropertyName", "summaryVersion");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("analyses");
-                });
-
-            modelBuilder.Entity("AJE.Service.NewsAnalyzer.Infra.ArticleSentimentPolarityRow", b =>
-                {
-                    b.Property<int>("Serial")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("serial")
-                        .HasAnnotation("Relational:JsonPropertyName", "serial");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Serial"));
 
                     b.Property<int>("Polarity")
                         .HasColumnType("integer")
@@ -73,18 +36,29 @@ namespace AJE.Service.NewsAnalyzer.Migrations
 
                     b.Property<int>("PolarityVersion")
                         .HasColumnType("integer")
-                        .HasColumnName("polarityversion")
-                        .HasAnnotation("Relational:JsonPropertyName", "polarityVersion");
+                        .HasColumnName("polarityversion");
 
-                    b.Property<string>("Source")
+                    b.Property<string>("PositiveThings")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("source")
-                        .HasAnnotation("Relational:JsonPropertyName", "source");
+                        .HasColumnName("positivethings");
 
-                    b.HasKey("Serial");
+                    b.Property<int>("PositiveThingsVersion")
+                        .HasColumnType("integer")
+                        .HasColumnName("positivethingsversion");
 
-                    b.ToTable("sentimentpolarities");
+                    b.Property<string>("Summary")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("summary");
+
+                    b.Property<int>("SummaryVersion")
+                        .HasColumnType("integer")
+                        .HasColumnName("summaryversion");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("analysis");
                 });
 #pragma warning restore 612, 618
         }

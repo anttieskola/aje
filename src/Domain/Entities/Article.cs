@@ -49,12 +49,6 @@ public record Article : ArticleHeader
     public int PolarityVersion { get; set; } = 0;
 
     /// <summary>
-    /// Number of tokens in the article, -1 means it has not been calculated yet
-    /// </summary>
-    [JsonPropertyName("tokenCount")]
-    public int TokenCount { get; set; } = -1;
-
-    /// <summary>
     /// Is valid article for analysis
     /// </summary>
     [JsonPropertyName("isValidForAnalysis")]
