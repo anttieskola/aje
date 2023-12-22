@@ -24,6 +24,6 @@ public partial class YlePersonGatherer : IPersonGatherer
         return Task.FromResult(persons);
     }
 
-    [GeneratedRegex(@"\*\*(.*?)\*\*")]
+    [GeneratedRegex(@"(?<!\*)\*\*([A-Za-z 0-9\.]*)\*\*(?!\*)")]
     private static partial Regex PersonPattern();
 }
