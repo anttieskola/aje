@@ -33,7 +33,6 @@ public class PrepperWorker : BackgroundService
 
     private async Task<Article?> FindArticleToPrep()
     {
-        var offset = 0;
         while (true)
         {
             var query = new ArticleGetManyQuery
@@ -42,7 +41,7 @@ public class PrepperWorker : BackgroundService
                 IsLiveNews = false,
                 IsValidForAnalysis = false,
                 Languages = ["en", "fi", "sv"],
-                Offset = offset,
+                Offset = 0,
                 PageSize = 1,
             };
             var result = await _sender.Send(query, _stoppingToken);
@@ -50,9 +49,8 @@ public class PrepperWorker : BackgroundService
             // end of articles
             if (result.Items.Count == 0)
                 return null;
-
-            // try next one
-            offset++;
+            else
+                return result.Items.First();
         }
     }
 
