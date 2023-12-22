@@ -1,4 +1,6 @@
 using AJE.Infra.Ai;
+using AJE.Infra.FileSystem;
+using AJE.Infra.Translate;
 
 namespace AJE.Test.Integration;
 public static class TestConstants
@@ -25,12 +27,34 @@ public static class TestConstants
                     {
                         Host = LlamaAddress,
                         ResourceName = "integration-test-llama",
-                        MaxTokenCount = 8096,
-                        TimeoutInSeconds = 30,
+                        MaxTokenCount = 32768,
+                        TimeoutInSeconds = 60,
                     }
                 ],
                 LogFolder = "/tmp",
 
+            };
+        }
+    }
+    public static TranslateConfiguration TranslateConfiguration
+    {
+        get
+        {
+            return new TranslateConfiguration
+            {
+                Host = "http://127.0.0.1:5888",
+                TimeoutInSeconds = 60,
+            };
+        }
+    }
+
+    public static FileSystemConfiguration FileSystemConfiguration
+    {
+        get
+        {
+            return new FileSystemConfiguration
+            {
+                RootFolder = "/var/aje",
             };
         }
     }

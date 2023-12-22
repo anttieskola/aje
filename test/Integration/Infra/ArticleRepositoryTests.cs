@@ -21,6 +21,23 @@ public class ArticleRepositoryTests : IClassFixture<RedisFixture>
         _redisFixture = fixture;
     }
 
+    [Fact]
+    private async Task SearchMultipleLanguages()
+    {
+        var repository = new ArticleRepository(new Mock<ILogger<ArticleRepository>>().Object, _redisFixture.Connection);
+        var result = await repository.GetAsync(new ArticleGetManyQuery
+        {
+            Category = ArticleCategory.NEWS,
+            IsLiveNews = false,
+            IsValidForAnalysis = false,
+            Languages = ["en", "fi", "sv"],
+            Offset = 0,
+            PageSize = 10
+        });
+        Assert.NotNull(result);
+        Assert.NotEmpty(result.Items);
+    }
+
     private readonly Guid _idForOk = new("00000000-0000-0000-0000-000000000010");
     private Article TestArticleForOk()
     {
@@ -35,7 +52,7 @@ public class ArticleRepositoryTests : IClassFixture<RedisFixture>
             Content = TestArticle.Content,
             Polarity = Polarity.Positive,
             PolarityVersion = 1,
-            IsValidated = true,
+            IsValidForAnalysis = true,
         };
     }
     [Fact]
@@ -76,7 +93,7 @@ public class ArticleRepositoryTests : IClassFixture<RedisFixture>
             Content = TestArticle.Content,
             Polarity = Polarity.Positive,
             PolarityVersion = 1,
-            IsValidated = false,
+            IsValidForAnalysis = false,
         };
     }
     [Fact]
@@ -97,7 +114,7 @@ public class ArticleRepositoryTests : IClassFixture<RedisFixture>
         var result = await repository.GetAsync(new ArticleGetManyQuery
         {
             Category = ArticleCategory.BOGUS,
-            IsValidated = false,
+            IsValidForAnalysis = false,
             Offset = 0,
             PageSize = 100,
         });
@@ -106,30 +123,12 @@ public class ArticleRepositoryTests : IClassFixture<RedisFixture>
         var articleCopy = result.Items.Single(i => i.Id == _idForIsValidated);
         Assert.True(article == articleCopy);
 
-        await repository.UpdateIsValidatedAsync(_idForIsValidated, true);
-        result = await repository.GetAsync(new ArticleGetManyQuery
-        {
-            Category = ArticleCategory.BOGUS,
-            IsValidated = false,
-            Offset = 0,
-            PageSize = 100,
-        });
-        Assert.NotNull(result);
-        var notExistingCopy = result.Items.SingleOrDefault(i => i.Id == _idForIsValidated);
-        Assert.Null(notExistingCopy);
-
         // polarity update
         await repository.UpdatePolarityAsync(_idForIsValidated, 2, Polarity.Negative);
         article = await repository.GetAsync(_idForIsValidated);
         Assert.NotNull(article);
         Assert.Equal(2, article.PolarityVersion);
         Assert.Equal(Polarity.Negative, article.Polarity);
-
-        // token count update
-        await repository.UpdateTokenCountAsync(_idForIsValidated, 100);
-        article = await repository.GetAsync(_idForIsValidated);
-        Assert.NotNull(article);
-        Assert.Equal(100, article.TokenCount);
 
         // summary update
         await repository.UpdateSummaryAsync(_idForIsValidated, 1, "summary");

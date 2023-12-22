@@ -5,9 +5,11 @@ global using AJE.Domain.Enums;
 global using AJE.Domain.Exceptions;
 global using AJE.Domain.Extensions;
 global using AJE.Domain.Events;
+global using AJE.Domain.Translate;
 global using AJE.Domain.Queries;
 global using Microsoft.Extensions.DependencyInjection;
 global using Polly;
+global using System.Collections.Concurrent;
 global using System.ComponentModel.DataAnnotations;
 global using System.Globalization;
 global using System.Diagnostics.CodeAnalysis;
@@ -18,6 +20,8 @@ global using System.Reflection;
 global using System.Text;
 global using System.Text.Json.Nodes;
 global using System.Text.Json.Serialization;
+global using System.Text.RegularExpressions;
 global using System.Xml.Linq;
 // MediatR idea makes architecture possible
 global using MediatR;
+

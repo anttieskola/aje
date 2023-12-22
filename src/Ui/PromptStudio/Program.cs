@@ -11,13 +11,20 @@ var config = new ConfigurationBuilder()
 
 var redisConfiguration = config.GetRedisConfiguration();
 
-builder.Services.AddDummyFileSystem();
-
 builder.Services.AddDomain();
 builder.Services.AddAi(config);
+builder.Services.AddFileSystem(config);
 builder.Services.AddRedis(config);
+builder.Services.AddTranslate(config);
 builder.Services.AddRazorPages();
-builder.Services.AddServerSideBlazor();
+builder.Services.AddServerSideBlazor()
+    .AddHubOptions(options =>
+    {
+        // There is a limit how much data can be sent, this affects binding
+        // textarea to a string property, if lenght is more than 32k? it crashes
+        // https://github.com/dotnet/aspnetcore/issues/5623
+        options.MaximumReceiveMessageSize = 1024 * 1024; // 1MB
+    });
 builder.Services.AddMemoryCache();
 builder.Services.AddSignalR()
     .AddStackExchangeRedis(redisConfiguration.Host, options =>

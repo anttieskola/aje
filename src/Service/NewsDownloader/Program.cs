@@ -11,9 +11,10 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddSingleton(yleConfig);
 
         services.AddDomain();
+        services.AddAi(config);
         services.AddRedis(config);
         services.AddFileSystem(config);
-        services.AddDummyAi();
+        services.AddTranslate(config);
         services.AddHostedService<YleWorker>();
     })
     .ConfigureLogging(logging =>

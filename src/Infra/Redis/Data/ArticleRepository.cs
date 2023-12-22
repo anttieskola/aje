@@ -64,26 +64,6 @@ public class ArticleRepository : IArticleRepository
             throw new DataException($"failed to set $.polarity on article {redisId}");
     }
 
-    public async Task UpdateIsValidatedAsync(Guid id, bool isValidated)
-    {
-        var db = _connection.GetDatabase();
-        var redisId = _index.RedisId(id.ToString());
-        var isValidatedJson = JsonSerializer.Serialize(isValidated);
-        var setResult = await db.ExecuteAsync("JSON.SET", redisId, "$.isValidated", isValidatedJson);
-        if (setResult.ToString() != "OK")
-            throw new DataException($"failed to set IsValidated on article {redisId}");
-    }
-
-    public async Task UpdateTokenCountAsync(Guid id, int tokenCount)
-    {
-        var db = _connection.GetDatabase();
-        var redisId = _index.RedisId(id.ToString());
-        var tokenCountJson = JsonSerializer.Serialize(tokenCount);
-        var setResult = await db.ExecuteAsync("JSON.SET", redisId, "$.tokenCount", tokenCountJson);
-        if (setResult.ToString() != "OK")
-            throw new DataException($"failed to set IsValidated on article {redisId}");
-    }
-
     public async Task UpdateSummaryAsync(Guid id, int summaryVersion, string summary)
     {
         var db = _connection.GetDatabase();
@@ -140,14 +120,14 @@ public class ArticleRepository : IArticleRepository
             builder.Conditions.Add(new QueryCondition { Expression = $"@category:[{(int)query.Category} {(int)query.Category}]" });
         if (query.Language != null)
             builder.Conditions.Add(new QueryCondition { Expression = $"@language:{{{query.Language}}}" });
+        if (query.Languages != null)
+            builder.Conditions.Add(new QueryCondition { Expression = $"@language:{{{string.Join("|", query.Languages)}}}" });
         if (query.Polarity != null)
             builder.Conditions.Add(new QueryCondition { Expression = $"@polarity:[{(int)query.Polarity} {(int)query.Polarity}]" });
         if (query.MaxPolarityVersion != null)
             builder.Conditions.Add(new QueryCondition { Expression = $"@polarityVersion:[-inf {query.MaxPolarityVersion}]" });
-        if (query.IsValidated != null)
-            builder.Conditions.Add(new QueryCondition { Expression = $"@isValidated:{{{query.IsValidated}}}" });
-        if (query.MaxTokenCount != null)
-            builder.Conditions.Add(new QueryCondition { Expression = $"@tokenCount:[-inf {query.MaxTokenCount}]" });
+        if (query.IsValidForAnalysis != null)
+            builder.Conditions.Add(new QueryCondition { Expression = $"@isValidForAnalysis:{{{query.IsValidForAnalysis}}}" });
         if (query.IsLiveNews != null)
             builder.Conditions.Add(new QueryCondition { Expression = $"@isLiveNews:{{{query.IsLiveNews}}}" });
         if (query.MaxSummaryVersion != null)

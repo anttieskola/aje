@@ -3,7 +3,7 @@ namespace AJE.Infra.Redis.Indexes;
 
 public class ArticleIndex : IRedisIndex
 {
-    public int Version => 4;
+    public int Version => 6;
 
     public string Name => "idx:article";
 
@@ -23,8 +23,7 @@ public class ArticleIndex : IRedisIndex
         + "$.language AS language TAG" + " "
         + "$.polarity AS polarity NUMERIC" + " "
         + "$.polarityVersion AS polarityVersion NUMERIC" + " "
-        + "$.isValidated AS isValidated TAG" + " "
-        + "$.tokenCount AS tokenCount NUMERIC" + " "
+        + "$.isValidForAnalysis AS isValidForAnalysis TAG" + " "
         // analysis
         + "$.analysis.summaryVersion AS summaryVersion NUMERIC" + " "
         + "$.analysis.positiveThingsVersion AS positiveThingsVersion NUMERIC" + " "
@@ -41,13 +40,7 @@ public class ArticleIndex : IRedisIndex
         + "$.analysis.criminalityScoreVersion AS criminalityScoreVersion NUMERIC" + " "
         + "$.analysis.biasWesternScoreVersion AS biasWesternScoreVersion NUMERIC" + " "
         + "$.analysis.biasEasternScoreVersion AS biasEasternScoreVersion NUMERIC" + " "
-        + "$.analysis.religionScoreVersion AS religionScoreVersion NUMERIC" + " "
-        + "$.analysis.christianityScoreVersion AS christianityScoreVersion NUMERIC" + " "
-        + "$.analysis.islamScoreVersion AS islamScoreVersion NUMERIC" + " "
-        + "$.analysis.hinduismScoreVersion AS hinduismScoreVersion NUMERIC" + " "
-        + "$.analysis.buddhismScoreVersion AS buddhismScoreVersion NUMERIC" + " "
-        + "$.analysis.judaismScoreVersion AS judaismScoreVersion NUMERIC";
-
+        + "$.analysis.religionScoreVersion AS religionScoreVersion NUMERIC";
 
     public RedisChannel Channel =>
         new("articles", RedisChannel.PatternMode.Auto);

@@ -1,10 +1,11 @@
 ﻿global using AJE.Ui.Public;
 global using AJE.Ui.Public.Hubs;
-global using AJE.Infra.DummyAi;
 global using AJE.Domain;
 global using AJE.Domain.Entities;
+global using AJE.Infra.Ai;
 global using AJE.Infra.Redis;
-global using AJE.Infra.DummyFileSystem;
+global using AJE.Infra.FileSystem;
+global using AJE.Infra.Translate;
 global using System;
 global using StackExchange.Redis;
 global using System.Text.Json;

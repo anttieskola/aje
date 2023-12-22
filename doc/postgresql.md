@@ -131,21 +131,10 @@ dotnet ef migrations add InitialCreate --context NewsAnalyzerContext
 # Should create Migrations folder and migration script
 ```
 
-```bash
-dotnet ef migrations add InitialCreate --context NewsFixerContext
-
-# Should create Migrations folder and migration script
-```
-
 # Backups
 ```bash
 #!/bin/bash
 pg_dump -U antti -F t newsanalyzer | bzip2 > db_newsanalyzer.tar.bz2
-```
-
-```bash
-#!/bin/bash
-pg_dump -U antti -F t newsfixes | bzip2 > db_newsfixes.tar.bz2
 ```
 
 # Restore
@@ -160,17 +149,4 @@ sudo -u postgres createdb -O antti newsanalyzer
 
 # restore
 bzip2 -d -c db_newsanalyzer.tar.bz2 | pg_restore -U antti -d newsanalyzer
-```
-
-```bash
-#!/bin/bash
-
-# drop (EF migration history fails currently with backups so have to remake it)
-sudo -u postgres dropdb newsfixer
-
-# create
-sudo -u postgres createdb -O antti newsfixer
-
-# restore
-bzip2 -d -c db_newsfixer.tar.bz2 | pg_restore -U antti -d newsfixer
 ```

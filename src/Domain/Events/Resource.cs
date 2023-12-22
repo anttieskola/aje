@@ -13,8 +13,8 @@ public record ResourceEvent
     [JsonPropertyName("isTest")]
     public bool IsTest { get; set; } = false;
 
-    [JsonPropertyName("resourceIdentifier")]
-    public required string ResourceIdentifier { get; init; }
+    [JsonPropertyName("resourceName")]
+    public required string ResourceName { get; init; }
 }
 
 public record ResourceRequestEvent : ResourceEvent

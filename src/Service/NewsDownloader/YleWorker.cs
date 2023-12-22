@@ -46,42 +46,16 @@ public class YleWorker : BackgroundService
         }
     }
 
-    private async Task AddArticle(Uri link, string html)
-    {
-        var article = await _sender.Send(new YleHtmlParseQuery { Html = html }, _stoppingToken);
-        article.Id = await _sender.Send(new GuidGetQuery { Category = _guidCategory, UniqueString = link.ToString() }, _stoppingToken);
-        await _sender.Send(new ArticleAddCommand { Article = article }, _stoppingToken);
-    }
-
     private async Task Reload()
     {
         var links = await _sender.Send(new YleListQuery { }, _stoppingToken);
         foreach (var link in links)
         {
-            if (!await _sender.Send(new ArticleExistsQuery { Source = link.ToString() }, _stoppingToken))
-            {
-                var html = await _sender.Send(new YleGetQuery { Uri = link }, _stoppingToken);
-                if (await TestHtmlParse(html))
-                {
-                    await AddArticle(link, html);
-                }
-                else
-                {
-                    // file content is invalid, downloading again to see if we get valid article
-                    html = await _sender.Send(new YleHttpQuery { Uri = link }, _stoppingToken);
-                    if (await TestHtmlParse(html))
-                    {
-                        // save valid article file
-                        _logger.LogInformation("Article file {} fixed with valid content", link.ToString());
-                        await _sender.Send(new YleAddCommand { Uri = link, Html = html }, _stoppingToken);
-                        await AddArticle(link, html);
-                    }
-                    else
-                    {
-                        _logger.LogWarning("Article file {} could not be fixed", link.ToString());
-                    }
-                }
-            }
+            // parse -> publish
+            var html = await _sender.Send(new YleGetQuery { Uri = link }, _stoppingToken);
+            var article = await _sender.Send(new YleHtmlParseQuery { Html = html }, _stoppingToken);
+            article.Id = await _sender.Send(new GuidGetQuery { Category = _guidCategory, UniqueString = link.ToString() }, _stoppingToken);
+            await HandleArticlePublish(article);
         }
     }
 
@@ -107,11 +81,16 @@ public class YleWorker : BackgroundService
     {
         try
         {
-            if (!await _sender.Send(new ArticleExistsQuery { Source = link.ToString() }, _stoppingToken))
+            if (!await _sender.Send(new YleExistsQuery { Uri = link }, _stoppingToken))
             {
+                // save to repo
                 var html = await _sender.Send(new YleHttpQuery { Uri = link });
                 await _sender.Send(new YleAddCommand { Uri = link, Html = html }, _stoppingToken);
-                await AddArticle(link, html);
+
+                // parse -> publish
+                var article = await _sender.Send(new YleHtmlParseQuery { Html = html }, _stoppingToken);
+                article.Id = await _sender.Send(new GuidGetQuery { Category = _guidCategory, UniqueString = link.ToString() }, _stoppingToken);
+                await HandleArticlePublish(article);
             }
         }
         catch (Exception e)
@@ -120,16 +99,11 @@ public class YleWorker : BackgroundService
         }
     }
 
-    public async Task<bool> TestHtmlParse(string html)
+    private async Task HandleArticlePublish(Article article)
     {
-        try
-        {
-            await _sender.Send(new YleHtmlParseQuery { Html = html }, _stoppingToken);
-            return true;
-        }
-        catch (ParsingException)
-        {
-            return false;
-        }
+        if (await _sender.Send(new ArticleExistsQuery { Source = article.Source }, _stoppingToken))
+            return;
+
+        await _sender.Send(new ArticleAddCommand { Article = article }, _stoppingToken);
     }
 }

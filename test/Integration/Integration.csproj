@@ -35,6 +35,7 @@
     <ProjectReference Include="..\..\src\Infra\Ai\Ai.csproj" />
     <ProjectReference Include="..\..\src\Infra\Redis\Redis.csproj" />
     <ProjectReference Include="..\..\src\Service\Manager\Manager.csproj" />
+    <ProjectReference Include="..\..\src\Infra\Translate\Translate.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,9 @@
+﻿global using AJE.Domain.Entities;
+global using AJE.Domain.Exceptions;
+global using AJE.Domain.Translate;
+global using Microsoft.Extensions.Configuration;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Logging;
+global using System.Text.Json;
+global using System.Net.Http.Headers;
+global using System.Text;

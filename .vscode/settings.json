@@ -1,6 +1,7 @@
 {
     "files.exclude": {
-        "**/llama.cpp": true
+        "**/llama.cpp": true,
+        "**/LibreTranslate": true
     },
     "sqltools.connections": [
         {
@@ -14,20 +15,9 @@
             "server": "/run/postgresql",
             "username": "antti",
             "password": ""
-        },
-        {
-            "database": "newsfixer",
-            "driver": "PostgreSQL",
-            "name": "newsfixer@localhost",
-            "pgOptions": {
-                "ssl": false
-            },
-            "previewLimit": 1000,
-            "server": "/run/postgresql",
-            "username": "antti",
-            "password": ""
         }
     ],
+    "git.autoRepositoryDetection": "openEditors",
     "sonarlint.output.showAnalyzerLogs": true,
     "sonarlint.output.showVerboseLogs": true,
     "sonarlint.trace.server": "verbose"

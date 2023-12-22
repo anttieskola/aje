@@ -1,8 +1,12 @@
 global using AJE.Service.Manager;
+global using AJE.Domain.Entities;
+global using AJE.Domain.Exceptions;
 global using AJE.Domain;
 global using AJE.Domain.Events;
 global using AJE.Infra.Redis;
-global using AJE.Infra.DummyFileSystem;
+global using AJE.Infra.FileSystem;
+global using AJE.Infra.Translate;
 global using AJE.Infra.Ai;
+global using System.Collections.Concurrent;
 global using System.Text.Json;
 global using StackExchange.Redis;

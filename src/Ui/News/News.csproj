@@ -18,8 +18,9 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Domain\Domain.csproj" />
     <ProjectReference Include="..\..\Infra\Redis\Redis.csproj" />
-    <ProjectReference Include="..\..\Infra\DummyAi\DummyAi.csproj" />
-    <ProjectReference Include="..\..\Infra\DummyFileSystem\DummyFileSystem.csproj" />
+    <ProjectReference Include="..\..\Infra\Ai\Ai.csproj" />
+    <ProjectReference Include="..\..\Infra\FileSystem\FileSystem.csproj" />
+    <ProjectReference Include="..\..\Infra\Translate\Translate.csproj" />
   </ItemGroup>
 
   <ItemGroup>
