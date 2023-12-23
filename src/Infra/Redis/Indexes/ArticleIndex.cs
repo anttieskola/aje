@@ -3,7 +3,7 @@ namespace AJE.Infra.Redis.Indexes;
 
 public class ArticleIndex : IRedisIndex
 {
-    public int Version => 6;
+    public int Version => 7;
 
     public string Name => "idx:article";
 
@@ -27,6 +27,9 @@ public class ArticleIndex : IRedisIndex
         // analysis
         + "$.analysis.summaryVersion AS summaryVersion NUMERIC" + " "
         + "$.analysis.positiveThingsVersion AS positiveThingsVersion NUMERIC" + " "
+        + "$.analysis.locationsVersion AS locationsVersion NUMERIC" + " "
+        + "$.analysis.corporationsVersion AS corporationsVersion NUMERIC" + " "
+        + "$.analysis.organizationsVersion AS organizationsVersion NUMERIC" + " "
         + "$.analysis.sentimentScoreVersion AS sentimentScoreVersion NUMERIC" + " "
         + "$.analysis.sentimentScore AS sentimentScore NUMERIC" + " "
         + "$.analysis.newsType AS newsType NUMERIC" + " "

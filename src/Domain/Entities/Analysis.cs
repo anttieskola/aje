@@ -17,6 +17,26 @@ public record Analysis
     [JsonPropertyName("positiveThings")]
     public string PositiveThings { get; set; } = string.Empty;
 
+    [JsonPropertyName("locationsVersion")]
+    public int LocationsVersion { get; set; } = 0;
+
+    [JsonPropertyName("locations")]
+    public EquatableList<Location> Locations { get; set; } = [];
+
+    [JsonPropertyName("corporationsVersion")]
+    public int CorporationsVersion { get; set; } = 0;
+
+    [JsonPropertyName("corporations")]
+    public EquatableList<Corporation> Corporations { get; set; } = [];
+
+    [JsonPropertyName("organizationsVersion")]
+    public int OrganizationVersion { get; set; } = 0;
+
+    [JsonPropertyName("organizations")]
+    public EquatableList<Organization> Organizations { get; set; } = [];
+
+    #region stupid ideas
+
     [JsonPropertyName("sentimentScoreVersion")]
     public int SentimentScoreVersion { get; set; } = 0;
 
@@ -124,4 +144,6 @@ public record Analysis
 
     [JsonPropertyName("religionScoreReasoning")]
     public string ReligionScoreReasoning { get; set; } = string.Empty;
+
+    #endregion stupid ideas
 }

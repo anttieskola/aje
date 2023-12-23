@@ -13,7 +13,7 @@ public class LlamaQueueManager : BackgroundService
     private readonly LlamaConfiguration _configuration;
     private readonly RedisChannel _channel;
     private readonly bool _isTest;
-    private int _cleanupAfterMinutes = 3;
+    private int _cleanupAfterMinutes = 5;
 
     public LlamaQueueManager(
         ILogger<LlamaQueueManager> logger,
@@ -131,16 +131,15 @@ public class LlamaQueueManager : BackgroundService
             var releaseEvent = resource.Value.Cleanup(_cleanupAfterMinutes);
             if (releaseEvent != null)
             {
-                _cleanupAfterMinutes += 2;
+                _cleanupAfterMinutes += 3;
                 Publish(releaseEvent);
             }
             else
             {
-                _cleanupAfterMinutes = 3;
+                _cleanupAfterMinutes = 5;
             }
         }
     }
-
     private void ActivateIfFree()
     {
         foreach (var resource in _resources)
