@@ -25,6 +25,25 @@ public class AnalysisRow
 
     [Column("positivethings")]
     public string PositiveThings { get; set; } = string.Empty;
+
+    [Column("locationsversion")]
+    public int LocationsVersion { get; set; } = 0;
+
+    [Column("locations")]
+    public string Locations { get; set; } = string.Empty;
+
+    [Column("corporationsversion")]
+    public int CorporationsVersion { get; set; } = 0;
+
+    [Column("corporations")]
+    public string Corporations { get; set; } = string.Empty;
+
+    [Column("organizationsversion")]
+    public int OrganizationsVersion { get; set; } = 0;
+
+    [Column("organizations")]
+    public string Organizations { get; set; } = string.Empty;
+
 }
 
 public class NewsAnalyzerContext : DbContext

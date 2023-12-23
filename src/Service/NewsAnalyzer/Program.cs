@@ -18,6 +18,9 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddHostedService<SentimentPolarityWorker>();
         services.AddHostedService<SummaryWorker>();
         services.AddHostedService<PositiveThingsWorker>();
+        services.AddHostedService<LocationsWorker>();
+        services.AddHostedService<OrganizationsWorker>();
+        services.AddHostedService<CorporationsWorker>();
     })
     .ConfigureLogging(logging =>
     {

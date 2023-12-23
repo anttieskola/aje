@@ -6,11 +6,7 @@ public record ArticlePrepForAnalysisQuery : IRequest<Article>
 }
 
 /// <summary>
-/// Prepares article for analysis
-/// TODO:
-/// - Location identification from context
-/// - Persons data
-/// - Links data
+/// Prepares article for analysis (no AI use yet here)
 /// </summary>
 public class ArticlePrepForAnalysisHandler : IRequestHandler<ArticlePrepForAnalysisQuery, Article>
 {
@@ -20,22 +16,16 @@ public class ArticlePrepForAnalysisHandler : IRequestHandler<ArticlePrepForAnaly
     private readonly IPersonGatherer _personGatherer;
     private readonly ILinkGatherer _linkGatherer;
 
-#pragma warning disable IDE0052 // Remove unread private members
-    private readonly IAiModel _aiModel;
-#pragma warning restore IDE0052 // Remove unread private members
-
     public ArticlePrepForAnalysisHandler(
         IContextCreator<Article> contextCreator,
         ITranslate translate,
         IPersonGatherer personGatherer,
-        ILinkGatherer linkGatherer,
-        IAiModel aiModel)
+        ILinkGatherer linkGatherer)
     {
         _contextCreator = contextCreator;
         _translate = translate;
         _personGatherer = personGatherer;
         _linkGatherer = linkGatherer;
-        _aiModel = aiModel;
     }
 
     public async Task<Article> Handle(ArticlePrepForAnalysisQuery query, CancellationToken cancellationToken)
@@ -72,9 +62,6 @@ public class ArticlePrepForAnalysisHandler : IRequestHandler<ArticlePrepForAnaly
 
         // Gather links
         var links = await _linkGatherer.GetLinksAsync(query.Article.Content, cancellationToken);
-
-        // Gather locations using AI
-        // Todo: try to make the ChatML for this
 
         return query.Article with
         {

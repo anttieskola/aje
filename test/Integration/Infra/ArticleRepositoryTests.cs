@@ -144,6 +144,27 @@ public class ArticleRepositoryTests : IClassFixture<RedisFixture>
         Assert.Equal(1, article.Analysis.PositiveThingsVersion);
         Assert.Equal("positive", article.Analysis.PositiveThings);
 
+        // locations
+        await repository.UpdateLocationsAsync(_idForIsValidated, 1, new EquatableList<Location> { new Location { Name = "location" } });
+        article = await repository.GetAsync(_idForIsValidated);
+        Assert.NotNull(article);
+        Assert.Equal(1, article.Analysis.LocationsVersion);
+        Assert.Equal("location", article.Analysis.Locations[0].Name);
+
+        // corporations
+        await repository.UpdateCorporationsAsync(_idForIsValidated, 1, new EquatableList<Corporation> { new Corporation { Name = "corporation" } });
+        article = await repository.GetAsync(_idForIsValidated);
+        Assert.NotNull(article);
+        Assert.Equal(1, article.Analysis.CorporationsVersion);
+        Assert.Equal("corporation", article.Analysis.Corporations[0].Name);
+
+        // organizations
+        await repository.UpdateOrganizationsAsync(_idForIsValidated, 1, new EquatableList<Organization> { new Organization { Name = "organization" } });
+        article = await repository.GetAsync(_idForIsValidated);
+        Assert.NotNull(article);
+        Assert.Equal(1, article.Analysis.OrganizationsVersion);
+        Assert.Equal("organization", article.Analysis.Organizations[0].Name);
+
         // clean
         await _redisFixture.Database.KeyDeleteAsync(_index.RedisId(_idForIsValidated.ToString()));
     }

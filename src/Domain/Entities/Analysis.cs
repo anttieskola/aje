@@ -30,7 +30,7 @@ public record Analysis
     public EquatableList<Corporation> Corporations { get; set; } = [];
 
     [JsonPropertyName("organizationsVersion")]
-    public int OrganizationVersion { get; set; } = 0;
+    public int OrganizationsVersion { get; set; } = 0;
 
     [JsonPropertyName("organizations")]
     public EquatableList<Organization> Organizations { get; set; } = [];

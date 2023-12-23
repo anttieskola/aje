@@ -96,6 +96,55 @@ public class ArticleRepository : IArticleRepository
             throw new DataException($"failed to set $.analysis.positiveThings on article {redisId}");
     }
 
+    public async Task UpdateLocationsAsync(Guid id, int locationsVersion, EquatableList<Location> locations)
+    {
+        var db = _connection.GetDatabase();
+        var redisId = _index.RedisId(id.ToString());
+
+        var locationsVersionJson = JsonSerializer.Serialize(locationsVersion);
+        var setResult = await db.ExecuteAsync("JSON.SET", redisId, "$.analysis.locationsVersion", locationsVersionJson);
+        if (setResult.ToString() != "OK")
+            throw new DataException($"failed to set $.analysis.locationsVersion on article {redisId}");
+
+        var locationsJson = JsonSerializer.Serialize(locations);
+        setResult = await db.ExecuteAsync("JSON.SET", redisId, "$.analysis.locations", locationsJson);
+        if (setResult.ToString() != "OK")
+            throw new DataException($"failed to set $.analysis.locations on article {redisId}");
+    }
+
+
+    public async Task UpdateCorporationsAsync(Guid id, int corporationsVersion, EquatableList<Corporation> corporations)
+    {
+        var db = _connection.GetDatabase();
+        var redisId = _index.RedisId(id.ToString());
+
+        var corporationsVersionJson = JsonSerializer.Serialize(corporationsVersion);
+        var setResult = await db.ExecuteAsync("JSON.SET", redisId, "$.analysis.corporationsVersion", corporationsVersionJson);
+        if (setResult.ToString() != "OK")
+            throw new DataException($"failed to set $.analysis.corporationsVersion on article {redisId}");
+
+        var corporationsJson = JsonSerializer.Serialize(corporations);
+        setResult = await db.ExecuteAsync("JSON.SET", redisId, "$.analysis.corporations", corporationsJson);
+        if (setResult.ToString() != "OK")
+            throw new DataException($"failed to set $.analysis.corporations on article {redisId}");
+    }
+
+    public async Task UpdateOrganizationsAsync(Guid id, int organizationsVersion, EquatableList<Organization> organizations)
+    {
+        var db = _connection.GetDatabase();
+        var redisId = _index.RedisId(id.ToString());
+
+        var organizationsVersionJson = JsonSerializer.Serialize(organizationsVersion);
+        var setResult = await db.ExecuteAsync("JSON.SET", redisId, "$.analysis.organizationsVersion", organizationsVersionJson);
+        if (setResult.ToString() != "OK")
+            throw new DataException($"failed to set $.analysis.organizationsVersion on article {redisId}");
+
+        var organizationsJson = JsonSerializer.Serialize(organizations);
+        setResult = await db.ExecuteAsync("JSON.SET", redisId, "$.analysis.organizations", organizationsJson);
+        if (setResult.ToString() != "OK")
+            throw new DataException($"failed to set $.analysis.organizations on article {redisId}");
+    }
+
     #endregion modifications
 
     #region queries
@@ -134,6 +183,12 @@ public class ArticleRepository : IArticleRepository
             builder.Conditions.Add(new QueryCondition { Expression = $"@summaryVersion:[-inf {query.MaxSummaryVersion}]" });
         if (query.MaxPositiveThingsVersion != null)
             builder.Conditions.Add(new QueryCondition { Expression = $"@positiveThingsVersion:[-inf {query.MaxPositiveThingsVersion}]" });
+        if (query.MaxLocationsVersion != null)
+            builder.Conditions.Add(new QueryCondition { Expression = $"@locationsVersion:[-inf {query.MaxLocationsVersion}]" });
+        if (query.MaxOrganizationsVersion != null)
+            builder.Conditions.Add(new QueryCondition { Expression = $"@organizationsVersion:[-inf {query.MaxOrganizationsVersion}]" });
+        if (query.MaxCorporationsVersion != null)
+            builder.Conditions.Add(new QueryCondition { Expression = $"@corporationsVersion:[-inf {query.MaxCorporationsVersion}]" });
         var queryString = builder.Build();
 
         var arguments = new string[] { _index.Name, queryString, "SORTBY", "modified", "DESC", "LIMIT", query.Offset.ToString(), query.PageSize.ToString() };
@@ -188,7 +243,7 @@ public class ArticleRepository : IArticleRepository
 
     public async Task<PaginatedList<ArticleHeader>> GetHeadersAsync(ArticleSearchHeadersQuery query)
     {
-        ArgumentNullException.ThrowIfNull(query, nameof(query));
+        ArgumentNullException.ThrowIfNull(query);
 
         try
         {

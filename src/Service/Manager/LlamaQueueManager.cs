@@ -13,7 +13,7 @@ public class LlamaQueueManager : BackgroundService
     private readonly LlamaConfiguration _configuration;
     private readonly RedisChannel _channel;
     private readonly bool _isTest;
-    private int _cleanupAfterMinutes = 5;
+    private int _cleanupAfterMinutes = 6;
 
     public LlamaQueueManager(
         ILogger<LlamaQueueManager> logger,
@@ -136,7 +136,7 @@ public class LlamaQueueManager : BackgroundService
             }
             else
             {
-                _cleanupAfterMinutes = 5;
+                _cleanupAfterMinutes = 6;
             }
         }
     }

@@ -16,7 +16,6 @@ public class LlamaAiModel : IAiModel
     private readonly IConnectionMultiplexer _connection;
     private readonly RedisChannel _channel;
     private readonly bool _isTest;
-
     public LlamaAiModel(
         ILogger<LlamaAiModel> logger,
         IServiceProvider serviceProvider,
@@ -46,7 +45,7 @@ public class LlamaAiModel : IAiModel
         return _configuration.Servers[index];
     }
 
-    private readonly ConcurrentDictionary<Guid, Guid> _granted = new();
+    private readonly ConcurrentDictionary<Guid, DateTimeOffset> _granted = new();
 
     private void OnMessage(RedisChannel channel, RedisValue message)
     {
@@ -56,14 +55,7 @@ public class LlamaAiModel : IAiModel
         var resourceEvent = JsonSerializer.Deserialize<ResourceEvent>(message.ToString());
         if (resourceEvent is ResourceGrantedEvent granted && granted.IsTest == _isTest)
         {
-            if (!_granted.TryAdd(granted.RequestId, granted.RequestId))
-            {
-                _logger.LogCritical("Could not add request id {RequestId} to granted list", granted.RequestId);
-                foreach (var item in _granted)
-                {
-                    _logger.LogCritical("Granted: {RequestId}", item.Key);
-                }
-            }
+            _granted.TryAdd(granted.RequestId, DateTimeOffset.UtcNow);
         }
     }
 
@@ -104,14 +96,9 @@ public class LlamaAiModel : IAiModel
                     ResourceName = server.ResourceName,
                     RequestId = id,
                 });
+                _granted.TryRemove(id, out _);
             }
-
-            // cleanup and return
             _logger.LogInformation("Done\t{ResourceName}\t{id}", server.ResourceName, id);
-            if (!_granted.TryRemove(id, out _))
-            {
-                _logger.LogCritical("Could not remove request id {RequestId} from granted list", id);
-            }
             return response;
         }
         throw new AiException("Request cancelled");
@@ -152,14 +139,9 @@ public class LlamaAiModel : IAiModel
                     ResourceName = server.ResourceName,
                     RequestId = id,
                 });
+                _granted.TryRemove(id, out _);
             }
-
-            // cleanup and return
             _logger.LogInformation("Done\t{ResourceName}\t{id}", server.ResourceName, id);
-            if (!_granted.TryRemove(id, out _))
-            {
-                _logger.LogCritical("Could not remove request id {RequestId} from granted list", id);
-            }
             return response;
         }
         throw new AiException("Request cancelled");
@@ -202,14 +184,9 @@ public class LlamaAiModel : IAiModel
                     ResourceName = server.ResourceName,
                     RequestId = id,
                 });
+                _granted.TryRemove(id, out _);
             }
-
-            // cleanup and return
             _logger.LogInformation("Done\t{ResourceName}\t{id}", server.ResourceName, id);
-            if (!_granted.TryRemove(id, out _))
-            {
-                _logger.LogCritical("Could not remove request id {RequestId} from granted list", id);
-            }
             return response;
         }
         throw new AiException("Request cancelled");
@@ -251,14 +228,9 @@ public class LlamaAiModel : IAiModel
                     ResourceName = server.ResourceName,
                     RequestId = id,
                 });
+                _granted.TryRemove(id, out _);
             }
-
-            // cleanup and return
             _logger.LogInformation("Done\t{ResourceName}\t{id}", server.ResourceName, id);
-            if (!_granted.TryRemove(id, out _))
-            {
-                _logger.LogCritical("Could not remove request id {RequestId} from granted list", id);
-            }
             return response;
         }
         throw new AiException("Request cancelled");
@@ -300,14 +272,9 @@ public class LlamaAiModel : IAiModel
                     ResourceName = server.ResourceName,
                     RequestId = id,
                 });
+                _granted.TryRemove(id, out _);
             }
-
-            // cleanup and return
             _logger.LogInformation("Done\t{ResourceName}\t{id}", server.ResourceName, id);
-            if (!_granted.TryRemove(id, out _))
-            {
-                _logger.LogCritical("Could not remove request id {RequestId} from granted list", id);
-            }
             return response;
         }
         throw new AiException("Request cancelled");
@@ -333,6 +300,7 @@ public class LlamaAiModel : IAiModel
                     ResourceName = resourceName,
                     RequestId = requestId,
                 });
+                _granted.TryRemove(requestId, out _);
                 return false;
             }
         }

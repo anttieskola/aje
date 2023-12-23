@@ -2,13 +2,16 @@
 
 public class SummaryWorker : BackgroundService
 {
+    private readonly ILogger<SummaryWorker> _logger;
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ISender _sender;
 
     public SummaryWorker(
+        ILogger<SummaryWorker> logger,
         IServiceScopeFactory scopeFactory,
         ISender sender)
     {
+        _logger = logger;
         _scopeFactory = scopeFactory;
         _sender = sender;
     }
@@ -23,7 +26,15 @@ public class SummaryWorker : BackgroundService
 
         while (!_cancellationToken.IsCancellationRequested)
         {
-            await LoopAsync();
+            try
+            {
+                await LoopAsync();
+            }
+            catch (Exception e)
+            {
+                _logger.LogCritical(e, "Error in summary worker");
+                await Task.Delay(TimeSpan.FromMinutes(3), _cancellationToken);
+            }
             await Task.Delay(TimeSpan.FromMilliseconds(100), _cancellationToken);
         }
     }

@@ -1,13 +1,13 @@
 ﻿namespace AJE.Service.NewsAnalyzer;
 
-public class PositiveThingsWorker : BackgroundService
+public class CorporationsWorker : BackgroundService
 {
-    private readonly ILogger<PositiveThingsWorker> _logger;
+    private readonly ILogger<CorporationsWorker> _logger;
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ISender _sender;
 
-    public PositiveThingsWorker(
-        ILogger<PositiveThingsWorker> logger,
+    public CorporationsWorker(
+        ILogger<CorporationsWorker> logger,
         IServiceScopeFactory scopeFactory,
         ISender sender)
     {
@@ -32,7 +32,7 @@ public class PositiveThingsWorker : BackgroundService
             }
             catch (Exception e)
             {
-                _logger.LogCritical(e, "Error in positive things worker");
+                _logger.LogCritical(e, "Error in corporations worker");
                 await Task.Delay(TimeSpan.FromMinutes(3), _cancellationToken);
             }
             await Task.Delay(TimeSpan.FromMilliseconds(100), _cancellationToken);
@@ -44,7 +44,7 @@ public class PositiveThingsWorker : BackgroundService
         using var scope = _scopeFactory.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<NewsAnalyzerContext>();
         var rows = context.Analyses
-            .Where(x => x.PositiveThingsVersion == AiGetPositiveThingsQuery.VERSION)
+            .Where(x => x.CorporationsVersion == AiGetCorporationsQuery.VERSION)
             .AsAsyncEnumerable();
 
         await foreach (var row in rows)
@@ -53,9 +53,13 @@ public class PositiveThingsWorker : BackgroundService
                 break;
 
             var current = await _sender.Send(new ArticleGetByIdQuery { Id = row.Id }, _cancellationToken);
-            if (current != null && current.Analysis.PositiveThingsVersion < row.PositiveThingsVersion)
+            if (current != null && current.Analysis.CorporationsVersion < row.CorporationsVersion)
             {
-                await _sender.Send(new ArticleUpdatePositiveThingsCommand { Id = current.Id, PositiveThingsVersion = row.PositiveThingsVersion, PositiveThings = row.PositiveThings }, _cancellationToken);
+                var corporations = JsonSerializer.Deserialize<EquatableList<Corporation>>(row.Corporations);
+                if (corporations == null)
+                    _logger.LogCritical("Failed to deserialize corporations for article {Id}", row.Id);
+                else
+                    await _sender.Send(new ArticleUpdateCorporationsCommand { Id = current.Id, CorporationsVersion = row.CorporationsVersion, Corporations = corporations }, _cancellationToken);
             }
         }
     }
@@ -67,37 +71,36 @@ public class PositiveThingsWorker : BackgroundService
             Category = ArticleCategory.NEWS,
             IsLiveNews = false,
             IsValidForAnalysis = true,
-            MaxPositiveThingsVersion = AiGetPositiveThingsQuery.VERSION - 1,
+            MaxCorporationsVersion = AiGetCorporationsQuery.VERSION - 1,
             Offset = 0,
-            PageSize = 1
+            PageSize = 1,
         };
         var results = await _sender.Send(query, _cancellationToken);
-
         if (results.Items.Count > 0)
         {
             var article = results.Items.First();
-            var positiveThings = await _sender.Send(new AiGetPositiveThingsQuery { Context = article.GetContextForAnalysis() }, _cancellationToken);
+            var corporations = await _sender.Send(new AiGetCorporationsQuery { Context = article.GetContextForAnalysis() }, _cancellationToken);
 
             var scope = _scopeFactory.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<NewsAnalyzerContext>();
 
-            var analysis = context.Analyses.Where(a => a.Id == article.Id).FirstOrDefault();
+            var analysis = await context.Analyses.FindAsync(article.Id);
             if (analysis != null)
             {
-                analysis.PositiveThingsVersion = AiGetPositiveThingsQuery.VERSION;
-                analysis.PositiveThings = positiveThings;
+                analysis.CorporationsVersion = AiGetCorporationsQuery.VERSION;
+                analysis.Corporations = JsonSerializer.Serialize(corporations);
             }
             else
             {
                 context.Analyses.Add(new AnalysisRow
                 {
                     Id = article.Id,
-                    PositiveThingsVersion = AiGetPositiveThingsQuery.VERSION,
-                    PositiveThings = positiveThings,
+                    CorporationsVersion = AiGetCorporationsQuery.VERSION,
+                    Corporations = JsonSerializer.Serialize(corporations),
                 });
             }
             await context.SaveChangesAsync(_cancellationToken);
-            await _sender.Send(new ArticleUpdatePositiveThingsCommand { Id = article.Id, PositiveThingsVersion = AiGetPositiveThingsQuery.VERSION, PositiveThings = positiveThings }, _cancellationToken);
+            await _sender.Send(new ArticleUpdateCorporationsCommand { Id = article.Id, CorporationsVersion = AiGetCorporationsQuery.VERSION, Corporations = corporations }, _cancellationToken);
         }
     }
 }

@@ -8,12 +8,11 @@
 public class LlamaApi
 {
     private const int MaxTries = 10;
-    private static TimeSpan GetDelay() => TimeSpan.FromMilliseconds(new Random().Next(3000, 6000));
+    private static TimeSpan GetDelay() => TimeSpan.FromSeconds(new Random().Next(10, 20));
     private readonly ILogger<LlamaApi> _logger;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly Uri _serverUri;
     private readonly int _timeoutInSeconds;
-    private readonly int _maxTokenCount;
 
     public LlamaApi(
         ILogger<LlamaApi> logger,
@@ -24,7 +23,6 @@ public class LlamaApi
         _httpClientFactory = httpClientFactory;
         _serverUri = new Uri(server.Host);
         _timeoutInSeconds = server.TimeoutInSeconds;
-        _maxTokenCount = server.MaxTokenCount;
     }
 
     public async Task<CompletionResponse> CompletionAsync(CompletionRequest request, CancellationToken cancellationToken)
@@ -32,7 +30,6 @@ public class LlamaApi
         if (request.Stream)
             throw new ArgumentException($"Use {nameof(CompletionStreamAsync)} when Stream enabled", nameof(request));
 
-        await CheckContentIsNotTooLarge(request.Prompt, cancellationToken);
         int tries = 1;
         while (tries <= MaxTries)
         {
@@ -79,7 +76,6 @@ public class LlamaApi
             throw new ArgumentException($"Use {nameof(CompletionAsync)} when Stream disabled", nameof(request));
 
         ArgumentNullException.ThrowIfNull(tokenCreatedCallback);
-        await CheckContentIsNotTooLarge(request.Prompt, cancellationToken);
 
         int tries = 1;
         while (tries <= MaxTries)
@@ -172,14 +168,6 @@ public class LlamaApi
             _logger.LogError("Error parsing json: {}", e.Message);
             throw;
         }
-    }
-
-    private async Task CheckContentIsNotTooLarge(string content, CancellationToken cancellationToken)
-    {
-        var response = await TokenizeAsync(new TokenizeRequest { Content = content }, cancellationToken);
-        int tokenCount = response.Tokens.Length;
-        if (tokenCount > _maxTokenCount)
-            throw new AiException($"Content is too large, token count: {tokenCount}, max token count: {_maxTokenCount}");
     }
 
     public async Task<DeTokenizeResponse> DeTokenizeAsync(DeTokenizeRequest request, CancellationToken cancellationToken)

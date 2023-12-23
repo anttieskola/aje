@@ -2,13 +2,16 @@ namespace AJE.Service.NewsAnalyzer;
 
 public class SentimentPolarityWorker : BackgroundService
 {
+    private readonly ILogger<SentimentPolarityWorker> _logger;
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ISender _sender;
 
     public SentimentPolarityWorker(
+        ILogger<SentimentPolarityWorker> logger,
         IServiceScopeFactory scopeFactory,
         ISender sender)
     {
+        _logger = logger;
         _scopeFactory = scopeFactory;
         _sender = sender;
     }
@@ -23,7 +26,15 @@ public class SentimentPolarityWorker : BackgroundService
 
         while (!_cancellationToken.IsCancellationRequested)
         {
-            await LoopAsync();
+            try
+            {
+                await LoopAsync();
+            }
+            catch (Exception e)
+            {
+                _logger.LogCritical(e, "Error in sentiment polarity worker");
+                await Task.Delay(TimeSpan.FromMinutes(3), _cancellationToken);
+            }
             await Task.Delay(TimeSpan.FromMilliseconds(100), _cancellationToken);
         }
     }

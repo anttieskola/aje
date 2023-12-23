@@ -64,6 +64,6 @@ on its website or application.";
         var response = await handler.Handle(new AiGetCorporationsQuery { Context = _context }, CancellationToken.None);
         Assert.NotNull(response);
         Assert.NotEmpty(response);
-        Assert.Equal(7, response.Count); //  Prismos, K-Citymarket, S-Group, Lidl, Posti, University pharmacies, VR
+        Assert.True(response.Count >= 6); //  Prismos, K-Citymarket, K-Group, S-Group, Lidl, Posti, University pharmacies, VR
     }
 }

@@ -1,36 +1,19 @@
 ﻿using AJE.Domain.Ai;
 using AJE.Domain.Entities;
 using AJE.Domain.Queries;
-using AJE.Infra.Ai;
 using AJE.Infra.Translate;
 using Microsoft.Extensions.Logging;
 
 namespace AJE.Test.Integration;
 
-#pragma warning disable xUnit1033
-[Collection("Llama")]
-public class ArticlePrepForAnalysisTests : IClassFixture<HttpClientFixture>, IClassFixture<RedisFixture>, IClassFixture<LlamaQueueFixture>
+public class ArticlePrepForAnalysisTests : IClassFixture<HttpClientFixture>
 {
-#pragma warning restore xUnit1033
     private readonly HttpClientFixture _httpClientFixture;
-    private readonly RedisFixture _redisFixture;
 
     public ArticlePrepForAnalysisTests(
-        HttpClientFixture httpClientFixture,
-        RedisFixture redisFixture,
-        LlamaQueueFixture llamaQueueFixture)
+        HttpClientFixture httpClientFixture)
     {
         _httpClientFixture = httpClientFixture;
-        _redisFixture = redisFixture;
-        // llamaQueueFixture must exist
-    }
-
-    private IServiceProvider CreateMockServiceProvider()
-    {
-        var mockServiceProvider = new Mock<IServiceProvider>();
-        mockServiceProvider.Setup(x => x.GetService(typeof(ILogger<LlamaApi>))).Returns(new Mock<ILogger<LlamaApi>>().Object);
-        mockServiceProvider.Setup(x => x.GetService(typeof(IHttpClientFactory))).Returns(_httpClientFixture.HttpClientFactory);
-        return mockServiceProvider.Object;
     }
 
     private readonly Article _articleEn = new()
@@ -52,14 +35,12 @@ public class ArticlePrepForAnalysisTests : IClassFixture<HttpClientFixture>, ICl
     [Fact]
     public async Task English()
     {
-        var aiModel = new LlamaAiModel(new Mock<ILogger<LlamaAiModel>>().Object, CreateMockServiceProvider(), TestConstants.LlamaConfiguration, _redisFixture.Connection, true);
         var translator = new LibreTranslate(new Mock<ILogger<LibreTranslate>>().Object, TestConstants.TranslateConfiguration, _httpClientFixture.HttpClientFactory);
         var handler = new ArticlePrepForAnalysisHandler(
             new ArticleContextCreator(new MarkDownSimplifier()),
             translator,
             new YlePersonGatherer(),
-            new MarkDownLinkGatherer(),
-            aiModel);
+            new MarkDownLinkGatherer());
         var article = await handler.Handle(new ArticlePrepForAnalysisQuery { Article = _articleEn }, CancellationToken.None);
         Assert.NotNull(article);
         Assert.True(article.IsValidForAnalysis);
@@ -92,14 +73,12 @@ public class ArticlePrepForAnalysisTests : IClassFixture<HttpClientFixture>, ICl
     [Fact]
     public async Task Finnish()
     {
-        var aiModel = new LlamaAiModel(new Mock<ILogger<LlamaAiModel>>().Object, CreateMockServiceProvider(), TestConstants.LlamaConfiguration, _redisFixture.Connection, true);
         var translator = new LibreTranslate(new Mock<ILogger<LibreTranslate>>().Object, TestConstants.TranslateConfiguration, _httpClientFixture.HttpClientFactory);
         var handler = new ArticlePrepForAnalysisHandler(
             new ArticleContextCreator(new MarkDownSimplifier()),
             translator,
             new YlePersonGatherer(),
-            new MarkDownLinkGatherer(),
-            aiModel);
+            new MarkDownLinkGatherer());
         var article = await handler.Handle(new ArticlePrepForAnalysisQuery { Article = _articleFi }, CancellationToken.None);
         Assert.NotNull(article);
         Assert.True(article.IsValidForAnalysis);
