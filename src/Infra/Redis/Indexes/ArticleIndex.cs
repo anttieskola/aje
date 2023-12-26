@@ -3,7 +3,7 @@ namespace AJE.Infra.Redis.Indexes;
 
 public class ArticleIndex : IRedisIndex
 {
-    public int Version => 7;
+    public int Version => 8;
 
     public string Name => "idx:article";
 
@@ -30,20 +30,7 @@ public class ArticleIndex : IRedisIndex
         + "$.analysis.locationsVersion AS locationsVersion NUMERIC" + " "
         + "$.analysis.corporationsVersion AS corporationsVersion NUMERIC" + " "
         + "$.analysis.organizationsVersion AS organizationsVersion NUMERIC" + " "
-        + "$.analysis.sentimentScoreVersion AS sentimentScoreVersion NUMERIC" + " "
-        + "$.analysis.sentimentScore AS sentimentScore NUMERIC" + " "
-        + "$.analysis.newsType AS newsType NUMERIC" + " "
-        + "$.analysis.newsTypeVersion as newsTypeVersion NUMERIC" + " "
-        + "$.analysis.articleToneVersion AS articleToneVersion NUMERIC" + " "
-        + "$.analysis.credibilityScoreVersion AS credibilityScoreVersion NUMERIC" + " "
-        + "$.analysis.honestyScoreVersion AS honestyScoreVersion NUMERIC" + " "
-        + "$.analysis.sensationalismScoreVersion AS sensationalismScoreVersion NUMERIC" + " "
-        + "$.analysis.empathyScoreVersion AS empathyScoreVersion NUMERIC" + " "
-        + "$.analysis.racismScoreVersion AS racismScoreVersion NUMERIC" + " "
-        + "$.analysis.criminalityScoreVersion AS criminalityScoreVersion NUMERIC" + " "
-        + "$.analysis.biasWesternScoreVersion AS biasWesternScoreVersion NUMERIC" + " "
-        + "$.analysis.biasEasternScoreVersion AS biasEasternScoreVersion NUMERIC" + " "
-        + "$.analysis.religionScoreVersion AS religionScoreVersion NUMERIC";
+        + "$.analysis.keyPeopleVersion AS keyPeopleVersion NUMERIC";
 
     public RedisChannel Channel =>
         new("articles", RedisChannel.PatternMode.Auto);

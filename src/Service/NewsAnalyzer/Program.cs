@@ -21,6 +21,7 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddHostedService<LocationsWorker>();
         services.AddHostedService<OrganizationsWorker>();
         services.AddHostedService<CorporationsWorker>();
+        services.AddHostedService<KeyPeopleWorker>();
     })
     .ConfigureLogging(logging =>
     {

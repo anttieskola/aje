@@ -34,13 +34,19 @@ else
         {
             <button class="ml-1 p-1 border-2 rounded border-sky-600" @onclick="ToggleSummary">@(_showSummary ? "Hide summary" : "Show summary")</button>
         }
+        @if (HasKeyPeople)
+        {
+            <button class="ml-1 p-1 border-2 rounded border-rose-600" @onclick="ToggleKeyPeople">@(_showKeyPeople ? "Hide key people" : "Show key people")</button>
+        }
     </div>
 
     <div class="xl:w-3/4 lg:w-4/5 md:w-5/6 xs:w-full xl:m-10 xl:ml-14 lg:m-6 lg:ml-12 md:m-4 md:ml-10 xs:m-1">
         <div class="@(_showPositiveThings ? "border-lime-600 border-b-2 border-t-2" : "hidden")">
-            <pre>
-                @PreRender(Model.Analysis.PositiveThings)
-            </pre>
+            @foreach (var positiveThing in Model.Analysis.PositiveThings)
+            {
+                <h6>@positiveThing.Title</h6>
+                <p>@positiveThing.Description</p>
+            }
         </div>
     </div>
 
@@ -49,6 +55,17 @@ else
             <pre>
                 @PreRender(Model.Analysis.Summary)
             </pre>
+        </div>
+    </div>
+
+    <div class="xl:w-3/4 lg:w-4/5 md:w-5/6 xs:w-full xl:m-10 xl:ml-14 lg:m-6 lg:ml-12 md:m-4 md:ml-10 xs:m-1">
+        <div class="@(_showKeyPeople ? "border-lime-600 border-b-2 border-t-2" : "hidden")">
+            @foreach (var keyPerson in Model.Analysis.KeyPeople)
+            {
+                <h6>@keyPerson.Name</h6>
+                <p>@keyPerson.Role</p>
+                <p>@keyPerson.Intention</p>
+            }
         </div>
     </div>
 
@@ -159,9 +176,13 @@ else
     private bool _showSummary = false;
     private void ToggleSummary() => _showSummary = !_showSummary;
 
-    private bool HasPositiveThings => Model?.Analysis.PositiveThings != string.Empty;
+    private bool HasPositiveThings => Model?.Analysis.PositiveThings.Count > 0;
     private bool _showPositiveThings = false;
     private void TogglePositiveThings() => _showPositiveThings = !_showPositiveThings;
+
+    private bool HasKeyPeople => Model?.Analysis.KeyPeople.Count > 0;
+    private bool _showKeyPeople = false;
+    private void ToggleKeyPeople() => _showKeyPeople = !_showKeyPeople;
 
     private bool _showAnalysisContext = false;
     private void ToggleAnalysisContext() => _showAnalysisContext = !_showAnalysisContext;

@@ -44,6 +44,11 @@ public class AnalysisRow
     [Column("organizations")]
     public string Organizations { get; set; } = string.Empty;
 
+    [Column("keypeopleversion")]
+    public int KeyPeopleVersion { get; set; } = 0;
+
+    [Column("keypeople")]
+    public string KeyPeople { get; set; } = string.Empty;
 }
 
 public class NewsAnalyzerContext : DbContext

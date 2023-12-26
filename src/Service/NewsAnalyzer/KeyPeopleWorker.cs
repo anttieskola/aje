@@ -1,13 +1,13 @@
 ﻿namespace AJE.Service.NewsAnalyzer;
 
-public class PositiveThingsWorker : BackgroundService
+public class KeyPeopleWorker : BackgroundService
 {
-    private readonly ILogger<PositiveThingsWorker> _logger;
+    private readonly ILogger<KeyPeopleWorker> _logger;
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ISender _sender;
 
-    public PositiveThingsWorker(
-        ILogger<PositiveThingsWorker> logger,
+    public KeyPeopleWorker(
+        ILogger<KeyPeopleWorker> logger,
         IServiceScopeFactory scopeFactory,
         ISender sender)
     {
@@ -32,7 +32,7 @@ public class PositiveThingsWorker : BackgroundService
             }
             catch (Exception e)
             {
-                _logger.LogCritical(e, "Error in positive things worker");
+                _logger.LogCritical(e, "Error in key people worker");
                 await Task.Delay(TimeSpan.FromMinutes(3), _cancellationToken);
             }
             await Task.Delay(TimeSpan.FromMilliseconds(100), _cancellationToken);
@@ -44,7 +44,7 @@ public class PositiveThingsWorker : BackgroundService
         using var scope = _scopeFactory.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<NewsAnalyzerContext>();
         var rows = context.Analyses
-            .Where(x => x.PositiveThingsVersion == AiGetPositiveThingsQuery.VERSION)
+            .Where(x => x.KeyPeopleVersion == AiGetKeyPeopleQuery.VERSION)
             .AsAsyncEnumerable();
 
         await foreach (var row in rows)
@@ -53,13 +53,13 @@ public class PositiveThingsWorker : BackgroundService
                 break;
 
             var current = await _sender.Send(new ArticleGetByIdQuery { Id = row.Id }, _cancellationToken);
-            if (current != null && current.Analysis.PositiveThingsVersion < row.PositiveThingsVersion)
+            if (current != null && current.Analysis.KeyPeopleVersion < row.KeyPeopleVersion)
             {
-                var positiveThings = JsonSerializer.Deserialize<EquatableList<PositiveThing>>(row.PositiveThings);
-                if (positiveThings == null)
+                var keyPeople = JsonSerializer.Deserialize<EquatableList<KeyPerson>>(row.KeyPeople);
+                if (keyPeople == null)
                     _logger.LogCritical("Failed to deserialize positive things for article {Id}", row.Id);
                 else
-                    await _sender.Send(new ArticleUpdatePositiveThingsCommand { Id = current.Id, PositiveThingsVersion = row.PositiveThingsVersion, PositiveThings = positiveThings }, _cancellationToken);
+                    await _sender.Send(new ArticleUpdateKeyPeopleCommand { Id = current.Id, KeyPeopleVersion = row.KeyPeopleVersion, KeyPeople = keyPeople }, _cancellationToken);
             }
         }
     }
@@ -71,7 +71,7 @@ public class PositiveThingsWorker : BackgroundService
             Category = ArticleCategory.NEWS,
             IsLiveNews = false,
             IsValidForAnalysis = true,
-            MaxPositiveThingsVersion = AiGetPositiveThingsQuery.VERSION - 1,
+            MaxKeyPeopleVersion = AiGetKeyPeopleQuery.VERSION - 1,
             Offset = 0,
             PageSize = 1
         };
@@ -80,7 +80,7 @@ public class PositiveThingsWorker : BackgroundService
         if (results.Items.Count > 0)
         {
             var article = results.Items.First();
-            var positiveThings = await _sender.Send(new AiGetPositiveThingsQuery { Context = article.GetContextForAnalysis() }, _cancellationToken);
+            var keyPeople = await _sender.Send(new AiGetKeyPeopleQuery { Context = article.GetContextForAnalysis() }, _cancellationToken);
 
             var scope = _scopeFactory.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<NewsAnalyzerContext>();
@@ -88,20 +88,20 @@ public class PositiveThingsWorker : BackgroundService
             var analysis = context.Analyses.Where(a => a.Id == article.Id).FirstOrDefault();
             if (analysis != null)
             {
-                analysis.PositiveThingsVersion = AiGetPositiveThingsQuery.VERSION;
-                analysis.PositiveThings = JsonSerializer.Serialize(positiveThings);
+                analysis.KeyPeopleVersion = AiGetKeyPeopleQuery.VERSION;
+                analysis.KeyPeople = JsonSerializer.Serialize(keyPeople);
             }
             else
             {
                 context.Analyses.Add(new AnalysisRow
                 {
                     Id = article.Id,
-                    PositiveThingsVersion = AiGetPositiveThingsQuery.VERSION,
-                    PositiveThings = JsonSerializer.Serialize(positiveThings),
+                    KeyPeopleVersion = AiGetKeyPeopleQuery.VERSION,
+                    KeyPeople = JsonSerializer.Serialize(keyPeople),
                 });
             }
             await context.SaveChangesAsync(_cancellationToken);
-            await _sender.Send(new ArticleUpdatePositiveThingsCommand { Id = article.Id, PositiveThingsVersion = AiGetPositiveThingsQuery.VERSION, PositiveThings = positiveThings }, _cancellationToken);
+            await _sender.Send(new ArticleUpdateKeyPeopleCommand { Id = article.Id, KeyPeopleVersion = AiGetKeyPeopleQuery.VERSION, KeyPeople = keyPeople }, _cancellationToken);
         }
     }
 }

@@ -80,7 +80,7 @@ public class ArticleRepository : IArticleRepository
             throw new DataException($"failed to set $.analysis.summary on article {redisId}");
     }
 
-    public async Task UpdatePositiveThingsAsync(Guid id, int positiveThingsVersion, string positiveThings)
+    public async Task UpdatePositiveThingsAsync(Guid id, int positiveThingsVersion, EquatableList<PositiveThing> positiveThings)
     {
         var db = _connection.GetDatabase();
         var redisId = _index.RedisId(id.ToString());
@@ -145,6 +145,22 @@ public class ArticleRepository : IArticleRepository
             throw new DataException($"failed to set $.analysis.organizations on article {redisId}");
     }
 
+    public async Task UpdateKeyPeopleAsync(Guid id, int keyPeopleVersion, EquatableList<KeyPerson> KeyPeople)
+    {
+        var db = _connection.GetDatabase();
+        var redisId = _index.RedisId(id.ToString());
+
+        var keyPeopleVersionJson = JsonSerializer.Serialize(keyPeopleVersion);
+        var setResult = await db.ExecuteAsync("JSON.SET", redisId, "$.analysis.keyPeopleVersion", keyPeopleVersionJson);
+        if (setResult.ToString() != "OK")
+            throw new DataException($"failed to set $.analysis.keyPeopleVersion on article {redisId}");
+
+        var keyPeopleJson = JsonSerializer.Serialize(KeyPeople);
+        setResult = await db.ExecuteAsync("JSON.SET", redisId, "$.analysis.keyPeople", keyPeopleJson);
+        if (setResult.ToString() != "OK")
+            throw new DataException($"failed to set $.analysis.keyPeople on article {redisId}");
+    }
+
     #endregion modifications
 
     #region queries
@@ -189,6 +205,8 @@ public class ArticleRepository : IArticleRepository
             builder.Conditions.Add(new QueryCondition { Expression = $"@organizationsVersion:[-inf {query.MaxOrganizationsVersion}]" });
         if (query.MaxCorporationsVersion != null)
             builder.Conditions.Add(new QueryCondition { Expression = $"@corporationsVersion:[-inf {query.MaxCorporationsVersion}]" });
+        if (query.MaxKeyPeopleVersion != null)
+            builder.Conditions.Add(new QueryCondition { Expression = $"@keyPeopleVersion:[-inf {query.MaxKeyPeopleVersion}]" });
         var queryString = builder.Build();
 
         var arguments = new string[] { _index.Name, queryString, "SORTBY", "modified", "DESC", "LIMIT", query.Offset.ToString(), query.PageSize.ToString() };

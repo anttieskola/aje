@@ -7,11 +7,11 @@ public interface IPolarity : IPromptCreator
 
 public class PolarityChatML : ChatMLCreator, IPolarity
 {
-    public const int VERSION = 1;
+    public const int VERSION = 2;
     public const string EntityName = "assistant";
 
     public static readonly string[] SystemInstructions = {
-        "You are an assistant that classifies polarity of given context as neutral, positive or negative",
+        "You are an assistant that classifies sentiment polarity of given context as neutral, positive or negative using only the given context and not prior knowledge but using following guidelines",
         "Death from un-natural causes is always negative",
         "Death is positive when it is from natural causes and person lived long and successful life",
         "Price increases that affect working-class is always negative",

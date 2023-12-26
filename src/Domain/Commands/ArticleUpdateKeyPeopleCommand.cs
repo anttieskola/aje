@@ -1,18 +1,18 @@
 ﻿namespace AJE.Domain.Commands;
 
-public record ArticleUpdatePositiveThingsCommand : IRequest<ArticleUpdatedEvent>
+public record ArticleUpdateKeyPeopleCommand : IRequest<ArticleUpdatedEvent>
 {
     public required Guid Id { get; init; }
-    public required int PositiveThingsVersion { get; init; }
-    public required EquatableList<PositiveThing> PositiveThings { get; init; }
+    public required int KeyPeopleVersion { get; init; }
+    public required EquatableList<KeyPerson> KeyPeople { get; init; }
 }
 
-public class ArticleUpdatePositiveThingsCommandHandler : IRequestHandler<ArticleUpdatePositiveThingsCommand, ArticleUpdatedEvent>
+public class ArticleUpdateKeyPeopleCommandHandler : IRequestHandler<ArticleUpdateKeyPeopleCommand, ArticleUpdatedEvent>
 {
     private readonly IArticleRepository _articleRepository;
     private readonly IArticleEventHandler _articleEventHandler;
 
-    public ArticleUpdatePositiveThingsCommandHandler(
+    public ArticleUpdateKeyPeopleCommandHandler(
         IArticleRepository articleRepository,
         IArticleEventHandler articleEventHandler)
     {
@@ -20,9 +20,9 @@ public class ArticleUpdatePositiveThingsCommandHandler : IRequestHandler<Article
         _articleEventHandler = articleEventHandler;
     }
 
-    public async Task<ArticleUpdatedEvent> Handle(ArticleUpdatePositiveThingsCommand command, CancellationToken cancellationToken)
+    public async Task<ArticleUpdatedEvent> Handle(ArticleUpdateKeyPeopleCommand command, CancellationToken cancellationToken)
     {
-        await _articleRepository.UpdatePositiveThingsAsync(command.Id, command.PositiveThingsVersion, command.PositiveThings);
+        await _articleRepository.UpdateKeyPeopleAsync(command.Id, command.KeyPeopleVersion, command.KeyPeople);
         var e = new ArticleUpdatedEvent
         {
             Id = command.Id,

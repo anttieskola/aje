@@ -7,12 +7,12 @@ public interface ILocations : IPromptCreator
 
 public class LocationsChatML : ChatMLCreator, ILocations
 {
-    public const int VERSION = 1;
+    public const int VERSION = 2;
 
     public const string EntityName = "assistant";
 
     public static readonly string[] SystemInstructions = [
-        "You are an assistant that is tasked to examine context and list all geographical locations mentioned in the text",
+        "You are an assistant that is tasked to examine context and extract all geographical locations mentioned in the context using only given context and not prior knowledge",
         "In response list one location per line without any numbering or bullet points"
         ];
 

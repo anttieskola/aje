@@ -39,8 +39,6 @@ public class AiGetPositiveThingsQueryTests : IClassFixture<HttpClientFixture>, I
         var response = await handler.Handle(new AiGetPositiveThingsQuery { Context = "I like cats\nI love dogs\n" }, CancellationToken.None);
         Assert.NotNull(response);
         Assert.NotEmpty(response);
-        Assert.Contains("cats", response);
-        Assert.Contains("dogs", response);
     }
 
     [Fact]

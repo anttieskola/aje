@@ -1,26 +1,25 @@
 ﻿namespace AJE.Domain.Queries;
 
-public record AiGetPositiveThingsQuery : IRequest<EquatableList<PositiveThing>>
+public record AiGetKeyPeopleQuery : IRequest<EquatableList<KeyPerson>>
 {
-    public const int VERSION = PositiveThingsChatML.VERSION;
+    public const int VERSION = KeyPeopleChatML.VERSION;
     public required string Context { get; init; }
 }
 
-public class AiGetPositiveThingsQueryHandler : IRequestHandler<AiGetPositiveThingsQuery, EquatableList<PositiveThing>>
+public class AiGetKeyPeopleQueryHandler : IRequestHandler<AiGetKeyPeopleQuery, EquatableList<KeyPerson>>
 {
-    private readonly PositiveThingsChatML _positiveThingsChatML = new();
+    private readonly KeyPeopleChatML _keyPersonsChatML = new();
     private readonly IAiModel _aiModel;
-
-    public AiGetPositiveThingsQueryHandler(IAiModel aiModel)
+    public AiGetKeyPeopleQueryHandler(IAiModel aiModel)
     {
         _aiModel = aiModel;
     }
 
-    public async Task<EquatableList<PositiveThing>> Handle(AiGetPositiveThingsQuery query, CancellationToken cancellationToken)
+    public async Task<EquatableList<KeyPerson>> Handle(AiGetKeyPeopleQuery query, CancellationToken cancellationToken)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(query.Context);
 
-        var prompt = _positiveThingsChatML.Context(query.Context);
+        var prompt = _keyPersonsChatML.Context(query.Context);
         int tryCount = 1;
         while (tryCount < 111)
         {
@@ -30,19 +29,19 @@ public class AiGetPositiveThingsQueryHandler : IRequestHandler<AiGetPositiveThin
                 Prompt = prompt,
                 Temperature = settings.Temperature,
                 TopK = settings.TopK,
-                Stop = _positiveThingsChatML.StopWords,
+                Stop = _keyPersonsChatML.StopWords,
                 NumberOfTokensToPredict = 4096,
             };
             var response = await _aiModel.CompletionAsync(request, cancellationToken);
             try
             {
-                return _positiveThingsChatML.Parse(response.Content);
+                return _keyPersonsChatML.Parse(response.Content);
             }
             catch (AiParseException)
             {
                 tryCount++;
             }
         }
-        throw new AiException("Failed to get PositiveThings");
+        throw new AiException("Failed to get KeyPersons");
     }
 }

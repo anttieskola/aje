@@ -6,10 +6,11 @@ public interface IArticleRepository
     Task UpdateAsync(Article article);
     Task UpdatePolarityAsync(Guid id, int polarityVersion, Polarity polarity);
     Task UpdateSummaryAsync(Guid id, int summaryVersion, string summary);
-    Task UpdatePositiveThingsAsync(Guid id, int positiveThingsVersion, string positiveThings);
+    Task UpdatePositiveThingsAsync(Guid id, int positiveThingsVersion, EquatableList<PositiveThing> positiveThings);
     Task UpdateLocationsAsync(Guid id, int locationsVersion, EquatableList<Location> locations);
     Task UpdateCorporationsAsync(Guid id, int corporationsVersion, EquatableList<Corporation> corporations);
     Task UpdateOrganizationsAsync(Guid id, int organizationsVersion, EquatableList<Organization> organizations);
+    Task UpdateKeyPeopleAsync(Guid id, int keyPeopleVersion, EquatableList<KeyPerson> KeyPeople);
     Task<Article> GetAsync(Guid id);
     Task<PaginatedList<Article>> GetAsync(ArticleGetManyQuery query);
     Task<Article> GetBySourceAsync(string source);

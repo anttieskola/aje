@@ -14,6 +14,7 @@ public record ArticleGetManyQuery : PaginatedQuery, IRequest<PaginatedList<Artic
     public int? MaxLocationsVersion { get; init; }
     public int? MaxOrganizationsVersion { get; init; }
     public int? MaxCorporationsVersion { get; init; }
+    public int? MaxKeyPeopleVersion { get; init; }
 }
 
 public class ArticleGetManyQueryHandler : IRequestHandler<ArticleGetManyQuery, PaginatedList<Article>>
