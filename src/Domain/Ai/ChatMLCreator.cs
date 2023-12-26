@@ -20,7 +20,7 @@ public abstract class ChatMLCreator : IPromptCreator
 
     #region IPromptCreator
 
-    public string[] StopWords => new string[] { _iStart, _iEnd, "<|im_end||im_start|>" };
+    public string[] StopWords => [_iStart, _iEnd, "<|im_end||im_start|>"];
 
     public string Context(string context)
     {

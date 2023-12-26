@@ -174,7 +174,7 @@
             "serverReadyAction": {
                 "action": "openExternally",
                 "pattern": "\\bNow listening on:\\s+(https?://\\S+)",
-                //"uriFormat": "%s/session/be832298-09d3-4367-85e4-b31ee294c837"
+                "uriFormat": "%s/session/73d3b400-7323-42d7-8216-f29b692d7d55"
             },
             "env": {
                 "ASPNETCORE_ENVIRONMENT": "Development",

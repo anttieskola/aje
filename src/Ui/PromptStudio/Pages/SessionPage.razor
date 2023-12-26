@@ -326,6 +326,8 @@ else
             {
                 SessionId = SessionId,
                 RunId = _activeRunId,
+                // TODO: add support for other syntaxes
+                // Syntax = Domain.Enums.AiSyntax.InstructML,
                 EntityName = _entityName,
                 SystemInstructions = systemInstructions,
                 Context = _context,
@@ -343,7 +345,7 @@ else
         if (Guid.TryParseExact(_articleId, "D", out var articleId))
         {
             var article = await Sender.Send(new ArticleGetByIdQuery { Id = articleId }, CancellationToken.None);
-            _context = ArticleContextCreator.Create(article);
+            _context = article.GetContextForAnalysis();
         }
         else
         {

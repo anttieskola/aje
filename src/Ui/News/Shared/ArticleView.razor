@@ -114,10 +114,36 @@ else
             <button class="p-1 border-2 rounded border-indigo-600" @onclick="ToggleAnalysisContext">@(_showAnalysisContext ? "Hide analysis context" : "Show analysis context")</button>
         </div>
 
-        <div class="xl:w-3/4 lg:w-4/5 md:w-5/6 xs:w-full xl:m-10 xl:ml-14 lg:m-6 lg:ml-12 md:m-4 md:ml-10 xs:m-1">
-            <p class="@(_showAnalysisContext ? "border-indigo-600 border-b-2 border-t-2" : "hidden")">
-                @Model.GetContextForAnalysis()
-            </p>
+        <div class="@(_showAnalysisContext ? "" : "hidden")">
+            <div class="xl:w-3/4 lg:w-4/5 md:w-5/6 xs:w-full xl:m-10 xl:ml-14 lg:m-6 lg:ml-12 md:m-4 md:ml-10 xs:m-1">
+                <p class="border-indigo-600 border-b-2 border-t-2">
+                    @Model.GetContextForAnalysis()
+                </p>
+
+                <h4>Locations</h4>
+                <ul>
+                @foreach (var location in Model.Analysis.Locations)
+                {
+                    <li>@location.Name</li>
+                }
+                </ul>
+
+                <h4>Corporations</h4>
+                <ul>
+                @foreach (var corporation in Model.Analysis.Corporations)
+                {
+                    <li>@corporation.Name</li>
+                }
+                </ul>
+
+                <h4>Organizations</h4>
+                <ul>
+                @foreach (var organization in Model.Analysis.Organizations)
+                {
+                    <li>@organization.Name</li>
+                }
+                </ul>
+            </div>
         </div>
     }
 }

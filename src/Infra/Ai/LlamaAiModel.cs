@@ -45,6 +45,7 @@ public class LlamaAiModel : IAiModel
         return _configuration.Servers[index];
     }
 
+    // singleton, shared with 6+ threads...
     private readonly ConcurrentDictionary<Guid, DateTimeOffset> _granted = new();
 
     private void OnMessage(RedisChannel channel, RedisValue message)

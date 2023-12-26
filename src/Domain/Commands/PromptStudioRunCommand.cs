@@ -3,6 +3,7 @@
 public record PromptStudioRunCommand : IRequest<PromptStudioRunCompletedEvent>
 {
     public bool IsTest { get; init; } = false;
+    public AiSyntax Syntax { get; init; } = AiSyntax.ChatML;
     public required Guid SessionId { get; init; }
     public required Guid RunId { get; init; }
     public required string EntityName { get; init; }
@@ -16,8 +17,8 @@ public class PromptStudioRunCommandHandler : IRequestHandler<PromptStudioRunComm
 {
     private readonly IPromptStudioRepository _promptStudioRepository;
     private readonly IPromptStudioEventHandler _promptStudioEventHandler;
-
     private readonly PromptStudioChatML _promptStudioChatML = new();
+    private readonly PromptStudioInstructML _promptStudioInstructML = new();
     private readonly IAiModel _aiModel;
 
     public PromptStudioRunCommandHandler(
@@ -38,9 +39,19 @@ public class PromptStudioRunCommandHandler : IRequestHandler<PromptStudioRunComm
 
         // create prompt
         _promptStudioChatML.SetEntityName(command.EntityName);
+        _promptStudioInstructML.SetEntityName(command.EntityName);
         _promptStudioChatML.SetSystemInstructions(command.SystemInstructions);
-        var prompt = _promptStudioChatML.Context(command.Context)
-            ?? throw new AiException($"Failed to create context for PromptStudio message:{command.Context}");
+        _promptStudioInstructML.SetSystemInstructions(command.SystemInstructions);
+
+        string prompt = string.Empty;
+        prompt = command.Syntax switch
+        {
+            AiSyntax.ChatML => _promptStudioChatML.Context(command.Context)
+                                ?? throw new AiException($"Failed to create context for PromptStudio message:{command.Context}"),
+            AiSyntax.InstructML => _promptStudioInstructML.Context(command.Context)
+                                ?? throw new AiException($"Failed to create context for PromptStudio message:{command.Context}"),
+            _ => throw new AiException($"Unsupported syntax: {command.Syntax}"),
+        };
 
         // callback on tokens
         async Task OnTokenCreated(string token)
