@@ -129,6 +129,7 @@ public class YleHtmlParseQueryHandler : IRequestHandler<YleHtmlParseQuery, Artic
                         }
                         break;
                     case "HeadingBlock":
+                    case "heading":
                         {
                             var level = (int?)c["level"];
                             var content = (string?)c["text"];
