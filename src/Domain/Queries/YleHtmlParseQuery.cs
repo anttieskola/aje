@@ -86,6 +86,15 @@ public class YleHtmlParseQueryHandler : IRequestHandler<YleHtmlParseQuery, Artic
             // check has live news ended yeat
             isLiveNews = ParseLiveStatus(live);
         }
+        var lead = article["lead"]; // only found in some articles
+        if (lead != null && elements.Count == 0)
+        {
+            // create single text element from lead if no other elements
+            elements.Add(new MarkdownTextElement
+            {
+                Text = lead.ToString(),
+            });
+        }
         if (elements.Count == 0)
         {
             throw new ParsingException("empty content array");
@@ -380,7 +389,6 @@ public class YleHtmlParseQueryHandler : IRequestHandler<YleHtmlParseQuery, Artic
         }
         return elements;
     }
-
     private static List<MarkdownElement> ParseLiveParagraph(JsonArray? items)
     {
         var elements = new List<MarkdownElement>();
@@ -414,4 +422,5 @@ public class YleHtmlParseQueryHandler : IRequestHandler<YleHtmlParseQuery, Artic
         }
         return elements;
     }
+
 }
