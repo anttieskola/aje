@@ -75,6 +75,7 @@ public class SummaryWorker : BackgroundService
         if (results.Items.Count > 0)
         {
             var article = results.Items.First();
+            _logger.LogInformation("SummaryWorker article source:{}", article.Source);
             var summary = await _sender.Send(new AiGetSummaryQuery { Context = article.GetContextForAnalysis() }, _cancellationToken);
 
             var scope = _scopeFactory.CreateScope();

@@ -1,4 +1,5 @@
-﻿using AJE.Domain.Queries;
+﻿using AJE.Domain.Ai;
+using AJE.Domain.Queries;
 using AJE.Infra.Ai;
 using Microsoft.Extensions.Logging;
 
@@ -54,7 +55,7 @@ but the effects remained low. Read more about The Baltic Sea Salt Liquid Movemen
     public async Task Ok()
     {
         var aiModel = new LlamaAiModel(new Mock<ILogger<LlamaAiModel>>().Object, CreateMockServiceProvider(), TestConstants.LlamaConfiguration, _redisFixture.Connection, true);
-        var handler = new AiGetKeyPeopleQueryHandler(aiModel);
+        var handler = new AiGetKeyPeopleQueryHandler(aiModel, new Mock<IAiLogger>().Object);
         var response = await handler.Handle(new AiGetKeyPeopleQuery { Context = _context }, CancellationToken.None);
         Assert.NotNull(response);
         Assert.NotEmpty(response);

@@ -80,6 +80,7 @@ public class KeyPeopleWorker : BackgroundService
         if (results.Items.Count > 0)
         {
             var article = results.Items.First();
+            _logger.LogInformation("KeyPeopleWorker article source:{}", article.Source);
             var keyPeople = await _sender.Send(new AiGetKeyPeopleQuery { Context = article.GetContextForAnalysis() }, _cancellationToken);
 
             var scope = _scopeFactory.CreateScope();

@@ -10,9 +10,13 @@ public class AiGetKeyPeopleQueryHandler : IRequestHandler<AiGetKeyPeopleQuery, E
 {
     private readonly KeyPeopleChatML _keyPersonsChatML = new();
     private readonly IAiModel _aiModel;
-    public AiGetKeyPeopleQueryHandler(IAiModel aiModel)
+    private readonly IAiLogger _aiLogger;
+    public AiGetKeyPeopleQueryHandler(
+        IAiModel aiModel,
+        IAiLogger aiLogger)
     {
         _aiModel = aiModel;
+        _aiLogger = aiLogger;
     }
 
     public async Task<EquatableList<KeyPerson>> Handle(AiGetKeyPeopleQuery query, CancellationToken cancellationToken)
@@ -41,6 +45,7 @@ public class AiGetKeyPeopleQueryHandler : IRequestHandler<AiGetKeyPeopleQuery, E
             {
                 tryCount++;
             }
+            _aiLogger.Log($"Failed to parse KeyPeople TryCount:{tryCount - 1}");
         }
         throw new AiException("Failed to get KeyPersons");
     }

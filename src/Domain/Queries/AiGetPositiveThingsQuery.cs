@@ -10,10 +10,14 @@ public class AiGetPositiveThingsQueryHandler : IRequestHandler<AiGetPositiveThin
 {
     private readonly PositiveThingsChatML _positiveThingsChatML = new();
     private readonly IAiModel _aiModel;
+    private readonly IAiLogger _aiLogger;
 
-    public AiGetPositiveThingsQueryHandler(IAiModel aiModel)
+    public AiGetPositiveThingsQueryHandler(
+        IAiModel aiModel,
+        IAiLogger aiLogger)
     {
         _aiModel = aiModel;
+        _aiLogger = aiLogger;
     }
 
     public async Task<EquatableList<PositiveThing>> Handle(AiGetPositiveThingsQuery query, CancellationToken cancellationToken)
@@ -42,6 +46,7 @@ public class AiGetPositiveThingsQueryHandler : IRequestHandler<AiGetPositiveThin
             {
                 tryCount++;
             }
+            _aiLogger.Log($"Failed to parse PositiveThings TryCount:{tryCount-1}");
         }
         throw new AiException("Failed to get PositiveThings");
     }

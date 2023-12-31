@@ -80,6 +80,7 @@ public class PositiveThingsWorker : BackgroundService
         if (results.Items.Count > 0)
         {
             var article = results.Items.First();
+            _logger.LogInformation("PositiveThingsWorker article source:{}", article.Source);
             var positiveThings = await _sender.Send(new AiGetPositiveThingsQuery { Context = article.GetContextForAnalysis() }, _cancellationToken);
 
             var scope = _scopeFactory.CreateScope();

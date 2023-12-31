@@ -30,13 +30,13 @@ else
         {
             <button class="p-1 border-2 rounded border-lime-600" @onclick="TogglePositiveThings">@(_showPositiveThings ? "Hide positive" : "Show positive")</button>
         }
+        @if (HasKeyPeople)
+        {
+            <button class="ml-1 p-1 border-2 rounded border-pink-600" @onclick="ToggleKeyPeople">@(_showKeyPeople ? "Hide key people" : "Show key people")</button>
+        }
         @if (HasSummary)
         {
             <button class="ml-1 p-1 border-2 rounded border-sky-600" @onclick="ToggleSummary">@(_showSummary ? "Hide summary" : "Show summary")</button>
-        }
-        @if (HasKeyPeople)
-        {
-            <button class="ml-1 p-1 border-2 rounded border-rose-600" @onclick="ToggleKeyPeople">@(_showKeyPeople ? "Hide key people" : "Show key people")</button>
         }
     </div>
 
@@ -44,28 +44,31 @@ else
         <div class="@(_showPositiveThings ? "border-lime-600 border-b-2 border-t-2" : "hidden")">
             @foreach (var positiveThing in Model.Analysis.PositiveThings)
             {
-                <h6>@positiveThing.Title</h6>
-                <p>@positiveThing.Description</p>
+                <div class="container m-1">
+                    <h6>@positiveThing.Title</h6>
+                    <p class="text-xs">@positiveThing.Description</p>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="xl:w-3/4 lg:w-4/5 md:w-5/6 xs:w-full xl:m-10 xl:ml-14 lg:m-6 lg:ml-12 md:m-4 md:ml-10 xs:m-1">
+        <div class="@(_showKeyPeople ? "border-pink-600 border-b-2 border-t-2" : "hidden")">
+            @foreach (var keyPerson in Model.Analysis.KeyPeople)
+            {
+                <div class="container m-1">
+                    <h6>@keyPerson.Name - @keyPerson.Role</h6>
+                    <p class="text-xs">@keyPerson.Intention</p>
+                </div>
             }
         </div>
     </div>
 
     <div class="xl:w-3/4 lg:w-4/5 md:w-5/6 xs:w-full xl:m-10 xl:ml-14 lg:m-6 lg:ml-12 md:m-4 md:ml-10 xs:m-1">
         <div class="@(_showSummary ? "border-sky-600 border-b-2 border-t-2" : "hidden")">
-            <pre>
+            <pre class="text-sm">
                 @PreRender(Model.Analysis.Summary)
             </pre>
-        </div>
-    </div>
-
-    <div class="xl:w-3/4 lg:w-4/5 md:w-5/6 xs:w-full xl:m-10 xl:ml-14 lg:m-6 lg:ml-12 md:m-4 md:ml-10 xs:m-1">
-        <div class="@(_showKeyPeople ? "border-lime-600 border-b-2 border-t-2" : "hidden")">
-            @foreach (var keyPerson in Model.Analysis.KeyPeople)
-            {
-                <h6>@keyPerson.Name</h6>
-                <p>@keyPerson.Role</p>
-                <p>@keyPerson.Intention</p>
-            }
         </div>
     </div>
 
@@ -78,6 +81,10 @@ else
             switch (content)
             {
                 case MarkdownHeaderElement header:
+                    if (header.Text.Trim() == Model.Title.Trim())
+                    {
+                        continue;
+                    }
                     <MarkDownHeader Element="@header" />
                     break;
                 case MarkdownTextElement text:

@@ -79,6 +79,7 @@ public class LocationsWorker : BackgroundService
         if (results.Items.Count > 0)
         {
             var article = results.Items.First();
+            _logger.LogInformation("LocationsWorker article source:{}", article.Source);
             var locations = await _sender.Send(new AiGetLocationsQuery { Context = article.GetContextForAnalysis() }, _cancellationToken);
 
             var scope = _scopeFactory.CreateScope();

@@ -3,7 +3,7 @@ namespace AJE.Infra.Redis.Indexes;
 
 public class ArticleIndex : IRedisIndex
 {
-    public int Version => 8;
+    public int Version => 9;
 
     public string Name => "idx:article";
 
@@ -24,13 +24,15 @@ public class ArticleIndex : IRedisIndex
         + "$.polarity AS polarity NUMERIC" + " "
         + "$.polarityVersion AS polarityVersion NUMERIC" + " "
         + "$.isValidForAnalysis AS isValidForAnalysis TAG" + " "
-        // analysis
+        // analysis versions
         + "$.analysis.summaryVersion AS summaryVersion NUMERIC" + " "
         + "$.analysis.positiveThingsVersion AS positiveThingsVersion NUMERIC" + " "
         + "$.analysis.locationsVersion AS locationsVersion NUMERIC" + " "
         + "$.analysis.corporationsVersion AS corporationsVersion NUMERIC" + " "
         + "$.analysis.organizationsVersion AS organizationsVersion NUMERIC" + " "
-        + "$.analysis.keyPeopleVersion AS keyPeopleVersion NUMERIC";
+        + "$.analysis.keyPeopleVersion AS keyPeopleVersion NUMERIC" + " "
+        // extracted keypeople is good source for text search
+        + "$.analysis.keyPeople[*].name AS keyPeopleName TEXT";
 
     public RedisChannel Channel =>
         new("articles", RedisChannel.PatternMode.Auto);

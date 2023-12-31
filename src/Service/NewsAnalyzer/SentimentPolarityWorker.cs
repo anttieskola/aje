@@ -75,6 +75,7 @@ public class SentimentPolarityWorker : BackgroundService
         if (results.Items.Count > 0)
         {
             var article = results.Items.First();
+            _logger.LogInformation("SentimentPolarityWorker article source:{}", article.Source);
             var polarity = await _sender.Send(new AiGetSentimentPolarityQuery { Context = article.GetContextForAnalysis() }, _cancellationToken);
 
             var scope = _scopeFactory.CreateScope();

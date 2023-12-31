@@ -79,6 +79,7 @@ public class OrganizationsWorker : BackgroundService
         if (results.Items.Count > 0)
         {
             var article = results.Items.First();
+            _logger.LogInformation("OrganizationsWorker article source:{}", article.Source);
             var organizations = await _sender.Send(new AiGetOrganizationsQuery { Context = article.GetContextForAnalysis() }, _cancellationToken);
 
             var scope = _scopeFactory.CreateScope();

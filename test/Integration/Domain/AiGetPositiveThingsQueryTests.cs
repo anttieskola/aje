@@ -1,4 +1,5 @@
-﻿using AJE.Domain.Queries;
+﻿using AJE.Domain.Ai;
+using AJE.Domain.Queries;
 using AJE.Infra.Ai;
 using Microsoft.Extensions.Logging;
 
@@ -35,7 +36,7 @@ public class AiGetPositiveThingsQueryTests : IClassFixture<HttpClientFixture>, I
     public async Task Ok()
     {
         var aiModel = new LlamaAiModel(new Mock<ILogger<LlamaAiModel>>().Object, CreateMockServiceProvider(), TestConstants.LlamaConfiguration, _redisFixture.Connection, true);
-        var handler = new AiGetPositiveThingsQueryHandler(aiModel);
+        var handler = new AiGetPositiveThingsQueryHandler(aiModel, new Mock<IAiLogger>().Object);
         var response = await handler.Handle(new AiGetPositiveThingsQuery { Context = "I like cats\nI love dogs\n" }, CancellationToken.None);
         Assert.NotNull(response);
         Assert.NotEmpty(response);
@@ -45,7 +46,7 @@ public class AiGetPositiveThingsQueryTests : IClassFixture<HttpClientFixture>, I
     public async Task Hate()
     {
         var aiModel = new LlamaAiModel(new Mock<ILogger<LlamaAiModel>>().Object, CreateMockServiceProvider(), TestConstants.LlamaConfiguration, _redisFixture.Connection, true);
-        var handler = new AiGetPositiveThingsQueryHandler(aiModel);
+        var handler = new AiGetPositiveThingsQueryHandler(aiModel, new Mock<IAiLogger>().Object);
         var response = await handler.Handle(new AiGetPositiveThingsQuery { Context = "I hate everything" }, CancellationToken.None);
         Assert.NotNull(response);
         Assert.NotEmpty(response);
