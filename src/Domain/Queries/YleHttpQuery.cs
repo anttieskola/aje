@@ -39,8 +39,8 @@ public class YleHttpQueryHandler : IRequestHandler<YleHttpQuery, string>
         var request = new HttpRequestMessage(HttpMethod.Get, uri);
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("text/html"));
         request.Headers.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
-        request.Headers.Add("Cache-Control:", "no-cache");
-        request.Headers.Add("Dnt:", "1");
+        request.Headers.Add("Cache-Control", "no-cache");
+        request.Headers.Add("Dnt", "1");
         request.Headers.Add("Pragma:", "no-cache");
         request.Headers.Add("Sec-Ch-Ua", "\"Not A(Brand\";v=\"99\", \"Microsoft Edge\";v=\"121\", \"Chromium\";v=\"121\"");
         request.Headers.Add("Sec-Ch-Ua-Mobile", "?0");
