@@ -39,7 +39,10 @@ public class YleHttpQueryHandler : IRequestHandler<YleHttpQuery, string>
         var request = new HttpRequestMessage(HttpMethod.Get, uri);
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("text/html"));
         request.Headers.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
-        request.Headers.Add("Sec-Ch-Ua", "\"Chromium\";v=\"118\", \"Microsoft Edge\";v=\"118\", \"Not=A?Brand\";v=\"99\"");
+        request.Headers.Add("Cache-Control:", "no-cache");
+        request.Headers.Add("Dnt:", "1");
+        request.Headers.Add("Pragma:", "no-cache");
+        request.Headers.Add("Sec-Ch-Ua", "\"Not A(Brand\";v=\"99\", \"Microsoft Edge\";v=\"121\", \"Chromium\";v=\"121\"");
         request.Headers.Add("Sec-Ch-Ua-Mobile", "?0");
         request.Headers.Add("Sec-Ch-Ua-Platform", "\"Linux\"");
         request.Headers.Add("Sec-Fetch-Dest", "document");
@@ -47,7 +50,7 @@ public class YleHttpQueryHandler : IRequestHandler<YleHttpQuery, string>
         request.Headers.Add("Sec-Fetch-Site", "none");
         request.Headers.Add("Sec-Fetch-User", "?1");
         request.Headers.Add("Upgrade-Insecure-Requests", "1");
-        request.Headers.Add("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.2088.33");
+        request.Headers.Add("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 Edg/121.0.0.0");
         return request;
     }
 }
