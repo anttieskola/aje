@@ -53,6 +53,8 @@ public class YleWorker : BackgroundService
         {
             // parse -> publish
             var html = await _sender.Send(new YleGetQuery { Uri = link }, _stoppingToken);
+
+            _logger.LogInformation("Publishing:{}", link);
             var article = await _sender.Send(new YleHtmlParseQuery { Html = html }, _stoppingToken);
             article.Id = await _sender.Send(new GuidGetQuery { Category = _guidCategory, UniqueString = link.ToString() }, _stoppingToken);
             await HandleArticlePublish(article);
