@@ -10,18 +10,52 @@
     </div>
     <div>
         <div class="container w-11/12 mt-2 p-2 rounded-lg rounded-bl-none bg-slate-800 ">
-            <textarea id="@(GenerateInputId())" class="ml-1 w-full text-sm" spellcheck="false" disabled rows="6"
-                cols="50">@AiChatInteractionEntry.Input</textarea>
+            @if (_editInput)
+                {
+                    <textarea id="@(GenerateInputId())" class="ml-1 w-full text-sm" spellcheck="false" rows="6"
+                        cols="50">@AiChatInteractionEntry.Input</textarea>
+                    <button>
+                        <Icon Name="x-square" Size="@_iconSize" />
+                    </button>
+                    <button>
+                        <Icon Name="save" Size="@_iconSize" />
+                    </button>
+                }
+                else
+                {
+                    <textarea id="@(GenerateInputId())" class="ml-1 w-full text-sm" spellcheck="false" disabled rows="6"
+                        cols="50">@AiChatInteractionEntry.Input</textarea>
+                    <button @onclick="ToggleEditInput">
+                        <Icon Name="pencil" Size="@_iconSize" />
+                    </button>
+                }
+            </div>
         </div>
-    </div>
 
-    <div class="flex justify-end">
-        <div class="container w-11/12 mt-2 p-2 rounded-lg rounded-br-none bg-slate-800">
-            <textarea id="@GenerateOutputId()" class="mr-1 w-full text-sm" spellcheck="false" disabled
-                cols="@_outputCols" rows="@_outputRows">@AiChatInteractionEntry.Output</textarea>
+        <div class="flex justify-end">
+            <div class="container w-11/12 mt-2 p-2 rounded-lg rounded-br-none bg-slate-800">
+                @if (_editOutput)
+                {
+                    <textarea id="@GenerateOutputId()" class="mr-1 w-full text-sm" spellcheck="false" cols="@_outputCols"
+                        rows="@_outputRows">@AiChatInteractionEntry.Output</textarea>
+                    <button>
+                        <Icon Name="x-square" Size="@_iconSize" />
+                    </button>
+                    <button>
+                        <Icon Name="save" Size="@_iconSize" />
+                    </button>
+                }
+                else
+                {
+                    <textarea id="@GenerateOutputId()" class="mr-1 w-full text-sm" spellcheck="false" disabled
+                        cols="@_outputCols" rows="@_outputRows">@AiChatInteractionEntry.Output</textarea>
+                    <button @onclick="ToggleEditOutput">
+                        <Icon Name="pencil" Size="@_iconSize" />
+                    </button>
+                }
+            </div>
         </div>
     </div>
-</div>
 }
 else
 {
@@ -33,6 +67,11 @@ else
     [Parameter]
     public AiChatInteractionEntry? AiChatInteractionEntry { get; set; }
 
+    bool _editInput = false;
+    void ToggleEditInput() => _editInput = !_editInput;
+    bool _editOutput = false;
+    void ToggleEditOutput() => _editOutput = !_editOutput;
+    int _iconSize = 24;
     int _outputRows = 2;
     int _outputCols = 50;
 
