@@ -212,8 +212,8 @@
             }
         }
 
-        // set default polarity to positive
-        if (_polarity == null && _language == null && _offset == 0)
+        // when all null set default polarity to positive
+        if (language == null && polarity == null && stringOffset == null)
         {
             _polarity = "Positive";
             var newUri = $"{uri}?polarity=Positive";
