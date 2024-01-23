@@ -15,7 +15,7 @@ public record AiChat
     public required DateTimeOffset StartTimestamp { get; init; }
 
     [JsonPropertyName("interactions")]
-    public EquatableList<AiChatInteractionEntry> Interactions { get; init; } = EquatableList<AiChatInteractionEntry>.Empty;
+    public EquatableList<AiChatInteractionEntry> Interactions { get; init; } = [];
 }
 
 public record AiChatInteractionEntry

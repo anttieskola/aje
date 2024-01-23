@@ -14,6 +14,8 @@ public static class DependencyInjection
         services.AddSingleton<IArticleEventHandler, ArticleEventHandler>();
         services.AddSingleton<IAiChatRepository, AiChatRepository>();
         services.AddSingleton<IAiChatEventHandler, AiChatEventHandler>();
+        services.AddSingleton<IAiStoryRepository, AiStoryRepository>();
+        services.AddSingleton<IAiStoryEventHandler, AiStoryEventHandler>();
         services.AddSingleton<ITrendRepository, TrendRepository>();
         services.AddSingleton<IPromptStudioRepository, PromptStudioRepository>();
         services.AddSingleton<IPromptStudioEventHandler, PromptStudioEventHandler>();

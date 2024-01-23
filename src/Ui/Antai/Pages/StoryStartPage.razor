@@ -1,29 +1,29 @@
-﻿@page "/chat"
+﻿@page "/story"
 @inject NavigationManager NavigationManager
 @inject ISender Sender
 
-<PageTitle>Antai - Chat start</PageTitle>
+<PageTitle>Antai - Story start</PageTitle>
 
 <p>@_message</p>
 
 @code {
 
-    private string _message = "Creating new chat...";
+    private string _message = "Creating new story...";
     protected override async Task OnInitializedAsync()
     {
         // using delays to present what is happening to the user
         await Task.Delay(TimeSpan.FromMilliseconds(200));
-        var chat = await Sender.Send(new AiChatStartCommand { Id = Guid.NewGuid() });
-        if (chat != null)
+        var story = await Sender.Send(new AiStoryStartCommand { StoryId = Guid.NewGuid() });
+        if (story != null)
         {
-            _message = $"Chat created with id:{chat.ChatId}. Redirecting...";
+            _message = $"Story created with id:{story.StoryId}. Redirecting...";
             StateHasChanged();
             await Task.Delay(TimeSpan.FromMilliseconds(200));
-            NavigationManager.NavigateTo($"/chat/{chat.ChatId}");
+            NavigationManager.NavigateTo($"/story/{story.StoryId}");
         }
         else
         {
-            _message = "Error creating chat";
+            _message = "Error creating story";
         }
     }
 }
