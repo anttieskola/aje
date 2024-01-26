@@ -99,7 +99,7 @@ public class LlamaAiModel : IAiModel
                 });
                 _granted.TryRemove(id, out _);
             }
-            _logger.LogInformation("Done\t{ResourceName}\t{id}", server.ResourceName, id);
+            //_logger.LogInformation("Done\t{ResourceName}\t{id}", server.ResourceName, id);
             return response;
         }
         throw new AiException("Request cancelled");
@@ -142,7 +142,7 @@ public class LlamaAiModel : IAiModel
                 });
                 _granted.TryRemove(id, out _);
             }
-            _logger.LogInformation("Done\t{ResourceName}\t{id}", server.ResourceName, id);
+            //_logger.LogInformation("Done\t{ResourceName}\t{id}", server.ResourceName, id);
             return response;
         }
         throw new AiException("Request cancelled");
@@ -187,7 +187,7 @@ public class LlamaAiModel : IAiModel
                 });
                 _granted.TryRemove(id, out _);
             }
-            _logger.LogInformation("Done\t{ResourceName}\t{id}", server.ResourceName, id);
+            //_logger.LogInformation("Done\t{ResourceName}\t{id}", server.ResourceName, id);
             return response;
         }
         throw new AiException("Request cancelled");
@@ -231,7 +231,7 @@ public class LlamaAiModel : IAiModel
                 });
                 _granted.TryRemove(id, out _);
             }
-            _logger.LogInformation("Done\t{ResourceName}\t{id}", server.ResourceName, id);
+            //_logger.LogInformation("Done\t{ResourceName}\t{id}", server.ResourceName, id);
             return response;
         }
         throw new AiException("Request cancelled");
