@@ -22,7 +22,8 @@ After=network.target
 Type=simple
 Restart=always
 WorkingDirectory=/usr/local/bin/LibreTranslate/
-ExecStart=/usr/bin/docker run --rm -p 5888:5888 -v lt-local:/home/libretranslate/.local libretranslate/libretranslate --port 5888
+ExecStart=/usr/bin/docker run --name libretranslate --rm -p 5888:5888 -v lt-local:/home/libretranslate/.local libretranslate/libretranslate --port 5888
+ExecStop=/usr/bin/docker stop libretranslate
 User=antti
 
 SyslogIdentifier=LibreTranslate
