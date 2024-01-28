@@ -21,10 +21,8 @@ After=network.target
 [Service]
 Type=simple
 Restart=always
-# Note working directory is a must
-# otherwiser process can't find resources -> odd errors
 WorkingDirectory=/usr/local/bin/LibreTranslate/
-ExecStart=/usr/local/bin/LibreTranslate/run.sh --port 5888
+ExecStart=/usr/bin/docker run -ti --rm -p 5888:5888 -v lt-local:/home/libretranslate/.local libretranslate/libretranslate --port 5888
 User=antti
 
 SyslogIdentifier=LibreTranslate
