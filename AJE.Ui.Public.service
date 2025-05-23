@@ -19,7 +19,7 @@ Description=AJE.Ui.PublicNews
 After=network.target
 
 [Service]
-Type=simple   
+Type=simple
 Restart=always
 # Note working directory is a must
 # otherwiser process can't find resources -> odd errors
@@ -28,8 +28,8 @@ ExecStart=/usr/local/bin/AJE.Ui.Public/AJE.Ui.PublicNews
 User=antti
 
 SyslogIdentifier=AJE.Ui.PublicNews
-StandardOutput=syslog
-StandardError=syslog
+StandardOutput=journal
+StandardError=journal
 
 [Install]
 WantedBy=multi-user.target

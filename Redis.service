@@ -28,8 +28,8 @@ ExecStart=/usr/local/bin/Redis/redis-server redis.conf
 User=antti
 
 SyslogIdentifier=Redis
-StandardOutput=syslog
-StandardError=syslog
+StandardOutput=journal
+StandardError=journal
 
 [Install]
 WantedBy=multi-user.target

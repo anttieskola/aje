@@ -3,7 +3,7 @@ namespace AJE.Infra.Redis.Indexes;
 
 public class AiChatIndex : IRedisIndex
 {
-    public int Version => 1;
+    public int Version => 2;
 
     public string Name => "idx:aichat";
 
@@ -11,7 +11,7 @@ public class AiChatIndex : IRedisIndex
 
     public string RedisId(string itemId) => $"{Prefix}{itemId}";
 
-    public string Schema => "$.id AS id TAG";
+    public string Schema => "$.chatId AS chatId TAG";
 
     public RedisChannel Channel =>
         new("aichat", RedisChannel.PatternMode.Auto);

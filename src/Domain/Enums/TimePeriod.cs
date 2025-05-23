@@ -1,4 +1,4 @@
-﻿namespace AJE.Domain;
+﻿namespace AJE.Domain.Enums;
 
 public enum TimePeriod
 {

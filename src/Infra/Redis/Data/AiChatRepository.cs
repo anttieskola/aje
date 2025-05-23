@@ -33,26 +33,6 @@ public class AiChatRepository : IAiChatRepository
         return chat;
     }
 
-    public async Task<AiChat> UpdateInteractionEntryAsync(Guid chatId, AiChatInteractionEntry entry)
-    {
-        var chat = await GetAsync(chatId);
-        var current = chat.Interactions.Single(e => e.InteractionId == entry.InteractionId);
-        var index = chat.Interactions.IndexOf(current);
-        if (index == -1)
-            throw new KeyNotFoundException($"interaction entry with id:{entry.InteractionId} not found in AiChat with id:{chatId}");
-
-        // JSON.ARRPOP
-        var db = _connection.GetDatabase();
-        var redisId = _index.RedisId(chatId.ToString());
-        var result = await db.ExecuteAsync("JSON.ARRPOP", redisId, $"$.interactions[{index}]");
-
-        // JSON.ARRINSERT (arrays new size)
-        result = await db.ExecuteAsync("JSON.ARRINSERT", redisId, $"$.interactions[{index}]", JsonSerializer.Serialize(entry));
-
-        _logger.LogTrace("Updated interaction entry with id:{} in AiChat with id:{}", entry.InteractionId, chatId);
-        return await GetAsync(chatId);
-    }
-
     public async Task<AiChat> AddInteractionEntryAsync(Guid chatId, AiChatInteractionEntry entry)
     {
         var db = _connection.GetDatabase();

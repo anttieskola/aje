@@ -1,0 +1,92 @@
+﻿@page "/story/{StoryId:guid}"
+@inject NavigationManager NavigationManager
+@inject ISender Sender
+@inject IConnectionMultiplexer Connection
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Antai - Story - @StoryId</PageTitle>
+
+@if (_story != null)
+{
+    <label for="storyTitle">Story title</label>
+    <input type="text" id="storyTitle" value="@_story.Title" @onchange="ChangeTitle" />
+
+    <label for="storyChapter">Chapter</label>
+    <select id="storyChapter" @onchange="ChangeChapter">
+    <option value="">Select a chapter</option>
+    @foreach (var chapter in _story.Chapters)
+        {
+            <option value="@chapter.ChapterId">@chapter.Title</option>
+        }
+    </select>
+
+    <label for="chapterTitle">Chapter title</label>
+    <input type="text" id="chapterTitle" @bind="_chapterTitle" />
+    <button type="button" @onclick="AddChapter">Add chapter</button>
+}
+
+@code {
+
+    [Parameter]
+    public Guid StoryId { get; set; }
+
+    private AiStoryIndex _index = new();
+    private AiStory? _story;
+    private Guid? _chapterId;
+
+    private async Task ChangeTitle(ChangeEventArgs e)
+    {
+        var title = e.Value?.ToString();
+        if (title != null)
+        {
+            await Sender.Send(new AiStoryUpdateTitleCommand { StoryId = StoryId, Title = title });
+        }
+    }
+
+    private async Task ChangeChapter(ChangeEventArgs e)
+    {
+        var chapterId = e.Value?.ToString();
+    }
+
+    private string _chapterTitle = string.Empty;
+
+    private async Task AddChapter()
+    {
+        if (_chapterTitle != string.Empty)
+        {
+            await Sender.Send(new AiStoryChapterAddCommand { StoryId = StoryId, Title = _chapterTitle });
+        }
+    }
+
+    private void OnMessage(RedisChannel channel, RedisValue value)
+    {
+        if (value.HasValue)
+        {
+            var storyEvent = JsonSerializer.Deserialize<AiStoryEvent>(value.ToString());
+            if (storyEvent != null && storyEvent.StoryId == StoryId)
+            {
+                switch (storyEvent)
+                {
+                    case AiStoryTitleUpdatedEvent titleEvent:
+                        _story!.Title = titleEvent.Title;
+                        InvokeAsync(StateHasChanged);
+                        break;
+                    case AiStoryChapterAddedEvent chapterEvent:
+                        _story!.Chapters.Add(new AiStoryChapter { ChapterId = chapterEvent.ChapterId, Title = chapterEvent.Title });
+                        InvokeAsync(StateHasChanged);
+                        break;
+                }
+            }
+        }
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        await Connection.GetSubscriber().SubscribeAsync(_index.Channel, OnMessage);
+        await Refresh();
+    }
+
+    private async Task Refresh()
+    {
+        _story = await Sender.Send(new AiStoryGetQuery { StoryId = StoryId });
+    }
+}

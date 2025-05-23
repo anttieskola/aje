@@ -1,4 +1,4 @@
-﻿namespace AJE.Domain;
+﻿namespace AJE.Domain.Ai;
 
 /// <summary>
 /// Task might be useless but lets leave it if we want to do something async in the future

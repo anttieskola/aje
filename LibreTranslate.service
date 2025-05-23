@@ -1,0 +1,34 @@
+# /etc/systemd/system/LibreTranslate.service
+
+# install
+# sudo systemctl daemon-reload
+# sudo systemctl enable LibreTranslate.service
+# sudo systemctl start LibreTranslate.service
+
+# removal
+# sudo systemctl stop LibreTranslate.service
+# sudo systemctl disable LibreTranslate.service
+# remove the service file
+# reload daemon
+
+# full log you can see with
+# journalctl -u LibreTranslate.service
+
+[Unit]
+Description=LibreTranslate
+After=network.target
+
+[Service]
+Type=simple
+Restart=always
+WorkingDirectory=/usr/local/bin/LibreTranslate/
+ExecStart=/usr/bin/docker run --name libretranslate --rm -p 5888:5888 -v lt-local:/home/libretranslate/.local libretranslate/libretranslate --port 5888
+ExecStop=/usr/bin/docker stop libretranslate
+User=antti
+
+SyslogIdentifier=LibreTranslate
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

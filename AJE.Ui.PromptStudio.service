@@ -1,0 +1,36 @@
+# /etc/systemd/system/AJE.Ui.PromptStudio.service
+
+# install
+# sudo systemctl daemon-reload
+# sudo systemctl enable AJE.Ui.PromptStudio.service
+# sudo systemctl start AJE.Ui.PromptStudio.service
+
+# removal
+# sudo systemctl stop AJE.Ui.PromptStudio.service
+# sudo systemctl disable AJE.Ui.PromptStudio.service
+# remove the service file
+# reload daemon
+
+# full log you can see with
+# journalctl -u AJE.Ui.PromptStudio.service
+
+[Unit]
+Description=AJE.Ui.PromptStudio
+After=network.target
+
+[Service]
+Type=simple
+Restart=always
+# Note working directory is a must
+# otherwiser process can't find resources -> odd errors
+WorkingDirectory=/usr/local/bin/AJE.Ui.PromptStudio
+ExecStart=/usr/local/bin/AJE.Ui.PromptStudio/AJE.Ui.PromptStudio
+User=antti
+
+SyslogIdentifier=AJE.Ui.PromptStudio
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+

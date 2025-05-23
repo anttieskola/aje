@@ -74,6 +74,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Manager", "src\Service\Mana
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Translate", "src\Infra\Translate\Translate.csproj", "{930C0471-F183-4ECB-9F37-A3F55E78AF49}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Database", "src\Infra\Database\Database.csproj", "{4B56328E-DC9B-4B1A-8459-0E9AE8F837F7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -148,6 +150,10 @@ Global
 		{930C0471-F183-4ECB-9F37-A3F55E78AF49}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{930C0471-F183-4ECB-9F37-A3F55E78AF49}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{930C0471-F183-4ECB-9F37-A3F55E78AF49}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4B56328E-DC9B-4B1A-8459-0E9AE8F837F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B56328E-DC9B-4B1A-8459-0E9AE8F837F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B56328E-DC9B-4B1A-8459-0E9AE8F837F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B56328E-DC9B-4B1A-8459-0E9AE8F837F7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -169,6 +175,7 @@ Global
 		{611F3140-923C-4F53-B906-3904E8D68EFA} = {485DBA67-D347-4513-8371-F1F22EE827FB}
 		{75A14589-F7FC-4BDD-8D18-33DAAB20890D} = {1F2CC064-FF62-4052-B834-31EF506C62F8}
 		{930C0471-F183-4ECB-9F37-A3F55E78AF49} = {485DBA67-D347-4513-8371-F1F22EE827FB}
+		{4B56328E-DC9B-4B1A-8459-0E9AE8F837F7} = {485DBA67-D347-4513-8371-F1F22EE827FB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7135E4BF-2488-4C17-B543-559F024C76FA}
