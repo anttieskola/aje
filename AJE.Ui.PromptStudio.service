@@ -28,8 +28,8 @@ ExecStart=/usr/local/bin/AJE.Ui.PromptStudio/AJE.Ui.PromptStudio
 User=antti
 
 SyslogIdentifier=AJE.Ui.PromptStudio
-StandardOutput=syslog
-StandardError=syslog
+StandardOutput=journal
+StandardError=journal
 
 [Install]
 WantedBy=multi-user.target

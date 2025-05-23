@@ -27,8 +27,8 @@ ExecStop=/usr/bin/docker stop libretranslate
 User=antti
 
 SyslogIdentifier=LibreTranslate
-StandardOutput=syslog
-StandardError=syslog
+StandardOutput=journal
+StandardError=journal
 
 [Install]
 WantedBy=multi-user.target

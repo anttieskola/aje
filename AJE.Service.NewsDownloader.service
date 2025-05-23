@@ -28,8 +28,8 @@ ExecStart=/usr/local/bin/AJE.Service.NewsDownloader/AJE.Service.NewsDownloader
 User=antti
 
 SyslogIdentifier=AJE.Service.NewsDownloader
-StandardOutput=syslog
-StandardError=syslog
+StandardOutput=journal
+StandardError=journal
 
 [Install]
 WantedBy=multi-user.target

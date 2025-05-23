@@ -28,8 +28,8 @@ ExecStart=/usr/local/bin/Llama/llama.sh
 User=antti
 
 SyslogIdentifier=Llama
-StandardOutput=syslog
-StandardError=syslog
+StandardOutput=journal
+StandardError=journal
 
 [Install]
 WantedBy=multi-user.target
