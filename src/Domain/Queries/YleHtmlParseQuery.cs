@@ -10,32 +10,24 @@ public class YleHtmlParseQueryHandler : IRequestHandler<YleHtmlParseQuery, Artic
 {
     public Task<Article> Handle(YleHtmlParseQuery query, CancellationToken cancellationToken)
     {
-        var js = ParseJavaScript(query.Html);
-        var state = ParseStateString(js);
+        string js = ParseJavaScript(query.Html);
+        string state = ParseStateString(js);
         var article = ParseJson(state);
         return Task.FromResult(article);
     }
 
     private static string ParseJavaScript(string content)
     {
-        var fi = content.LastIndexOf("<script type=\"text/javascript\">");
-        var li = content.LastIndexOf("</script>");
-        if (fi != -1 && li != -1 && li > fi)
-        {
-            return content[fi..(li + 9)];
-        }
-        throw new ParsingException("unable to find last script tag");
+        int fi = content.LastIndexOf("<script type=\"text/javascript\" id=\"ukko-initial-state\">");
+        int li = content.LastIndexOf("</script>");
+        return fi != -1 && li != -1 && li > fi ? content[fi..(li + 9)] : throw new ParsingException("unable to find last script tag");
     }
 
     private static string ParseStateString(string javascript)
     {
-        var fi = javascript.IndexOf("__INITIAL__STATE__=");
-        var li = javascript.IndexOf("</script>");
-        if (fi != -1 && li != -1 && li > fi)
-        {
-            return javascript[(fi + 19)..li];
-        }
-        throw new ParsingException("unable to find initial state");
+        int fi = javascript.IndexOf("__INITIAL__STATE__=");
+        int li = javascript.IndexOf("</script>");
+        return fi != -1 && li != -1 && li > fi ? javascript[(fi + 19)..li] : throw new ParsingException("unable to find initial state");
     }
 
     private static Article ParseJson(string state)
@@ -54,14 +46,14 @@ public class YleHtmlParseQueryHandler : IRequestHandler<YleHtmlParseQuery, Artic
 
     private static Article ParseArticle(JsonNode article)
     {
-        var fullUrl = article["fullUrl"]?.ToString();
+        string? fullUrl = article["fullUrl"]?.ToString();
         if (fullUrl == null)
         {
             var url = article["url"]?.AsObject();
             fullUrl = url?["full"]?.ToString() ?? throw new ParsingException("no fullUrl");
         }
-        var dateJsonModified = (article["dateJsonModified"]?.ToString()) ?? throw new ParsingException("no date");
-        var titleElement = article["title"]?.ToString();
+        string dateJsonModified = (article["dateJsonModified"]?.ToString()) ?? throw new ParsingException("no date");
+        string? titleElement = article["title"]?.ToString();
         if (titleElement == null)
         {
             var headline = article["headline"]?.AsObject();
@@ -70,7 +62,7 @@ public class YleHtmlParseQueryHandler : IRequestHandler<YleHtmlParseQuery, Artic
         var languageElement = article["language"] ?? throw new ParsingException("no language");
         var contentArray = (article["content"]?.AsArray()) ?? throw new ParsingException("no content array");
         var live = article["live"]?.AsObject(); // only found in live news
-        var isLiveNews = IsLiveNews(contentArray);
+        bool isLiveNews = IsLiveNews(contentArray);
         var elements = new EquatableList<MarkdownElement>();
         if (!isLiveNews)
         {
@@ -95,23 +87,21 @@ public class YleHtmlParseQueryHandler : IRequestHandler<YleHtmlParseQuery, Artic
                 Text = lead.ToString(),
             });
         }
-        if (elements.Count == 0)
-        {
-            throw new ParsingException("empty content array");
-        }
-        return new Article
-        {
-            Source = fullUrl,
-            Category = ArticleCategory.NEWS,
-            IsLiveNews = isLiveNews,
-            Polarity = Polarity.Unknown,
-            PolarityVersion = 0,
-            // timestamps have no milliseconds so we need to parse it manually
-            Modified = DateTimeOffset.ParseExact(dateJsonModified, "yyyy-MM-ddTHH:mm:sszzz", new CultureInfo("fi-FI")).UtcTicks,
-            Title = titleElement.ToString(),
-            Language = languageElement.ToString(),
-            Content = elements
-        };
+        return elements.Count == 0
+            ? throw new ParsingException("empty content array")
+            : new Article
+            {
+                Source = fullUrl,
+                Category = ArticleCategory.NEWS,
+                IsLiveNews = isLiveNews,
+                Polarity = Polarity.Unknown,
+                PolarityVersion = 0,
+                // timestamps have no milliseconds so we need to parse it manually
+                Modified = DateTimeOffset.ParseExact(dateJsonModified, "yyyy-MM-ddTHH:mm:sszzz", new CultureInfo("fi-FI")).UtcTicks,
+                Title = titleElement.ToString(),
+                Language = languageElement.ToString(),
+                Content = elements
+            };
     }
 
     private static List<MarkdownElement> ParseContent(JsonArray contentArray)
@@ -121,7 +111,7 @@ public class YleHtmlParseQueryHandler : IRequestHandler<YleHtmlParseQuery, Artic
         {
             if (c != null)
             {
-                var type = c["type"]?.ToString();
+                string? type = c["type"]?.ToString();
                 switch (type)
                 {
                     case "FeatureBlock":
@@ -140,8 +130,8 @@ public class YleHtmlParseQueryHandler : IRequestHandler<YleHtmlParseQuery, Artic
                     case "HeadingBlock":
                     case "heading":
                         {
-                            var level = (int?)c["level"];
-                            var content = (string?)c["text"];
+                            int? level = (int?)c["level"];
+                            string? content = (string?)c["text"];
                             if (level != null && content != null)
                             {
                                 elements.Add(new MarkdownHeaderElement
@@ -154,7 +144,7 @@ public class YleHtmlParseQueryHandler : IRequestHandler<YleHtmlParseQuery, Artic
                         break;
                     case "TextBlock":
                         {
-                            var content = (string?)c["markdown"];
+                            string? content = (string?)c["markdown"];
                             if (content != null)
                             {
                                 elements.Add(new MarkdownTextElement
@@ -166,7 +156,7 @@ public class YleHtmlParseQueryHandler : IRequestHandler<YleHtmlParseQuery, Artic
                         break;
                     case "text":
                         {
-                            var content = (string?)c["text"];
+                            string? content = (string?)c["text"];
                             if (content != null)
                             {
                                 elements.Add(new MarkdownTextElement
@@ -184,7 +174,7 @@ public class YleHtmlParseQueryHandler : IRequestHandler<YleHtmlParseQuery, Artic
                                 var text = new StringBuilder();
                                 foreach (var item in items)
                                 {
-                                    text.AppendLine($"- {item}");
+                                    _ = text.AppendLine($"- {item}");
                                 }
                                 elements.Add(new MarkdownTextElement
                                 {
@@ -208,7 +198,7 @@ public class YleHtmlParseQueryHandler : IRequestHandler<YleHtmlParseQuery, Artic
         {
             if (page != null)
             {
-                var type = page["type"]?.ToString();
+                string? type = page["type"]?.ToString();
                 switch (type)
                 {
                     case "header":
@@ -220,10 +210,10 @@ public class YleHtmlParseQueryHandler : IRequestHandler<YleHtmlParseQuery, Artic
                                 {
                                     if (c != null)
                                     {
-                                        var contentType = c["type"]?.ToString();
+                                        string? contentType = c["type"]?.ToString();
                                         if (contentType == "HeadingBlock")
                                         {
-                                            var text = (string?)c["text"];
+                                            string? text = (string?)c["text"];
                                             if (text != null)
                                             {
                                                 elements.Add(new MarkdownHeaderElement
@@ -247,10 +237,10 @@ public class YleHtmlParseQueryHandler : IRequestHandler<YleHtmlParseQuery, Artic
                                 {
                                     if (c != null)
                                     {
-                                        var contentType = c["type"]?.ToString();
+                                        string? contentType = c["type"]?.ToString();
                                         if (contentType == "TextBlock")
                                         {
-                                            var text = (string?)c["text"];
+                                            string? text = (string?)c["text"];
                                             if (text != null)
                                             {
                                                 elements.Add(new MarkdownTextElement
@@ -274,16 +264,12 @@ public class YleHtmlParseQueryHandler : IRequestHandler<YleHtmlParseQuery, Artic
 
     private static bool IsLiveNews(JsonArray contentArray)
     {
-        if (contentArray.Any(c => c != null && (c["type"]?.ToString() == "LivefeedBlock" || c["type"]?.ToString() == "livefeed")))
-        {
-            return true;
-        }
-        return false;
+        return contentArray.Any(c => c != null && (c["type"]?.ToString() == "LivefeedBlock" || c["type"]?.ToString() == "livefeed"));
     }
 
     private static bool ParseLiveStatus(JsonObject liveObject)
     {
-        var value = (bool?)liveObject["livemode"];
+        bool? value = (bool?)liveObject["livemode"];
         return value ?? throw new ParsingException("no livemode");
     }
 
@@ -298,7 +284,9 @@ public class YleHtmlParseQueryHandler : IRequestHandler<YleHtmlParseQuery, Artic
                 if (live != null && live.AsObject().TryGetPropertyValue("features", out JsonNode? features))
                 {
                     if (features != null && features.AsArray() != null)
+                    {
                         elements.AddRange(ParseLivePosts(features.AsArray()));
+                    }
                 }
             }
         }
@@ -306,7 +294,9 @@ public class YleHtmlParseQueryHandler : IRequestHandler<YleHtmlParseQuery, Artic
         else if (liveObject.TryGetPropertyValue("features", out JsonNode? features))
         {
             if (features != null && features.AsArray() != null)
+            {
                 elements.AddRange(ParseLivePosts(features.AsArray()));
+            }
         }
         return elements;
     }
@@ -326,7 +316,7 @@ public class YleHtmlParseQueryHandler : IRequestHandler<YleHtmlParseQuery, Artic
                         {
                             if (updatedAt != null && !string.IsNullOrEmpty(updatedAt.ToString()))
                             {
-                                var dateString = updatedAt.ToString();
+                                string dateString = updatedAt.ToString();
                                 var date = DateTime.Parse(dateString, null, DateTimeStyles.AdjustToUniversal);
                                 var finlandZone = TimeZoneInfo.FindSystemTimeZoneById("E. Europe Standard Time");
                                 var offSet = finlandZone.GetUtcOffset(date);
@@ -343,7 +333,9 @@ public class YleHtmlParseQueryHandler : IRequestHandler<YleHtmlParseQuery, Artic
                             if (content != null && content.AsObject().TryGetPropertyValue("blocks", out JsonNode? blocks))
                             {
                                 if (blocks?.AsArray() != null)
+                                {
                                     elements.AddRange(ParseLiveBlocks(blocks.AsArray()));
+                                }
                             }
                         }
                     }
@@ -359,11 +351,15 @@ public class YleHtmlParseQueryHandler : IRequestHandler<YleHtmlParseQuery, Artic
         foreach (var block in blocks)
         {
             if (block == null)
+            {
                 continue;
+            }
 
-            var type = (string?)block["type"];
+            string? type = (string?)block["type"];
             if (type == null)
+            {
                 continue;
+            }
 
             switch (type)
             {
@@ -393,18 +389,24 @@ public class YleHtmlParseQueryHandler : IRequestHandler<YleHtmlParseQuery, Artic
     {
         var elements = new List<MarkdownElement>();
         if (items == null)
+        {
             return elements;
+        }
 
         foreach (var item in items)
         {
             if (item == null)
+            {
                 continue;
+            }
 
-            var type = (string?)item["type"];
+            string? type = (string?)item["type"];
             if (type == null)
+            {
                 continue;
+            }
 
-            var bold = false;
+            bool bold = false;
             var styling = item["styling"]?.AsObject();
             if (styling != null)
             {
@@ -412,7 +414,7 @@ public class YleHtmlParseQueryHandler : IRequestHandler<YleHtmlParseQuery, Artic
             }
             if (type == "text")
             {
-                var text = item["text"]?.ToString() ?? string.Empty; // (content can have errors)
+                string text = item["text"]?.ToString() ?? string.Empty; // (content can have errors)
                 elements.Add(new MarkdownTextElement
                 {
                     Text = bold ? $"**{text}**" : text,
